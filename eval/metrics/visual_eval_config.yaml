@@ -1,0 +1,90 @@
+# 可视化评测配置：以肉眼查看为主，不依赖数值 metric。
+# 用途：固定 prompt 与首 chunk/首帧，便于同一条件下对比不同模型或不同设置。
+# 使用方式见 VISUAL_EVAL_DESIGN.md；运行示例见 run_visual_eval.py。
+
+# -----------------------------------------------------------------------------
+# 1. Prompt 设计（便于观察记忆/一致性/身份/逻辑）
+# -----------------------------------------------------------------------------
+# 原则：英文、与首帧语义匹配时生成更稳定；按“考察维度”分组便于选看。
+prompts:
+  # 身份/角色保持（看长时是否同一角色、人脸是否漂移）
+  - id: identity_single_person
+    text: "A single person in a room, clear face and body, consistent lighting."
+    category: identity
+    note: "适合首帧为单人时，观察多 chunk 后是否仍是同一人、五官是否保持。"
+  - id: identity_face_clear
+    text: "Close-up of a person's face, neutral expression, indoor lighting."
+    category: identity
+    note: "强调人脸，便于观察身份保持力。"
+  # 场景/长时一致性（看场景是否塌缩、风格是否一致）
+  - id: scene_indoor_room
+    text: "An indoor room with furniture, walls and floor visible, consistent perspective."
+    category: long_horizon
+    note: "室内场景，观察旋转多 chunk 后房间是否还一致、有无穿模或崩坏。"
+  - id: scene_outdoor_street
+    text: "An outdoor street or building, clear geometry, natural lighting."
+    category: long_horizon
+    note: "室外，观察长时几何与光照一致性。"
+  # 物体/状态（看物体是否合理存在、位置是否连贯）
+  - id: object_furniture
+    text: "A room with a table and chairs, objects stay in place."
+    category: state
+    note: "固定物体，观察状态是否稳定。"
+  - id: object_simple
+    text: "A simple scene with one or two objects, clean background."
+    category: state
+    note: "简单物体，便于观察状态追踪。"
+  # 回环/重访（看回到起点时视角是否一致）
+  - id: loop_revisit
+    text: "A 360-degree view of a space, same view when returning to start."
+    category: loop_closure
+    note: "强调回到起点，便于肉眼看 4chunk 回环末帧与首帧是否像同一视角。"
+  # 通用/兜底
+  - id: generic_scene
+    text: "A scene."
+    category: generic
+    note: "与现有默认一致，用于对比。"
+
+# -----------------------------------------------------------------------------
+# 2. 首 chunk / 首帧预设
+# -----------------------------------------------------------------------------
+# 同一首帧 + 同一 prompt 下对比不同模型，便于控制变量。
+# type: fixed_image 表示使用本地图片路径；dataset_frame 表示从数据集取 (video_name, start_frame)。
+first_chunk_presets:
+  # 固定图片：需事先准备好，路径可覆盖
+  - id: fixed_default
+    type: fixed_image
+    path: ""   # 留空则用 run_generalization_fixed_first_frame 的默认（如 train/ctx_5_20_per_frame_vae/image.png）
+    note: "默认首帧图，与现有 evals 一致。"
+  - id: fixed_indoor
+    type: fixed_image
+    path: ""   # 例如 /path/to/indoor_sample.png
+    note: "建议放一张室内代表图，便于与 scene_indoor_room 等 prompt 搭配。"
+  - id: fixed_outdoor
+    type: fixed_image
+    path: ""
+    note: "建议放一张室外代表图。"
+  - id: fixed_face
+    type: fixed_image
+    path: ""
+    note: "建议放一张人脸/单人图，与 identity_* prompt 搭配。"
+  # 从数据集取首帧：用于与训练分布一致、可复现
+  - id: dataset_mid
+    type: dataset_frame
+    video_name: ""   # 从 metadata 或 frames 目录选一个
+    start_frame: 0
+    note: "从数据集指定 (video_name, start_frame) 作为首帧；run_visual_eval 会先导出该帧再跑。"
+  - id: dataset_another
+    type: dataset_frame
+    video_name: ""
+    start_frame: 40
+    note: "另一段，可改为实际存在的视频名与帧号。"
+
+# -----------------------------------------------------------------------------
+# 3. 推荐组合（用于快速跑一小组“可视化对比”）
+# -----------------------------------------------------------------------------
+# 只跑这些 (prompt_id, first_chunk_id) 时，可写在这里；留空表示用全部组合或由命令行指定。
+recommended_pairs: []
+  # - [identity_single_person, fixed_face]
+  # - [scene_indoor_room, fixed_indoor]
+  # - [loop_revisit, fixed_default]

@@ -1,0 +1,16 @@
+# Optional dependencies for eval_metrics (Phase 2+).
+# Base: numpy, opencv-python, PIL, torch (from main env).
+
+# For run_visual_eval.py (visual_eval_config.yaml)
+PyYAML
+
+scikit-image
+# For Face / ReID (identity_preservation):
+# insightface
+# torchreid
+# For optical flow (temporal_coherence):
+# torchvision with flow extras, or RAFT
+# For FVD (temporal_coherence):
+# pytorch-fvd or i3d
+# For VLM (semantic_consistency):
+# transformers / your VLM package
