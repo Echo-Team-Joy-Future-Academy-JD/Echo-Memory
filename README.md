@@ -270,14 +270,6 @@ This repository directly includes the qualitative assets used to inspect the pap
 
 > **Open-domain revisit setup.** Start from a held-out toy-bear image, turn away, and return with a **45-degree revisit action**. The task is intentionally simple to read but hard for memory: the model must recover the same foreground object and nearby scene evidence after leaving the initial view.
 
-**Compact paper panel:**
-
-```text
-assets/paper_cases/representative_sweep_panel.png
-assets/paper_cases/representative_sweep_panel_highres.png
-assets/paper_cases/manifest.csv
-```
-
 <div align="center">
 <table>
   <tr>
@@ -294,11 +286,6 @@ assets/paper_cases/manifest.csv
     <td>Context K=5</td>
     <td><img src="assets/paper_cases/02_context_k5_first.png" width="210"></td>
     <td><img src="assets/paper_cases/02_context_k5_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>Context K=20</td>
-    <td><img src="assets/paper_cases/03_context_k20_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/03_context_k20_tail.png" width="210"></td>
   </tr>
   <tr>
     <td>FramePack length r=4</td>
