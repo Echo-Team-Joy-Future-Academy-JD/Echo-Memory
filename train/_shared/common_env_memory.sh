@@ -27,8 +27,8 @@ export CONTEXT_POSITION=suffix
 export USE_CONCATENATION_INFERENCE=true
 export USE_RT_RELATIVE=true
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
-REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/../../../.." && pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}")" && pwd)"
+REPO_ROOT="${REPO_ROOT:-$(cd "${SCRIPT_DIR}/../.." && pwd)}"
 export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"
 
 _first_existing_dir() {

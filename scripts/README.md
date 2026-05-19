@@ -1,5 +1,7 @@
 # Data Construction
 
+Scripts assume a Context-as-Memory style dataset with `frames/`, `jsons/`, and a metadata CSV. Set `DATASET_BASE_PATH` before running them.
+
 ## Metadata CSV
 
 ```bash
@@ -26,3 +28,5 @@ Optional variables:
 - `MODEL_PATHS`: JSON list of model weight paths.
 - `CONTEXT_FRAMES`: number of context frames, default `20`.
 - `NUM_PROCESSES`: accelerate processes, default `1`.
+
+Open-domain revisit first-frame assets are already included under `assets/opendomain_revisit`; no dataset construction step is needed for those probes.

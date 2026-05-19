@@ -8,19 +8,19 @@ SAMPLING_TWO_CHUNK_FLAGS=(
   --enable_video_sampling
   --sampling_two_chunk_memory
   --sampling_interval_steps
-  "1000"
+  "${SAMPLING_INTERVAL_STEPS:-1000}"
   --sampling_two_chunk_action_path
   "${left45_action_path}"
   --sampling_num_inference_steps
-  "50"
+  "${SAMPLING_NUM_INFERENCE_STEPS:-50}"
   --sampling_negative_prompt
   "oversaturated colors, overexposed, static, blurry details"
   --sampling_height
-  "352"
+  "${SAMPLING_HEIGHT:-352}"
   --sampling_width
-  "640"
+  "${SAMPLING_WIDTH:-640}"
   --sampling_num_frames
-  "81"
+  "${SAMPLING_NUM_FRAMES:-81}"
   --samples_per_epoch
   "0"
   --sampling_action_path

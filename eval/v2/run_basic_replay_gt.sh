@@ -8,8 +8,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-REPO_ROOT="$(cd "${EXP_DIR}/../.." && pwd)"
+EVAL_DIR="${SCRIPT_DIR}"
+REPO_ROOT="$(cd "${EVAL_DIR}/../.." && pwd)"
 ENV_DIR="${REPO_ROOT}/env"
 # shellcheck disable=SC1091
 [ -f "${REPO_ROOT}/env/eval_infer_alignment_env.sh" ] && source "${REPO_ROOT}/env/eval_infer_alignment_env.sh"
@@ -39,7 +39,7 @@ CHUNK_FRAMES_EFFECTIVE="${CHUNK_FRAMES:-81}"
 _resolve_video_name() {
   local wanted="$1"
   DATASET="${DATASET}" \
-  EXP_DIR="${EXP_DIR}" \
+  EVAL_DIR="${EVAL_DIR}" \
   VIDEO_NAME_IN="${wanted}" \
   START_FRAME="${START_FRAME}" \
   NUM_CHUNKS="${NUM_CHUNKS}" \
@@ -49,14 +49,14 @@ import os
 import sys
 
 dataset = os.environ["DATASET"]
-exp_dir = os.environ["EXP_DIR"]
+eval_dir = os.environ["EVAL_DIR"]
 wanted = os.environ.get("VIDEO_NAME_IN", "").strip()
 start = int(os.environ.get("START_FRAME", "0"))
 num_chunks = int(os.environ.get("NUM_CHUNKS", "1"))
 chunk_frames = int(os.environ.get("CHUNK_FRAMES", "81"))
 
 # 轻量解析 VIDEO_NAME：勿 import run_replay_loop_two_chunk（会拉 torch/train/flash_attn）
-sys.path.insert(0, os.path.join(exp_dir, "eval_v2", "basic"))
+sys.path.insert(0, os.path.join(eval_dir, "basic"))
 from gt_pose_minimal import build_gt_trajectory_actions  # noqa: E402
 
 def valid(vn: str) -> bool:
@@ -102,7 +102,7 @@ if [ "${VIDEO_NAME}" != "${RESOLVED_VIDEO_NAME}" ]; then
 fi
 VIDEO_NAME="${RESOLVED_VIDEO_NAME}"
 
-python3 "${EXP_DIR}/eval_v2/basic/check_dataset_gt_for_replay.py" \
+python3 "${EVAL_DIR}/basic/check_dataset_gt_for_replay.py" \
   --dataset "${DATASET}" \
   --video "${VIDEO_NAME}" \
   --start_frame "${START_FRAME}" \
@@ -120,9 +120,8 @@ _default_ctx=1
 [ -n "${CONTEXT_FRAMES_MEM_OVERRIDE:-}" ] && _default_ctx="${CONTEXT_FRAMES_MEM_OVERRIDE}"
 CONTEXT_FRAMES_EFFECTIVE="${CONTEXT_FRAMES:-$_default_ctx}"
 
-python3 "${EXP_DIR}/eval_v2/basic/replay_gt_error.py" \
+python3 "${EVAL_DIR}/basic/replay_gt_error.py" \
   --ckpt "${CKPT}" \
-
   --dataset_base "${DATASET}" \
   --video_name "${VIDEO_NAME}" \
   --start_frame "${START_FRAME}" \
@@ -134,7 +133,6 @@ python3 "${EXP_DIR}/eval_v2/basic/replay_gt_error.py" \
   --cfg_scale "${CFG_SCALE:-5.0}" \
   --seed "${SEED:-42}" \
   --output_dir "${OUT_DIR}" \
-
   --write_csv
 
 echo "Done. basic replay_gt output: ${OUT_DIR}"

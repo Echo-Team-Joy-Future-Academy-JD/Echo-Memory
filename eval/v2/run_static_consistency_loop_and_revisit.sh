@@ -6,8 +6,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EXP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-REPO_ROOT="${REPO_ROOT:-$(cd "${EXP_DIR}/../.." && pwd)}"
+EVAL_DIR="${SCRIPT_DIR}"
+REPO_ROOT="${REPO_ROOT:-$(cd "${EVAL_DIR}/../.." && pwd)}"
 ENV_DIR="${REPO_ROOT}/env"
 # shellcheck disable=SC1091
 [ -f "${REPO_ROOT}/env/eval_infer_alignment_env.sh" ] && source "${REPO_ROOT}/env/eval_infer_alignment_env.sh"
@@ -22,8 +22,8 @@ ctypes.CDLL("libGL.so.1")
 print("ok")
 PY
 then
-  echo "[eval_v2] libGL.so.1 missing -> installing system dependency: libgl1-mesa-glx"
-  apt-get update && apt-get install -y libgl1-mesa-glx
+  echo "[eval_v2] FATAL: libGL.so.1 missing. Install libgl1-mesa-glx or use a headless OpenCV build." >&2
+  exit 2
 fi
 
 CKPT="${CKPT:?Set CKPT=/path/to/epoch-0.safetensors}"
@@ -70,14 +70,13 @@ echo "[eval_v2] MEM_ARGS=${MEM_ARGS[*]:-none}"
 [ "${#LOOP_EXTRA_META[@]}" -gt 0 ] && echo "[eval_v2] loop dataset_metadata_path=${METADATA_PATH}"
 
 # Fail-fast：MEM_ARGS 须能被 multiview 的 argparse.REMAINDER 吞掉（避免跑完全部 in-domain 后才报 unrecognized arguments）
-python3 "${EXP_DIR}/eval_v2/tools/verify_static_eval_prereqs.py" remainder-mem-args "${MEM_ARGS[@]}"
+python3 "${EVAL_DIR}/tools/verify_static_eval_prereqs.py" remainder-mem-args "${MEM_ARGS[@]}"
 # Wan2.1 底座权重（combo / loop 均依赖）
-python3 "${EXP_DIR}/eval_v2/tools/verify_static_eval_prereqs.py" wan-base
+python3 "${EVAL_DIR}/tools/verify_static_eval_prereqs.py" wan-base
 
 # ---------- (A) Loop closure (in-domain) ----------
 python3 "${ENV_DIR}/run_replay_loop_two_chunk.py" \
   --ckpt "${CKPT}" \
-
   --context_frames "${CONTEXT_FRAMES_EFFECTIVE}" \
   --sampling_action_dir "${SAMPLING_ACTION_DIR}" \
   --dataset_base "${DATASET}" \
@@ -88,7 +87,6 @@ python3 "${ENV_DIR}/run_replay_loop_two_chunk.py" \
   --sigma_shift "${SIGMA_SHIFT:-5}" \
   --num_inference_steps "${NUM_INFERENCE_STEPS:-50}" \
   --cfg_scale "${CFG_SCALE:-5.0}" \
-
   "${MEM_ARGS[@]}"
 
 # ---------- (B) Symmetric random-action combo revisit (in-domain: training prompt + first frame) ----------
@@ -105,15 +103,14 @@ mkdir -p "${COMBO_BASE}" "${COMBO_OUT}"
 if [ "${STATIC_USE_OPEN_DOMAIN_COMBO:-0}" = "1" ]; then
   echo "[eval_v2] STATIC_USE_OPEN_DOMAIN_COMBO=1 -> legacy single combo + external first frame"
   COMBO_DIR="${IN_DOMAIN}/action_combo_rot_trans_rev"
-  python3 "${EXP_DIR}/eval_v2/actions/build_action_combo.py" \
-    --exp_dir "${EXP_DIR}" \
+  python3 "${EVAL_DIR}/actions/build_action_combo.py" \
+    --exp_dir "${ENV_DIR}" \
     --out_dir "${COMBO_DIR}" \
     --chunk_frames "${CHUNK_FRAMES_EFFECTIVE}" \
     --translation_delta "${TRANSLATION_DELTA:-0.1}" >/dev/null
   FIRST_FRAME_IMG="${FIRST_FRAME_IMG:-${REPO_ROOT}/assets/first_frame.png}"
-    python3 "${EXP_DIR}/eval_v2/static/run_combo_revisit_fixed_first.py" \
+    python3 "${EVAL_DIR}/static/run_combo_revisit_fixed_first.py" \
       --ckpt "${CKPT}" \
-
       --first_frame_image "${FIRST_FRAME_IMG}" \
       --output_dir "${IN_DOMAIN}/combo_revisit_fixed_first" \
       --prompt "${PROMPT:-A scene.}" \
@@ -124,11 +121,10 @@ if [ "${STATIC_USE_OPEN_DOMAIN_COMBO:-0}" = "1" ]; then
       --num_inference_steps "${NUM_INFERENCE_STEPS:-50}" \
       --cfg_scale "${CFG_SCALE:-5.0}" \
       --seed "${SEED_EFFECTIVE}" \
-
-    "${MEM_ARGS[@]}"
+      "${MEM_ARGS[@]}"
 else
   SAMPLES_TSV="${IN_DOMAIN}/_static_eval_samples.tsv"
-  python3 "${EXP_DIR}/eval_v2/tools/emit_dataset_samples.py" \
+  python3 "${EVAL_DIR}/tools/emit_dataset_samples.py" \
     --dataset "${DATASET}" \
     --num_samples "${NUM_SAMPLES_STATIC}" \
     --min_frames "${MIN_SPAN}" \
@@ -139,7 +135,7 @@ else
     [ -z "${_vn:-}" ] && continue
     _combo_sub="${COMBO_BASE}/${_vn}_start${_st}"
     mkdir -p "${_combo_sub}"
-    python3 "${EXP_DIR}/eval_v2/actions/build_action_combo.py" \
+    python3 "${EVAL_DIR}/actions/build_action_combo.py" \
       --random_symmetric \
       --combo_seed "$((_seed_base + _idx))" \
       --out_dir "${_combo_sub}" \
@@ -148,9 +144,8 @@ else
       --yaw_max "${COMBO_YAW_MAX:-55}" \
       --translation_min "${COMBO_TRANS_MIN:-0.05}" \
       --translation_max "${COMBO_TRANS_MAX:-0.18}" >/dev/null
-    python3 "${EXP_DIR}/eval_v2/static/run_combo_revisit_fixed_first.py" \
+    python3 "${EVAL_DIR}/static/run_combo_revisit_fixed_first.py" \
       --ckpt "${CKPT}" \
-
       --dataset_base "${DATASET}" \
       --video_name "${_vn}" \
       --start_frame "${_st}" \
@@ -162,11 +157,10 @@ else
       --num_inference_steps "${NUM_INFERENCE_STEPS:-50}" \
       --cfg_scale "${CFG_SCALE:-5.0}" \
       --seed "${SEED_EFFECTIVE}" \
-
       "${MEM_ARGS[@]}"
     _idx=$((_idx + 1))
   done < "${SAMPLES_TSV}"
-  python3 "${EXP_DIR}/eval_v2/metrics/aggregate_combo_closure_metrics.py" \
+  python3 "${EVAL_DIR}/metrics/aggregate_combo_closure_metrics.py" \
     --root "${COMBO_OUT}" \
     --output_json "${EVALS_ROOT}/metrics/combo_closure_summary.json"
 fi
@@ -183,15 +177,14 @@ if [ "${STATIC_USE_OPEN_DOMAIN_COMBO:-0}" != "1" ] && [ -f "${IN_DOMAIN}/_static
     [ -z "${_vn:-}" ] && continue
     _out="${LONG_ROOT}/${_vn}_start${_st}"
     mkdir -p "${_out}"
-    python3 "${EXP_DIR}/eval_v2/basic/check_dataset_gt_for_replay.py" \
+    python3 "${EVAL_DIR}/basic/check_dataset_gt_for_replay.py" \
       --dataset "${DATASET}" \
       --video "${_vn}" \
       --start_frame "${_st}" \
       --num_chunks "${NUM_CHUNKS_LONG}" \
       --chunk_frames "${CHUNK_FRAMES_EFFECTIVE}" || continue
-    python3 "${EXP_DIR}/eval_v2/basic/replay_gt_error.py" \
+    python3 "${EVAL_DIR}/basic/replay_gt_error.py" \
       --ckpt "${CKPT}" \
-
       --dataset_base "${DATASET}" \
       --video_name "${_vn}" \
       --start_frame "${_st}" \
@@ -203,17 +196,16 @@ if [ "${STATIC_USE_OPEN_DOMAIN_COMBO:-0}" != "1" ] && [ -f "${IN_DOMAIN}/_static
       --cfg_scale "${CFG_SCALE:-5.0}" \
       --seed "${SEED_EFFECTIVE}" \
       --output_dir "${_out}" \
-
       --write_csv
   done < "${IN_DOMAIN}/_static_eval_samples.tsv"
-  python3 "${EXP_DIR}/eval_v2/metrics/aggregate_long_horizon_fid_fvd.py" \
+  python3 "${EVAL_DIR}/metrics/aggregate_long_horizon_fid_fvd.py" \
     --root "${LONG_ROOT}" \
     --dataset_base "${DATASET}" \
     --device "${DEVICE:-cuda}" \
     --output_json "${EVALS_ROOT}/metrics/long_horizon_fid_fvd_summary.json"
   # 可选：生成序列相邻帧一致性（无 GT，仅表征生成序列是否时序平滑；与 replay_gt_metrics 对 GT 指标互补）
   if [ "${RUN_TEMPORAL_ADJ:-0}" = "1" ]; then
-    python3 "${EXP_DIR}/eval_v2/metrics/aggregate_long_horizon_temporal_adjacency.py" \
+    python3 "${EVAL_DIR}/metrics/aggregate_long_horizon_temporal_adjacency.py" \
       --root "${LONG_ROOT}" \
       --output_json "${EVALS_ROOT}/metrics/long_horizon_temporal_adjacency_summary.json"
   fi
@@ -223,7 +215,7 @@ fi
 # 说明：metrics 目前使用 first-vs-last 作为 revisit proxy；LPIPS 依赖可选。
 METRIC_SAMPLE_NUM="${METRIC_SAMPLE_NUM:-5}"
 WRITE_VIZ="${WRITE_VIZ:-1}"
-python3 "${EXP_DIR}/eval_v2/metrics/aggregate_revisit_metrics.py" \
+python3 "${EVAL_DIR}/metrics/aggregate_revisit_metrics.py" \
   --evals_root "${IN_DOMAIN}" \
   --num_samples "${METRIC_SAMPLE_NUM}" \
   --seed "${SEED_EFFECTIVE}" \
@@ -242,7 +234,7 @@ if [ -n "${MULTIVIEW_FIRSTFRAME_DIR:-}" ] && [ -d "${MULTIVIEW_FIRSTFRAME_DIR}" 
   if [ -n "${MULTIVIEW_PROMPT:-}" ]; then
     _mv_prompt_args=(--prompt "${MULTIVIEW_PROMPT}")
   fi
-  python3 "${EXP_DIR}/eval_v2/tools/build_multiview_firstframe_list_from_dir.py" \
+  python3 "${EVAL_DIR}/tools/build_multiview_firstframe_list_from_dir.py" \
     --image_dir "${MULTIVIEW_FIRSTFRAME_DIR}" \
     --output "${MULTIVIEW_FIRSTFRAME_LIST}" \
     "${_mv_prompt_args[@]}"
@@ -252,7 +244,7 @@ if [ -n "${MULTIVIEW_FIRSTFRAME_LIST:-}" ] && [ -f "${MULTIVIEW_FIRSTFRAME_LIST}
   MV_OUT="${OPEN_DOMAIN_ROOT}/multiview_revisit"
   MV_ACTION_DIR="${MULTIVIEW_ACTION_DIR:-${COMBO_BASE}/multiview_shared_combo}"
   mkdir -p "${MV_ACTION_DIR}" "${MV_OUT}"
-  python3 "${EXP_DIR}/eval_v2/actions/build_action_combo.py" \
+  python3 "${EVAL_DIR}/actions/build_action_combo.py" \
     --random_symmetric \
     --combo_seed "${SEED_EFFECTIVE}" \
     --out_dir "${MV_ACTION_DIR}" \
@@ -261,15 +253,14 @@ if [ -n "${MULTIVIEW_FIRSTFRAME_LIST:-}" ] && [ -f "${MULTIVIEW_FIRSTFRAME_LIST}
     --yaw_max "${COMBO_YAW_MAX:-55}" \
     --translation_min "${COMBO_TRANS_MIN:-0.05}" \
     --translation_max "${COMBO_TRANS_MAX:-0.18}" >/dev/null
-  python3 "${EXP_DIR}/eval_v2/tools/verify_static_eval_prereqs.py" multiview-preflight \
+  python3 "${EVAL_DIR}/tools/verify_static_eval_prereqs.py" multiview-preflight \
     --ckpt "${CKPT}" \
     --firstframe-list "${MULTIVIEW_FIRSTFRAME_LIST}" \
     --action-combo-dir "${MV_ACTION_DIR}" \
-    --runner "${EXP_DIR}/eval_v2/static/run_combo_revisit_fixed_first.py" \
+    --runner "${EVAL_DIR}/static/run_combo_revisit_fixed_first.py" \
     -- "${MEM_ARGS[@]}"
-  python3 "${EXP_DIR}/eval_v2/static/run_multiview_revisit_from_firstframes.py" \
+  python3 "${EVAL_DIR}/static/run_multiview_revisit_from_firstframes.py" \
     --ckpt "${CKPT}" \
-
     --firstframe_list "${MULTIVIEW_FIRSTFRAME_LIST}" \
     --action_combo_dir "${MV_ACTION_DIR}" \
     --output_root "${MV_OUT}" \
@@ -281,7 +272,7 @@ if [ -n "${MULTIVIEW_FIRSTFRAME_LIST:-}" ] && [ -f "${MULTIVIEW_FIRSTFRAME_LIST}
     --seed "${SEED_EFFECTIVE}" \
     --extra_args "${MEM_ARGS[@]}"
   if [ "${RUN_MULTIVIEW_AGGREGATE_METRICS:-1}" = "1" ] && [ -d "${MV_OUT}" ]; then
-    python3 "${EXP_DIR}/eval_v2/metrics/aggregate_multiview_open_domain_metrics.py" \
+    python3 "${EVAL_DIR}/metrics/aggregate_multiview_open_domain_metrics.py" \
       --multiview_root "${MV_OUT}" \
       --ref_view "${MULTIVIEW_REF_VIEW:-0}" \
       --device "${DEVICE:-cuda}" \
@@ -317,7 +308,7 @@ if [ "${RUN_GEOMETRY_DIAG:-0}" = "1" ] && [ -f "${IN_DOMAIN}/_static_eval_sample
     _run="${LONG_ROOT}/${_vn}_start${_st}"
     _gen="${_run}/replay_gt_gen_only.mp4"
     [ ! -f "${_gen}" ] && continue
-    python3 "${EXP_DIR}/eval_v2/geometry/render_multiview_pointcloud_offline.py" \
+    python3 "${EVAL_DIR}/geometry/render_multiview_pointcloud_offline.py" \
       --gen_video "${_gen}" \
       --dataset_base "${DATASET}" \
       --video_name "${_vn}" \
@@ -332,7 +323,7 @@ if [ "${RUN_GEOMETRY_DIAG:-0}" = "1" ] && [ -f "${IN_DOMAIN}/_static_eval_sample
   else
     echo "[eval_v2] geometry diagnostics: ${_geom_count} run(s) -> ${GEOM_ROOT}"
   fi
-  python3 "${EXP_DIR}/eval_v2/metrics/aggregate_geometry_consistency.py" \
+  python3 "${EVAL_DIR}/metrics/aggregate_geometry_consistency.py" \
     --root "${GEOM_ROOT}" \
     --output_json "${EVALS_ROOT}/metrics/geometry_consistency_summary.json"
 fi
