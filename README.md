@@ -35,6 +35,7 @@ assets/opendomain_revisit/  Held-out first-frame sources for the open-domain toy
 assets/paper_cases/         Representative qualitative panels and per-method first/tail evidence frames
 assets/paper_videos/        Representative GT-replay MP4s for key memory rows
 assets/ood_ssm_cases/       Open-domain right45 return videos for legacy and block-wise SSM
+assets/readme_previews/     Low-resolution animated GIF previews for direct README playback
 ```
 
 ### 🧩 Memory Context List
@@ -93,37 +94,55 @@ assets/ood_ssm_cases/       Open-domain right45 return videos for legacy and blo
 
 ### 🎬 Replay Video List
 
-**Representative replay videos** are included as MP4 files. These clips replay ground-truth trajectories with each memory mechanism, making it easier to compare **local fidelity**, **motion smoothness**, and whether the generated chunk stays anchored to earlier visual evidence.
+**Representative replay videos** are included as compressed README previews plus full MP4 files. These clips replay ground-truth trajectories with each memory mechanism, making it easier to compare **local fidelity**, **motion smoothness**, and whether the generated chunk stays anchored to earlier visual evidence.
 
-> **GitHub note:** the videos are hosted as GitHub Release assets and placed on their own lines so the README can expose stable, clickable MP4 previews.
+> **GitHub note:** the animated previews below are low-resolution GIFs for direct playback in the README. The MP4 links point to the higher-quality GitHub Release assets.
 
-**Context K=1 replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k1_replay_gt.mp4
-
-**Context K=5 replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k5_replay_gt.mp4
-
-**Context K=20 replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k20_replay_gt.mp4
-
-**FramePack length r=4 replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/framepack_len_r4_replay_gt.mp4
-
-**Spatial Memory replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/spatial_memory_replay_gt.mp4
-
-**Legacy VideoSSM Hybrid replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_legacy_replay_gt.mp4
-
-**Block-wise SSM replay**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_blockwise_replay_gt.mp4
+<div align="center">
+<table>
+  <tr>
+    <td align="center">
+      <b>Context K=1</b><br>
+      <img src="assets/readme_previews/context_k1_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k1_replay_gt.mp4">Full MP4</a>
+    </td>
+    <td align="center">
+      <b>Context K=5</b><br>
+      <img src="assets/readme_previews/context_k5_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k5_replay_gt.mp4">Full MP4</a>
+    </td>
+    <td align="center">
+      <b>Context K=20</b><br>
+      <img src="assets/readme_previews/context_k20_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k20_replay_gt.mp4">Full MP4</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>FramePack length r=4</b><br>
+      <img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/framepack_len_r4_replay_gt.mp4">Full MP4</a>
+    </td>
+    <td align="center">
+      <b>Spatial Memory</b><br>
+      <img src="assets/readme_previews/spatial_memory_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/spatial_memory_replay_gt.mp4">Full MP4</a>
+    </td>
+    <td align="center">
+      <b>Legacy VideoSSM Hybrid</b><br>
+      <img src="assets/readme_previews/ssm_legacy_replay_gt.gif" width="260"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_legacy_replay_gt.mp4">Full MP4</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="3">
+      <b>Block-wise SSM</b><br>
+      <img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" width="320"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_blockwise_replay_gt.mp4">Full MP4</a>
+    </td>
+  </tr>
+</table>
+</div>
 
 ## Layout
 
@@ -140,6 +159,7 @@ assets/opendomain_revisit/  Held-out first frames for open-domain revisit
 assets/paper_cases/         Paper qualitative panels and per-method visual evidence
 assets/paper_videos/        Representative paper replay videos
 assets/ood_ssm_cases/       OOD SSM revisit videos and evidence frames
+assets/readme_previews/     README-friendly animated previews
 env/                        Shared runtime helpers and action JSONs
 tests/                      Focused checks for memory/context plumbing
 ```
@@ -325,13 +345,24 @@ Open-domain SSM revisit videos are included separately for the memory-sensitive 
 
 > **Key comparison.** Both runs use the same source image and revisit trajectory; the only intended difference is the memory update rule. Watch the video first for temporal behavior, then compare the still frames for the final return state.
 
-**Legacy VideoSSM Hybrid**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/legacy_videossm_revisit_gen_only.mp4
-
-**Block-wise SSM**
-
-https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/blockwise_ssm_revisit_gen_only.mp4
+<div align="center">
+<table>
+  <tr>
+    <th>Legacy VideoSSM Hybrid</th>
+    <th>Block-wise SSM</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="assets/readme_previews/legacy_videossm_revisit.gif" width="360"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/legacy_videossm_revisit_gen_only.mp4">Full MP4</a>
+    </td>
+    <td align="center">
+      <img src="assets/readme_previews/blockwise_ssm_revisit.gif" width="360"><br>
+      <a href="https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/blockwise_ssm_revisit_gen_only.mp4">Full MP4</a>
+    </td>
+  </tr>
+</table>
+</div>
 
 <div align="center">
 <table>
