@@ -1,7 +1,14 @@
 <div align="center">
-<h1>Echo-Memory</h1>
+<h1>🧠 Echo-Memory</h1>
 <p><b>A Controlled Study of Memory in Action World Models</b></p>
 <p><b>Echo Team @ Joy Future Academy, JD</b></p>
+</div>
+
+<div align="center">
+<a href="#"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
+<a href="#"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-TBD-blue" alt="Hugging Face: TBD"></a>
+<a href="#"><img src="https://img.shields.io/badge/Project%20Page-TBD-green" alt="Project Page: TBD"></a>
+<a href="https://github.com/WayneJin0918/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
 
 <div align="center">

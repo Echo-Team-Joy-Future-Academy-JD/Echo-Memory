@@ -30,3 +30,11 @@ models/
 *.pth
 *.pt
 *.ckpt
+
+# Release visual assets are intentionally versioned for README rendering.
+!assets/**/*.mp4
+!assets/**/*.gif
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.webp
