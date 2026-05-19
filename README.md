@@ -11,17 +11,13 @@
 <a href="https://github.com/WayneJin0918/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
 
-<div align="center">
-<img src="assets/paper_cases/representative_sweep_panel.png" alt="Representative open-domain revisit sweep" width="92%">
-</div>
+> **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
 
-<p align="center">
-Representative open-domain revisit case: input/return evidence across no-memory, raw context, compression, spatial memory, and state-space memory variants.
-</p>
+**Echo-Memory** is the release code for the paper's controlled memory study. It keeps the shared **Wan video backbone**, memory modules, training recipes, data utilities, open-domain revisit assets, and public replay/static evaluation suites.
 
-Echo-Memory is the release code for controlled memory studies in action-conditioned video world models. It keeps the shared Wan video backbone, memory modules, training recipes, data utilities, open-domain revisit assets, and public replay/static evaluation suites used by the paper.
+**What is included:** reproducible memory rows, paper-aligned ablation scripts, GT replay, in-domain revisit, open-domain revisit, visual evidence frames, and representative videos.
 
-Private dynamic benchmarks, cluster submit files, logs, generated outputs, and machine-local paths are intentionally removed. Public GT replay, in-domain revisit, and open-domain revisit evaluation are retained.
+**What is intentionally removed:** private dynamic benchmarks, cluster submit files, logs, generated outputs, and machine-local paths.
 
 ## Authors and Release Statement
 
@@ -29,7 +25,10 @@ This repository is released by **Echo Team @ Joy Future Academy, JD**. The code 
 
 ## Visual Assets Included
 
-This release directly includes paper-facing visual assets:
+This release directly includes paper-facing visual assets. Each example is a small diagnostic:
+
+> **First frame → leave the view → revisit tail.**  
+> The first frame fixes the world state, the trajectory moves away, and the revisit tail shows whether memory brings the model back to the same object, pose, background, and camera geometry.
 
 ```text
 assets/opendomain_revisit/  Held-out first-frame sources for the open-domain toy-bear revisit probe
@@ -37,6 +36,43 @@ assets/paper_cases/         Representative qualitative panels and per-method fir
 assets/paper_videos/        Representative GT-replay MP4s for key memory rows
 assets/ood_ssm_cases/       Open-domain right45 return videos for legacy and block-wise SSM
 ```
+
+### 🧩 Memory Context List
+
+<div align="center">
+<table>
+  <tr>
+    <th>Family</th>
+    <th>Memory row</th>
+    <th>What it tests</th>
+  </tr>
+  <tr>
+    <td><b>Floor</b></td>
+    <td><b>No memory / I2V floor</b></td>
+    <td>Re-generate from the first frame only; a lower bound for revisit consistency.</td>
+  </tr>
+  <tr>
+    <td><b>Raw context</b></td>
+    <td><b>Context K=1 / K=5 / K=20</b></td>
+    <td>Whether simply keeping more recent frames is enough to prevent long-horizon drift.</td>
+  </tr>
+  <tr>
+    <td><b>Compression</b></td>
+    <td><b>FramePack length r=4</b></td>
+    <td>Whether a compact temporal representation can retain useful history without raw-frame growth.</td>
+  </tr>
+  <tr>
+    <td><b>Spatial</b></td>
+    <td><b>Spatial Memory</b></td>
+    <td>Whether explicit spatial read/write state improves scene-layout recall.</td>
+  </tr>
+  <tr>
+    <td><b>State-space</b></td>
+    <td><b>Legacy VideoSSM Hybrid / Block-wise SSM</b></td>
+    <td>Whether recurrent state updates can stabilize revisits beyond short context windows.</td>
+  </tr>
+</table>
+</div>
 
 <div align="center">
 <table>
@@ -55,40 +91,39 @@ assets/ood_ssm_cases/       Open-domain right45 return videos for legacy and blo
 </table>
 </div>
 
-Representative replay videos are also included as MP4 files:
+### 🎬 Replay Video List
 
-<div align="center">
-<table>
-  <tr>
-    <td align="center">
-      <video src="assets/paper_videos/context_k1_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/context_k1_replay_gt.mp4">Context K=1 replay</a>
-    </td>
-    <td align="center">
-      <video src="assets/paper_videos/context_k5_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/context_k5_replay_gt.mp4">Context K=5 replay</a>
-    </td>
-    <td align="center">
-      <video src="assets/paper_videos/context_k20_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/context_k20_replay_gt.mp4">Context K=20 replay</a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <video src="assets/paper_videos/framepack_len_r4_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/framepack_len_r4_replay_gt.mp4">FramePack length r=4 replay</a>
-    </td>
-    <td align="center">
-      <video src="assets/paper_videos/spatial_memory_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/spatial_memory_replay_gt.mp4">Spatial Memory replay</a>
-    </td>
-    <td align="center">
-      <video src="assets/paper_videos/ssm_blockwise_replay_gt.mp4" controls muted width="260"></video><br>
-      <a href="assets/paper_videos/ssm_blockwise_replay_gt.mp4">Block-wise SSM replay</a>
-    </td>
-  </tr>
-</table>
-</div>
+**Representative replay videos** are included as MP4 files. These clips replay ground-truth trajectories with each memory mechanism, making it easier to compare **local fidelity**, **motion smoothness**, and whether the generated chunk stays anchored to earlier visual evidence.
+
+> **GitHub note:** the videos are hosted as GitHub Release assets and placed on their own lines so the README can expose stable, clickable MP4 previews.
+
+**Context K=1 replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k1_replay_gt.mp4
+
+**Context K=5 replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k5_replay_gt.mp4
+
+**Context K=20 replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/context_k20_replay_gt.mp4
+
+**FramePack length r=4 replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/framepack_len_r4_replay_gt.mp4
+
+**Spatial Memory replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/spatial_memory_replay_gt.mp4
+
+**Legacy VideoSSM Hybrid replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_legacy_replay_gt.mp4
+
+**Block-wise SSM replay**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/ssm_blockwise_replay_gt.mp4
 
 ## Layout
 
@@ -208,7 +243,11 @@ If an OpenAI-compatible VLM endpoint is available, add `PHASE=vlm` or run the de
 
 ## Visualization and Paper Cases
 
-This repository directly includes the qualitative assets used to inspect the paper's representative open-domain case. The most compact panel is available at:
+This repository directly includes the qualitative assets used to inspect the paper's representative open-domain case.
+
+> **Open-domain revisit setup.** Start from a held-out toy-bear image, turn away, and return with a **45-degree revisit action**. The task is intentionally simple to read but hard for memory: the model must recover the same foreground object and nearby scene evidence after leaving the initial view.
+
+**Compact paper panel:**
 
 ```text
 assets/paper_cases/representative_sweep_panel.png
@@ -261,7 +300,14 @@ assets/paper_cases/manifest.csv
 </table>
 </div>
 
-The release also includes representative GT-replay videos copied from the paper materials:
+**How to read the table:**
+
+- **First frame** is the source condition given to the model before rollout.
+- **Revisit tail** shows the final frames after the model leaves the view and returns.
+- **Good memory** preserves object identity, similar pose, stable background evidence, and coherent camera return.
+- **Common failure modes** include object replacement, texture drift, background rewrite, or a return view that ignores the start.
+
+**GT-replay videos from the paper materials** are also included. They are useful for checking whether a memory variant behaves well before the harder open-domain revisit setting:
 
 ```text
 assets/paper_videos/context_k1_replay_gt.mp4
@@ -273,23 +319,25 @@ assets/paper_videos/ssm_legacy_replay_gt.mp4
 assets/paper_videos/ssm_blockwise_replay_gt.mp4
 ```
 
-Open-domain SSM revisit videos are included separately for the memory-sensitive `right45_return_2chunk` probe:
+### 🎥 Open-Domain SSM Video Comparison
+
+Open-domain SSM revisit videos are included separately for the memory-sensitive **`right45_return_2chunk`** probe.
+
+> **Key comparison.** Both runs use the same source image and revisit trajectory; the only intended difference is the memory update rule. Watch the video first for temporal behavior, then compare the still frames for the final return state.
+
+**Legacy VideoSSM Hybrid**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/legacy_videossm_revisit_gen_only.mp4
+
+**Block-wise SSM**
+
+https://github.com/WayneJin0918/Echo-Memory/releases/download/readme-video-assets-v1/blockwise_ssm_revisit_gen_only.mp4
 
 <div align="center">
 <table>
   <tr>
     <th>Legacy VideoSSM Hybrid</th>
     <th>Block-wise SSM</th>
-  </tr>
-  <tr>
-    <td align="center">
-      <video src="assets/ood_ssm_cases/legacy_videossm/revisit_gen_only.mp4" controls muted width="360"></video><br>
-      <a href="assets/ood_ssm_cases/legacy_videossm/revisit_gen_only.mp4">Open-domain VideoSSM hybrid return video</a>
-    </td>
-    <td align="center">
-      <video src="assets/ood_ssm_cases/blockwise_ssm/revisit_gen_only.mp4" controls muted width="360"></video><br>
-      <a href="assets/ood_ssm_cases/blockwise_ssm/revisit_gen_only.mp4">Open-domain block-wise SSM return video</a>
-    </td>
   </tr>
   <tr>
     <td align="center">
