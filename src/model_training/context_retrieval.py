@@ -1,5 +1,5 @@
 """
-Advanced context retrieval for Context-as-Memory (CAM).
+Advanced context retrieval for context-based memory training.
 Provides retrieval methods beyond FOV: latent similarity, optional learned/diversity.
 Interface compatible with retrieve_simple_context_frames / retrieve_fov_context_frames.
 """

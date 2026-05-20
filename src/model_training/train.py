@@ -651,7 +651,7 @@ def launch_training_task(
     context_memory_frames: int = 5,
     prev_chunk_frames: int = 81,
     fov_top_k: int = 4,  # Number of overlap frames to retrieve. GT frame 0 will be added automatically.
-    use_rt_relative: bool = False,  # Experiment 1_4_2: Use RT relative conversion (aligned with CAM paper)
+    use_rt_relative: bool = False,  # Experiment 1_4_2: Use RT relative conversion (aligned with Context-as-Memory)
     strict_overlap_context: bool = False,
     fov_vis_interval: int = 0,
     fov_vis_max_saves: int = 0,
@@ -825,7 +825,7 @@ def launch_training_task(
             # Normalize to list of samples for batch processing (per_device_train_batch_size > 1)
             samples = data if isinstance(data, list) else [data]
             
-            # Simplified Context Retrieval (CAM method) OR replay/prev_chunk_tail (aligned with multichunk eval)
+            # Simplified context-based retrieval OR replay/prev_chunk_tail (aligned with multichunk eval)
             context_retrieval_success = True  # Set False if any sample fails (for strict mode)
             _umodel = accelerator.unwrap_model(model)
             _cm_frames = int(getattr(_umodel, "context_memory_frames", context_memory_frames) or context_memory_frames)
@@ -1596,7 +1596,7 @@ class WanTrainingModule(DiffusionTrainingModule):
         training_mode="context",  # "context" mode for Context Memory (inpainting)
         context_drop_prob: float = 0.0,
         context_drop_seed: int = 42,
-        omit_context_actions: bool = False,  # CAM paper: no context RT injection
+        omit_context_actions: bool = False,  # Context-as-Memory: no context RT injection
         context_noise_prob=0.0,
         context_noise_std=0.02,
         context_fixed_noise_std=None,  # Experiment 7: Fixed noise std (e.g., 0.1) to align training-inference
@@ -2168,7 +2168,7 @@ class WanTrainingModule(DiffusionTrainingModule):
                 # - Condition: First K frames (clean)
                 # - Target: Full 81 frames (noisy)
                 # - Loss: Computed on full 81 frames (including reconstruction of first K frames)
-                # IMPORTANT (CAM FOV retrieval alignment):
+                # IMPORTANT (Context-as-Memory FOV retrieval alignment):
                 # If training loop has provided retrieved context frames (e.g. from overlap_labels/FOV top-k),
                 # we should use them as condition, instead of always using the first K frames of the segment.
                 if (not dropped_context) and "context_frames" in data and len(data["context_frames"]) > 0:
@@ -2360,7 +2360,7 @@ class WanTrainingModule(DiffusionTrainingModule):
                 inputs_shared["non_fov_frames"] = data["non_fov_frames"]
         
         # Handle actions: Context Memory mode (context_actions + target actions) or Interactive-only (target actions only)
-        # CAM paper [2506.03141]: omit_context_actions -> no context RT injection (use identity for context part)
+        # Context-as-Memory [2506.03141]: omit_context_actions -> no context RT injection (use identity for context part)
         if self.enable_context_memory:
             omit = getattr(self, "omit_context_actions", False)
             inputs_shared["omit_context_actions"] = omit
@@ -2771,9 +2771,9 @@ if __name__ == "__main__":
     parser.add_argument("--trainable_dit_modules", type=str, default=None, help="Comma-separated modules to unfreeze (rest frozen). Allowed: camera_encoder, block_self_attn, action_mlp, self_attn_with_action, block_ssm, unified_implicit, spatial_memory (SpatialGridMemory on training module). Omit = train full DiT.")
     parser.add_argument("--add_action_attn", action="store_true", help="Add action attention")
     parser.add_argument("--action_use_temporal_attention", action="store_true", help="Use temporal attention for action module")
-    parser.add_argument("--action_inject_after_spatial_attn", action="store_true", help="exp1_4_3: Inject RT after spatial attention output (CAM paper [2506.03141] style)")
-    parser.add_argument("--use_camera_encoder", action="store_true", help="Use CameraEncoder for RT injection (CAM paper: RT -> MLP -> add to spatial attn output)")
-    parser.add_argument("--camera_encoder_shallow", action="store_true", help="Use single-layer CameraEncoder E_c(cam)=Linear(12,D) for CAM ablation")
+    parser.add_argument("--action_inject_after_spatial_attn", action="store_true", help="exp1_4_3: Inject RT after spatial attention output (Context-as-Memory [2506.03141] style)")
+    parser.add_argument("--use_camera_encoder", action="store_true", help="Use CameraEncoder for RT injection (Context-as-Memory: RT -> MLP -> add to spatial attn output)")
+    parser.add_argument("--camera_encoder_shallow", action="store_true", help="Use single-layer CameraEncoder E_c(cam)=Linear(12,D) for context-based ablation")
     parser.add_argument("--camera_encoder_separate_t_r", action="store_true", help="Encode translation and rotation in separate MLPs then add (scale balance)")
     parser.add_argument("--camera_encoder_explicit_yaw", action="store_true", help="Add signed yaw scalar branch for CW/CCW direction sensitivity (Z-only)")
     parser.add_argument("--yaw_flip_aug", action="store_true", help="50%% prob flip yaw of target actions (direction sensitivity aug)")
@@ -2792,18 +2792,18 @@ if __name__ == "__main__":
     parser.add_argument("--camera_encoder_full_zero_init", action="store_true", help="GF-style: zero-init entire Linear layer (weight+bias) for merged shallow MLP")
     parser.add_argument("--num_workers", type=int, default=0, help="DataLoader workers for preloading (0=main process). 4 recommended for video I/O to parallelize with GPU.")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Resume training from checkpoint (optional)")
-    # Context Memory (CAM paper: clean latents as context)
+    # Context memory (Context-as-Memory: clean latents as context)
     parser.add_argument("--enable_context_memory", action="store_true", help="Enable Context Memory mode: use clean VAE latents as context, protect context from noise")
     parser.add_argument("--context_memory_frames", type=int, default=8, help="Number of context frames to use in Context Memory mode")
     parser.add_argument("--context_per_frame_vae", action="store_true", help="Encode each context frame with VAE separately (1 latent per raw frame); default is temporal downsample (N raw -> (N-1)//4+1 latent)")
-    parser.add_argument("--training_mode", type=str, default="predict", choices=["predict", "context", "condition"], help="Training mode (context = CAM Context Memory)")
+    parser.add_argument("--training_mode", type=str, default="predict", choices=["predict", "context", "condition"], help="Training mode (context = context-based memory)")
     parser.add_argument("--context_drop_prob", type=float, default=0.0, help="Probability to drop context per sample (0=off)")
-    parser.add_argument("--cfg_target_only", action="store_true", help="Apply CFG only to target frames (CAM)")
-    parser.add_argument("--enable_fov_retrieval", action="store_true", help="Enable FOV-based memory retrieval (CAM)")
+    parser.add_argument("--cfg_target_only", action="store_true", help="Apply CFG only to target frames (context-based memory)")
+    parser.add_argument("--enable_fov_retrieval", action="store_true", help="Enable FOV-based memory retrieval (context-based memory)")
     parser.add_argument("--retrieval_method", type=str, default="fov", choices=["fov", "latent_sim"], help="Context retrieval: fov (FOV/overlap) or latent_sim (latent similarity to first frame)")
     parser.add_argument("--latent_retrieval_dir", type=str, default=None, help="Per-frame latent dir for latent_sim: latent_dir/video_name/{frame:04d}.pt; omit to fall back to FOV")
     parser.add_argument("--fov_top_k", type=int, default=4, help="FOV overlap frames to retrieve (0=last-k only)")
-    parser.add_argument("--use_rt_relative", action="store_true", help="RT relative to segment first frame (CAM)")
+    parser.add_argument("--use_rt_relative", action="store_true", help="RT relative to segment first frame (context-based memory)")
     parser.add_argument("--strict_overlap_context", action="store_true", help="Require overlap_labels; skip if missing")
     parser.add_argument("--use_anchor_frame", action="store_true", help="Anchor-frame memory: treat context as mandatory anchors (related: MoC mandatory anchors, key-frame persistence)")
     parser.add_argument("--context_attention_weight", type=float, default=1.0, help="Scale context token attention (e.g. <1 compress distant context, >1 emphasize; related: FAR/FramePack-style compression)")
@@ -3214,7 +3214,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.AdamW(model.trainable_modules(), lr=args.learning_rate)
     scheduler = torch.optim.lr_scheduler.ConstantLR(optimizer)
     
-    # Setup FOV retriever for CAM training (also for ModelLogger sampling)
+    # Setup FOV retriever for context-based memory training (also for ModelLogger sampling)
     enable_fov_retrieval = _arg('enable_fov_retrieval', False)
     fov_retriever = None
     dataset_base_path = _arg('dataset_base_path', None)

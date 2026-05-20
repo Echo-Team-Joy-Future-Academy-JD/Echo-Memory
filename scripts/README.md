@@ -1,6 +1,6 @@
 # Data Construction
 
-Scripts assume a Context-as-Memory style dataset with `frames/`, `jsons/`, and a metadata CSV. Set `DATASET_BASE_PATH` before running them.
+Scripts assume a context-based memory dataset with `frames/`, `jsons/`, and a metadata CSV. Set `DATASET_BASE_PATH` before running them.
 
 ## Metadata CSV
 

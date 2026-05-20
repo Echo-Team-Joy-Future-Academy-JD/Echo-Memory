@@ -1,5 +1,5 @@
 #!/bin/bash
-# Generate metadata CSV for a Context-as-Memory style dataset.
+# Generate metadata CSV for a context-based memory dataset.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

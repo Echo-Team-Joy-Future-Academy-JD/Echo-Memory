@@ -1,11 +1,11 @@
 """
 RT (Rotation-Translation) utility functions for camera pose processing.
-Aligned with CAM paper [2506.03141] Context as Memory.
+Aligned with the Context-as-Memory paper [2506.03141].
 
 Strict paper alignment (default for 4-param):
 - 2D plane: displacement in XY only (Z forced to 0 when constrain_to_xy=True).
 - Rotation: Z-axis only (yaw; roll/pitch ignored). Params = [x, y, z, yaw] (4 parameters).
-- 为何不是五参数：CAM 论文与 2D 平面设定下只使用 Z 轴旋转 (yaw)，故默认 4 参数；若数据或管线使用 yaw+pitch，可用 compute_rotation_list_yaw_pitch 或传入 5 参数。
+- 为何不是五参数：Context-as-Memory 论文与 2D 平面设定下只使用 Z 轴旋转 (yaw)，故默认 4 参数；若数据或管线使用 yaw+pitch，可用 compute_rotation_list_yaw_pitch 或传入 5 参数。
 
 Alignment with camera encoder and external RT pipelines:
 - 12-dim layout: [t_x, t_y, t_z, R_11, R_12, R_13, R_21, R_22, R_23, R_31, R_32, R_33] (R row-major).
@@ -113,7 +113,7 @@ def convert_rt_to_relative(rt_list_all: List[List[float]], ref_rt: List[float]) 
     """
     Convert RT (rotation-translation) poses to relative coordinates.
     
-    This aligns with CAM paper's approach of using relative camera poses
+    This aligns with the Context-as-Memory paper's use of relative camera poses
     for better geometric consistency in context frame retrieval.
     
     Args:

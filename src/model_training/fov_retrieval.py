@@ -2,7 +2,7 @@
 FOV (Field of View) Overlap-based Memory Retrieval Module
 Implements geometric retrieval based on camera pose overlap for Context-as-Memory
 
-Aligned with CAM paper [2506.03141] Context as Memory.
+Aligned with the Context-as-Memory paper [2506.03141].
 """
 
 import os
@@ -146,7 +146,7 @@ def compute_fov_overlap_3d(
     Compute FOV overlap score between two camera poses using 3D geometry.
     
     This implementation uses full 6-DoF camera poses (position + rotation)
-    to compute more accurate FOV overlap, as described in CAM paper.
+    to compute more accurate FOV overlap, as described in Context-as-Memory.
     
     Args:
         pose1: First camera pose with 'position' [x, y, z] and 'rotation' [roll, pitch, yaw] in degrees
@@ -359,7 +359,7 @@ class FOVMemoryRetriever:
         """
         Retrieve top-k most relevant frames based on FOV overlap.
         
-        According to CAM paper, for temporal coherence, we should:
+        According to Context-as-Memory, for temporal coherence, we should:
         1. Always include the last frame (current_frame_idx - 1) as short-term memory
         2. Retrieve top-(k-1) frames from history as long-term memory
         
@@ -368,7 +368,7 @@ class FOVMemoryRetriever:
             current_frame_idx: Index of current frame to generate
             candidate_frame_indices: List of candidate frame indices to consider
             top_k: Number of frames to retrieve
-            include_last_frame: Whether to force include the last frame (default: True, per CAM paper)
+            include_last_frame: Whether to force include the last frame (default: True, per Context-as-Memory)
             use_relative_poses: Whether to use RT relative conversion (experiment 1_4_2, aligned with paper)
             
         Returns:
@@ -379,7 +379,7 @@ class FOVMemoryRetriever:
         
         retrieved_frames = []
         
-        # Step 1: Force include last frame for short-term memory (CAM paper requirement)
+        # Step 1: Force include last frame for short-term memory (Context-as-Memory requirement)
         if include_last_frame and current_frame_idx > 0:
             last_frame_idx = current_frame_idx - 1
             if last_frame_idx in candidate_frame_indices:
@@ -417,7 +417,7 @@ class FOVMemoryRetriever:
             retrieved_frames.extend(candidate_frame_indices[:remaining_k])
             return retrieved_frames[:top_k]
         
-        # Experiment 1_4_2: Convert to relative poses if enabled (aligned with CAM paper)
+        # Experiment 1_4_2: Convert to relative poses if enabled (aligned with Context-as-Memory)
         if use_relative_poses:
             # Convert current pose to RT format
             ref_rt = pose_to_rt(current_pose)

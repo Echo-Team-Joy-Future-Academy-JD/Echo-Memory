@@ -1,7 +1,7 @@
 """
-FOV-based context frame retrieval for Context-as-Memory (CAM) training integration.
+FOV-based context frame retrieval for context-based memory training integration.
 
-Implements CAM's FOV overlap-based context frame selection during training
+Implements FOV overlap-based context frame selection during training.
 """
 
 import os
@@ -64,10 +64,10 @@ def retrieve_simple_context_frames(
     dataset_base_path: str,
     top_k: int = 4,  # Number of overlap frames to retrieve. First Frame will be added automatically.
     drop_overlap_probability: float = 0.1,  # 10% probability to drop overlap frames (paper strategy)
-    use_rt_relative: bool = False,  # Experiment 1_4_2: use RT relative conversion (aligned with CAM paper)
+    use_rt_relative: bool = False,  # Experiment 1_4_2: use RT relative conversion (aligned with Context-as-Memory)
 ) -> Tuple[List[Image.Image], List, List[int], int, str, str]:
     """
-    Retrieve context frames according to CAM paper [2506.03141] Context as Memory.
+    Retrieve context frames according to the Context-as-Memory paper [2506.03141].
     
     Data Structure (Precomputed Retrieval Results):
     - Each JSON file: overlap_labels/{video_name}/{frame_index}.json
@@ -251,7 +251,7 @@ def retrieve_simple_context_frames(
             # Sampling all JSON files once = one epoch
             if overlapping_indices:
                 # Experiment 1_4_2: Use RT relative conversion for better geometric consistency
-                # Aligned with CAM paper [2506.03141] - use relative camera poses for FOV overlap
+                # Aligned with Context-as-Memory [2506.03141] - use relative camera poses for FOV overlap
                 if use_rt_relative:
                     ref_pose = poses_dict.get(str(current_frame_idx))
                     
@@ -488,7 +488,7 @@ def retrieve_fov_context_frames(
     fov_retriever=None,
     top_k: int = 4,  # Number of overlap frames to retrieve. First Frame will be added automatically.
     use_precomputed_overlaps: bool = True,
-    use_rt_relative: bool = False,  # Experiment 1_4_2: Use RT relative conversion (aligned with CAM paper)
+    use_rt_relative: bool = False,  # Experiment 1_4_2: Use RT relative conversion (aligned with Context-as-Memory)
     strict_overlap_labels: bool = False,
     allow_realtime_fallback: bool = True,
     allow_segment_fallback: bool = True,
@@ -496,9 +496,9 @@ def retrieve_fov_context_frames(
 ):
     """
     Backward-compatible wrapper.
-    We use FOV overlap scoring to select top-k overlap frames (as per CAM paper).
+    We use FOV overlap scoring to select top-k overlap frames (as in Context-as-Memory).
     
-    According to CAM paper [2506.03141]:
+    According to Context-as-Memory [2506.03141]:
     - First Frame (current segment's first frame) is always included as immediate condition
     - Overlap Frames are retrieved as long-term memory
     - With 10% probability, drop overlap frames to simulate starting stage

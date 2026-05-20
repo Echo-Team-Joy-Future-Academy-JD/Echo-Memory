@@ -226,7 +226,7 @@ Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`
 
 ## Data Construction
 
-Generate metadata for a Context-as-Memory style dataset:
+Generate metadata for a context-based memory dataset:
 
 ```bash
 export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
