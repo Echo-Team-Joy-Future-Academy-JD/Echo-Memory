@@ -41,7 +41,6 @@ This release directly includes paper-facing visual assets. Each example is a sma
 ```text
 assets/opendomain_revisit/  Held-out first-frame sources for the open-domain toy-bear revisit probe
 assets/paper_cases/         Paper teaser, memory overview, qualitative panels, and first/tail evidence frames
-assets/paper_videos/        Representative GT-replay MP4s for key memory rows
 assets/readme_previews/     Low-resolution animated GIF previews for direct README playback
 ```
 
@@ -161,7 +160,6 @@ eval/metrics/               Visual/basic capability metrics
 scripts/                    Data construction and latent precompute scripts
 assets/opendomain_revisit/  Held-out first frames for open-domain revisit
 assets/paper_cases/         Paper qualitative panels and per-method visual evidence
-assets/paper_videos/        Representative paper replay videos
 assets/readme_previews/     README-friendly animated previews
 env/                        Shared runtime helpers and action JSONs
 tests/                      Focused checks for memory/context plumbing
