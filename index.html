@@ -60,19 +60,9 @@
     </div>
   </header>
 
-  <aside class="slide-dots" aria-label="Slide navigation">
-    <button type="button" data-slide="hero" class="is-active" aria-label="Home"></button>
-    <button type="button" data-slide="overview" aria-label="Overview"></button>
-    <button type="button" data-slide="design" aria-label="Design"></button>
-    <button type="button" data-slide="evaluation" aria-label="Evaluation"></button>
-    <button type="button" data-slide="evidence" aria-label="Evidence"></button>
-    <button type="button" data-slide="findings" aria-label="Results"></button>
-    <button type="button" data-slide="bibtex" aria-label="BibTeX"></button>
-  </aside>
-
-  <main class="slides" id="slides" tabindex="-1">
-    <section id="hero" class="slide slide-hero" data-slide="hero">
-      <div class="slide-card">
+  <main class="page" id="page">
+    <section id="hero" class="section section-hero" data-section="hero">
+      <div class="section-inner">
         <p class="eyebrow">Echo Team · Joy Future Academy, JD · Technical Report</p>
         <h1>Echo-Memory</h1>
         <p class="subtitle">A Controlled Study of Memory in Action World Models</p>
@@ -151,24 +141,24 @@
       </div>
     </section>
 
-    <section id="overview" class="slide" data-slide="overview">
-      <div class="slide-card">
+    <section id="overview" class="section" data-section="overview">
+      <div class="section-inner">
         <p class="section-kicker">01 · Overview</p>
         <h2>One backbone, one protocol — only memory changes.</h2>
-        <p class="slide-text">
+        <p class="section-text">
           Echo-Memory fixes the action-to-video stack and varies only how history is stored
           and read back. Replay, in-domain loop closure, and open-domain return are reported
           together.
         </p>
-        <figure class="slide-figure">
+        <figure class="section-figure">
           <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
           <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="design" class="slide slide-tinted" data-slide="design">
-      <div class="slide-card">
+    <section id="design" class="section section-alt" data-section="design">
+      <div class="section-inner">
         <p class="section-kicker">02 · Memory Design</p>
         <h2>Context · Compression · Spatial · State-Space</h2>
         <ul class="chip-list">
@@ -177,15 +167,15 @@
           <li><strong>Spatial</strong> read/write state</li>
           <li><strong>State-Space</strong> block-wise SSM</li>
         </ul>
-        <figure class="slide-figure">
+        <figure class="section-figure">
           <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
           <figcaption>Four memory families under a shared write–read interface.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="evaluation" class="slide" data-slide="evaluation">
-      <div class="slide-card">
+    <section id="evaluation" class="section" data-section="evaluation">
+      <div class="section-inner">
         <p class="section-kicker">03 · Evaluation</p>
         <h2>Replay · In-domain revisit · Open-domain return</h2>
         <ul class="chip-list">
@@ -193,15 +183,15 @@
           <li><strong>In-domain</strong> 180° loop + VLM</li>
           <li><strong>Open-domain</strong> edited frames + 45° probe</li>
         </ul>
-        <figure class="slide-figure">
+        <figure class="section-figure">
           <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
           <figcaption>Replay health vs. return memory under the same stack.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="evidence" class="slide slide-tinted slide-scrollable" data-slide="evidence">
-      <div class="slide-card">
+    <section id="evidence" class="section section-alt" data-section="evidence">
+      <div class="section-inner">
         <p class="section-kicker">04 · Qualitative Evidence</p>
         <h2>Return probes expose identity drift.</h2>
         <div class="qual-viewer" data-qual-viewer>
@@ -246,8 +236,8 @@
       </div>
     </section>
 
-    <section id="findings" class="slide" data-slide="findings">
-      <div class="slide-card">
+    <section id="findings" class="section" data-section="findings">
+      <div class="section-inner">
         <p class="section-kicker">05 · Main Conclusions</p>
         <h2>Replay quality ≠ memory quality.</h2>
         <ul class="bullet-list">
@@ -255,15 +245,15 @@
           <li><strong>Compact memory</strong> can drop identity on return.</li>
           <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
         </ul>
-        <figure class="slide-figure">
+        <figure class="section-figure">
           <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
           <figcaption>Rank shift from replay to return — replay is not the final memory score.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="bibtex" class="slide slide-tinted slide-scrollable" data-slide="bibtex">
-      <div class="slide-card">
+    <section id="bibtex" class="section section-alt" data-section="bibtex">
+      <div class="section-inner">
         <p class="section-kicker">06 · Citation</p>
         <h2>BibTeX</h2>
         <div class="bibtex-wrap">
@@ -275,17 +265,21 @@
   year={2026}
 }</code></pre>
         </div>
-        <footer class="slide-footer">
-          <p>© Echo Team · Joy Future Academy, JD</p>
-          <p>
-            <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
-            · <a href="assets/echo-memory-paper.pdf">Paper</a>
-          </p>
-          <p class="build-id" hidden aria-hidden="true">site-build-0ce5d6b</p>
-        </footer>
       </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>© Echo Team · Joy Future Academy, JD</p>
+      <p>
+        <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
+        · <a href="assets/echo-memory-paper.pdf">Paper</a>
+        · <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
+      </p>
+      <p class="build-id" hidden aria-hidden="true">site-build-4a17ee4</p>
+    </div>
+  </footer>
 
   <script src="site.js" defer></script>
 </body>
