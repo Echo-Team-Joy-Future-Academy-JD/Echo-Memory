@@ -31,10 +31,12 @@ body {
   margin: 0;
   font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color: var(--text);
-  background:
-    radial-gradient(circle at 15% 0%, rgba(191, 82, 118, 0.16), transparent 42%),
-    radial-gradient(circle at 88% 18%, rgba(217, 116, 152, 0.14), transparent 40%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 8% -8%, rgba(191, 82, 118, 0.14), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 92% 4%, rgba(217, 116, 152, 0.12), transparent 48%),
+    radial-gradient(ellipse 80% 40% at 50% 108%, rgba(191, 82, 118, 0.07), transparent 55%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 48%, #fff9fb 100%);
   min-height: 100vh;
 }
 
@@ -73,10 +75,21 @@ img {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.35;
-  background-image: radial-gradient(circle, rgba(191, 82, 118, 0.15) 1px, transparent 1px);
-  background-size: 22px 22px;
+  opacity: 0.22;
+  background-image: radial-gradient(circle, rgba(191, 82, 118, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
   z-index: -1;
+}
+
+.page-shell::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(255, 200, 215, 0.18), transparent 38%),
+    radial-gradient(circle at 82% 62%, rgba(191, 82, 118, 0.09), transparent 42%);
 }
 
 .container {
@@ -255,9 +268,36 @@ img {
 
 /* Sections (starVLA-style: normal flow, container max-width) */
 .section {
+  position: relative;
   padding: 4.5rem 0;
   scroll-margin-top: var(--nav-h);
   scroll-snap-align: start;
+}
+
+#main-content > .section + .section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100% - 2rem));
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--brand) 18%, var(--border)) 18%,
+    color-mix(in srgb, var(--brand) 18%, var(--border)) 82%,
+    transparent 100%
+  );
+  opacity: 0.85;
+}
+
+#main-content > .section:nth-of-type(even) {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface-2) 42%, transparent) 0%,
+    color-mix(in srgb, var(--surface) 18%, transparent) 100%
+  );
 }
 
 .section--center .container {
@@ -287,9 +327,6 @@ img {
   padding-bottom: 3.5rem;
 }
 
-.section-alt {
-  /* reserved; no full-bleed bands — match starVLA unified page background */
-}
 
 .section-kicker {
   margin: 0 0 0.5rem;
@@ -646,9 +683,27 @@ img {
 
 /* Footer */
 .footer {
+  position: relative;
   padding: 2rem 0 2.5rem;
-  border-top: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1120px, calc(100% - 2rem));
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--brand) 18%, var(--border)) 18%,
+    color-mix(in srgb, var(--brand) 18%, var(--border)) 82%,
+    transparent 100%
+  );
+  opacity: 0.85;
 }
 
 .footer-row {
