@@ -9,7 +9,8 @@
   --accent-soft: rgba(191, 82, 118, 0.14);
   --shadow: 0 18px 48px rgba(93, 45, 61, 0.12);
   --nav-h: 64px;
-  --slide-max: 720px;
+  --content-max: 720px;
+  --page-max: 1000px;
   --figure-max: 640px;
 }
 
@@ -20,14 +21,12 @@
 }
 
 html {
-  height: 100%;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
   color: var(--ink);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 16px;
@@ -207,79 +206,37 @@ a:hover {
   background: var(--accent-soft);
 }
 
-/* —— Slide dots —— */
-.slide-dots {
-  position: fixed;
-  right: 18px;
-  top: 50%;
-  z-index: 90;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+/* —— Page sections (starVLA continuous scroll) —— */
+.page {
+  padding-top: var(--nav-h);
 }
 
-.slide-dots button {
-  width: 10px;
-  height: 10px;
-  padding: 0;
-  border: 2px solid rgba(191, 82, 118, 0.45);
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 0.15s, background 0.15s;
+.section {
+  padding: 56px 20px;
+  scroll-margin-top: var(--nav-h);
 }
 
-.slide-dots button.is-active,
-.slide-dots button:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-  transform: scale(1.15);
-}
-
-/* —— Scroll-snap slides —— */
-.slides {
-  height: 100vh;
-  margin-top: var(--nav-h);
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-.slide {
-  min-height: calc(100vh - var(--nav-h));
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 28px 20px 40px;
-}
-
-.slide-scrollable {
-  scroll-snap-stop: normal;
-  align-items: flex-start;
-  padding-top: 36px;
-  padding-bottom: 48px;
-}
-
-.slide-tinted {
+.section-alt {
   background: rgba(251, 240, 244, 0.55);
+  border-block: 1px solid rgba(234, 217, 223, 0.6);
 }
 
-.slide-card {
+.section-inner {
   width: 100%;
-  max-width: var(--slide-max);
+  max-width: var(--content-max);
   margin: 0 auto;
 }
 
-/* —— Hero —— */
-.slide-hero .slide-card {
+.section-hero {
+  padding: 72px 20px 64px;
   text-align: center;
+  background:
+    radial-gradient(circle at 50% 0, rgba(191, 82, 118, 0.16), transparent 55%),
+    transparent;
+}
+
+.section-hero .section-inner {
+  max-width: var(--page-max);
 }
 
 .eyebrow {
@@ -296,7 +253,7 @@ a:hover {
   border: 1px solid rgba(191, 82, 118, 0.22);
 }
 
-.slide-hero h1 {
+.section-hero h1 {
   margin: 0 0 8px;
   font-size: clamp(2.2rem, 5vw, 3.2rem);
   font-weight: 800;
@@ -456,7 +413,7 @@ a:hover {
   color: var(--accent);
 }
 
-.slide h2 {
+.section h2 {
   margin: 0 0 12px;
   font-size: clamp(1.35rem, 3vw, 1.75rem);
   font-weight: 800;
@@ -464,7 +421,7 @@ a:hover {
   line-height: 1.2;
 }
 
-.slide-text {
+.section-text {
   margin: 0 0 16px;
   color: var(--muted);
   font-size: 0.95rem;
@@ -498,12 +455,12 @@ a:hover {
   margin-bottom: 6px;
 }
 
-.slide-figure {
-  margin: 0;
+.section-figure {
+  margin: 20px 0 0;
   text-align: center;
 }
 
-.slide-figure img {
+.section-figure img {
   width: 100%;
   max-width: var(--figure-max);
   margin: 0 auto;
@@ -513,7 +470,7 @@ a:hover {
   box-shadow: var(--shadow);
 }
 
-.slide-figure figcaption {
+.section-figure figcaption {
   margin-top: 10px;
   font-size: 0.82rem;
   color: var(--muted);
@@ -590,16 +547,21 @@ a:hover {
   text-align: left;
 }
 
-.slide-footer {
-  margin-top: 28px;
-  padding-top: 16px;
+.site-footer {
+  padding: 28px 20px 40px;
   border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
   text-align: center;
   font-size: 0.85rem;
   color: var(--muted);
 }
 
-.slide-footer p {
+.footer-inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+}
+
+.site-footer p {
   margin: 4px 0;
 }
 
@@ -619,11 +581,6 @@ a:hover {
     display: flex;
   }
 
-  .slide-dots {
-    right: 10px;
-    gap: 8px;
-  }
-
   .stats-row {
     grid-template-columns: 1fr;
     max-width: 280px;
@@ -631,8 +588,12 @@ a:hover {
 }
 
 @media (max-width: 520px) {
-  .slide-dots {
-    display: none;
+  .section {
+    padding: 40px 16px;
+  }
+
+  .section-hero {
+    padding: 48px 16px 40px;
   }
 
   .cta-row .btn {
@@ -646,7 +607,4 @@ a:hover {
     scroll-behavior: auto;
   }
 
-  .slides {
-    scroll-behavior: auto;
-  }
 }

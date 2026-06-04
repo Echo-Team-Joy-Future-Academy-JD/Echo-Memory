@@ -3,11 +3,10 @@
 
   const REPO = "Echo-Team-Joy-Future-Academy-JD/Echo-Memory";
   const REPO_API = "https://api.github.com/repos/" + REPO;
+  const NAV_OFFSET = 72;
 
-  const slidesRoot = document.getElementById("slides");
-  const slideEls = Array.from(document.querySelectorAll(".slide[data-slide]"));
+  const sectionEls = Array.from(document.querySelectorAll(".section[data-section]"));
   const navLinks = Array.from(document.querySelectorAll("[data-nav]"));
-  const dotBtns = Array.from(document.querySelectorAll(".slide-dots button[data-slide]"));
   const navToggle = document.getElementById("nav-toggle");
   const navMobile = document.getElementById("nav-menu-mobile");
 
@@ -33,11 +32,9 @@
       })
       .then(function (data) {
         var stars = formatCount(data.stargazers_count);
-        var forks = formatCount(data.forks_count);
-        var issues = formatCount(data.open_issues_count);
         setStat("stars", stars);
-        setStat("forks", forks);
-        setStat("issues", issues);
+        setStat("forks", formatCount(data.forks_count));
+        setStat("issues", formatCount(data.open_issues_count));
         var navCount = document.getElementById("nav-star-count");
         if (navCount) navCount.textContent = stars;
       })
@@ -48,20 +45,18 @@
       });
   }
 
-  function setActiveSlide(id) {
+  function setActiveNav(id) {
     navLinks.forEach(function (a) {
       a.classList.toggle("is-active", a.getAttribute("data-nav") === id);
     });
-    dotBtns.forEach(function (btn) {
-      btn.classList.toggle("is-active", btn.getAttribute("data-slide") === id);
-    });
   }
 
-  function scrollToSlide(id) {
+  function scrollToSection(id) {
     var el = document.getElementById(id);
-    if (!el || !slidesRoot) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveSlide(id);
+    if (!el) return;
+    var top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET;
+    window.scrollTo({ top: top, behavior: "smooth" });
+    setActiveNav(id);
     if (navMobile && !navMobile.hidden) {
       navToggle.setAttribute("aria-expanded", "false");
       navMobile.hidden = true;
@@ -69,49 +64,26 @@
     }
   }
 
-  function currentSlideIndex() {
-    var rootTop = slidesRoot.getBoundingClientRect().top;
-    var marker = rootTop + slidesRoot.clientHeight * 0.35;
-    var idx = 0;
-    slideEls.forEach(function (slide, i) {
-      var top = slide.getBoundingClientRect().top;
-      if (top <= marker) idx = i;
-    });
-    return idx;
-  }
-
-  if (slidesRoot && slideEls.length) {
+  if (sectionEls.length) {
     var observer = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.45) {
-            setActiveSlide(entry.target.getAttribute("data-slide"));
+          if (entry.isIntersecting) {
+            setActiveNav(entry.target.getAttribute("data-section"));
           }
         });
       },
-      { root: slidesRoot, threshold: [0.45, 0.6] }
+      { root: null, rootMargin: "-" + NAV_OFFSET + "px 0px -55% 0px", threshold: 0 }
     );
-    slideEls.forEach(function (slide) {
-      observer.observe(slide);
+    sectionEls.forEach(function (section) {
+      observer.observe(section);
     });
-
-    slidesRoot.addEventListener(
-      "scroll",
-      function () {
-        window.requestAnimationFrame(function () {
-          var idx = currentSlideIndex();
-          var id = slideEls[idx] && slideEls[idx].getAttribute("data-slide");
-          if (id) setActiveSlide(id);
-        });
-      },
-      { passive: true }
-    );
   }
 
   navLinks.forEach(function (a) {
     a.addEventListener("click", function (e) {
       e.preventDefault();
-      scrollToSlide(a.getAttribute("data-nav"));
+      scrollToSection(a.getAttribute("data-nav"));
     });
   });
 
@@ -119,16 +91,10 @@
     Array.from(navMobile.querySelectorAll("a[data-nav]")).forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
-        scrollToSlide(a.getAttribute("data-nav"));
+        scrollToSection(a.getAttribute("data-nav"));
       });
     });
   }
-
-  dotBtns.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      scrollToSlide(btn.getAttribute("data-slide"));
-    });
-  });
 
   if (navToggle && navMobile) {
     navToggle.addEventListener("click", function () {
@@ -138,18 +104,6 @@
       document.querySelector(".top-nav").classList.toggle("is-open", open);
     });
   }
-
-  document.addEventListener("keydown", function (e) {
-    if (!slidesRoot || e.target.closest("pre, input, textarea")) return;
-    var keys = ["ArrowDown", "ArrowUp", "PageDown", "PageUp"];
-    if (keys.indexOf(e.key) === -1) return;
-    e.preventDefault();
-    var idx = currentSlideIndex();
-    if (e.key === "ArrowDown" || e.key === "PageDown") idx = Math.min(idx + 1, slideEls.length - 1);
-    else idx = Math.max(idx - 1, 0);
-    var id = slideEls[idx].getAttribute("data-slide");
-    scrollToSlide(id);
-  });
 
   document.querySelectorAll("[data-qual-viewer]").forEach(function (viewer) {
     var image = viewer.querySelector("[data-qual-image]");
@@ -177,8 +131,7 @@
   var bibtexBlock = document.getElementById("bibtex-block");
   if (copyBtn && bibtexBlock) {
     copyBtn.addEventListener("click", function () {
-      var text = bibtexBlock.textContent;
-      navigator.clipboard.writeText(text).then(
+      navigator.clipboard.writeText(bibtexBlock.textContent).then(
         function () {
           copyBtn.textContent = "Copied";
           copyBtn.classList.add("is-copied");
