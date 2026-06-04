@@ -10,10 +10,14 @@
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="ambient-bg" aria-hidden="true"></div>
   <!-- arXiv: replace TBD with real ID when posted -->
   <!-- Paper: replace # with final report URL when ready -->
   <header class="top-nav" role="banner">
@@ -65,8 +69,10 @@
     <section id="hero" class="section section-hero" data-section="hero">
       <div class="section-inner">
         <p class="eyebrow">Echo Team · Joy Future Academy, JD · Technical Report</p>
-        <h1>Echo-Memory</h1>
-        <p class="subtitle">A Controlled Study of Memory in Action World Models</p>
+        <h1 class="hero-title">
+          <span class="title-gradient">Echo-Memory</span>
+        </h1>
+        <p class="hero-tagline">A Controlled Study of Memory in Action World Models</p>
         <p class="hero-lead">
           When the camera leaves and returns, which memory keeps the <strong>same world</strong>
           instead of a plausible but different scene?

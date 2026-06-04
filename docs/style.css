@@ -2,16 +2,19 @@
   --ink: #191218;
   --muted: #655b63;
   --paper: #fffafb;
-  --card: #ffffff;
+  --card: rgba(255, 255, 255, 0.88);
   --line: #ead9df;
   --accent: #bf5276;
   --accent-dark: #84354e;
+  --accent-light: #d97498;
   --accent-soft: rgba(191, 82, 118, 0.14);
-  --shadow: 0 18px 48px rgba(93, 45, 61, 0.12);
+  --shadow: 0 18px 48px rgba(93, 45, 61, 0.1);
   --nav-h: 64px;
   --content-max: 720px;
   --page-max: 1000px;
   --figure-max: 640px;
+  --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 }
 
 *,
@@ -28,12 +31,23 @@ body {
   margin: 0;
   min-height: 100%;
   color: var(--ink);
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.55;
+  background-color: #fefcfd;
+}
+
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(circle at 50% -12rem, rgba(191, 82, 118, 0.2), transparent 36rem),
-    linear-gradient(180deg, #fff 0, var(--paper) 40%, #fff 100%);
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(191, 82, 118, 0.22), transparent 58%),
+    radial-gradient(ellipse 45% 35% at 92% 8%, rgba(217, 116, 152, 0.14), transparent 55%),
+    radial-gradient(ellipse 40% 32% at 4% 28%, rgba(255, 210, 225, 0.2), transparent 50%),
+    radial-gradient(ellipse 55% 40% at 78% 88%, rgba(191, 82, 118, 0.08), transparent 60%),
+    linear-gradient(180deg, #fffcfd 0%, #fff6f9 28%, #ffffff 62%, #faf8f9 100%);
 }
 
 img {
@@ -70,9 +84,9 @@ a:hover {
   right: 0;
   z-index: 100;
   height: var(--nav-h);
-  border-bottom: 1px solid rgba(234, 217, 223, 0.85);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(234, 217, 223, 0.7);
+  background: rgba(255, 252, 253, 0.78);
+  backdrop-filter: blur(16px) saturate(1.2);
 }
 
 .nav-inner {
@@ -98,10 +112,11 @@ a:hover {
 }
 
 .brand-name {
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--accent-dark);
 }
 
 .brand-team {
@@ -217,8 +232,9 @@ a:hover {
 }
 
 .section-alt {
-  background: rgba(251, 240, 244, 0.55);
-  border-block: 1px solid rgba(234, 217, 223, 0.6);
+  background:
+    linear-gradient(180deg, rgba(255, 246, 250, 0.72) 0%, rgba(255, 252, 253, 0.45) 100%);
+  border-block: 1px solid rgba(234, 217, 223, 0.45);
 }
 
 .section-inner {
@@ -228,11 +244,18 @@ a:hover {
 }
 
 .section-hero {
-  padding: 72px 20px 64px;
+  padding: 80px 20px 72px;
   text-align: center;
-  background:
-    radial-gradient(circle at 50% 0, rgba(191, 82, 118, 0.16), transparent 55%),
-    transparent;
+  position: relative;
+}
+
+.section-hero::after {
+  content: "";
+  display: block;
+  width: min(120px, 24vw);
+  height: 1px;
+  margin: 28px auto 0;
+  background: linear-gradient(90deg, transparent, rgba(191, 82, 118, 0.55), transparent);
 }
 
 .section-hero .section-inner {
@@ -241,30 +264,54 @@ a:hover {
 
 .eyebrow {
   display: inline-block;
-  margin: 0 0 12px;
-  padding: 5px 14px;
+  margin: 0 0 18px;
+  padding: 6px 16px;
   border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent-dark);
-  background: var(--accent-soft);
-  border: 1px solid rgba(191, 82, 118, 0.22);
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(191, 82, 118, 0.28);
+  box-shadow: 0 4px 20px rgba(191, 82, 118, 0.08);
 }
 
-.section-hero h1 {
-  margin: 0 0 8px;
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+.hero-title {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 7.5vw, 4.35rem);
+  font-weight: 650;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
-.subtitle {
-  margin: 0 0 16px;
-  font-size: 1.12rem;
+.title-gradient {
+  display: inline-block;
+  background: linear-gradient(
+    118deg,
+    var(--accent-dark) 0%,
+    var(--accent) 32%,
+    var(--accent-light) 58%,
+    #e8a0b8 78%,
+    var(--accent-dark) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-tagline {
+  margin: 0 0 18px;
+  max-width: 36rem;
+  margin-inline: auto;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
   font-weight: 500;
+  font-style: italic;
+  line-height: 1.45;
   color: var(--muted);
 }
 
@@ -348,8 +395,9 @@ a:hover {
 .stat-card {
   padding: 14px 12px;
   border-radius: 14px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(234, 217, 223, 0.85);
   background: var(--card);
+  backdrop-filter: blur(8px);
   box-shadow: var(--shadow);
   text-align: center;
   text-decoration: none;
@@ -405,20 +453,22 @@ a:hover {
 
 /* —— Section slides —— */
 .section-kicker {
-  margin: 0 0 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
 }
 
 .section h2 {
-  margin: 0 0 12px;
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3.2vw, 1.95rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
   line-height: 1.2;
+  color: var(--ink);
 }
 
 .section-text {
@@ -549,8 +599,8 @@ a:hover {
 
 .site-footer {
   padding: 28px 20px 40px;
-  border-top: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(234, 217, 223, 0.6);
+  background: linear-gradient(180deg, transparent, rgba(255, 248, 251, 0.95));
   text-align: center;
   font-size: 0.85rem;
   color: var(--muted);
@@ -602,9 +652,23 @@ a:hover {
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .title-gradient {
+    animation: title-shimmer 10s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes title-shimmer {
+  from { background-position: 0% center; }
+  to { background-position: 100% center; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
+  .title-gradient {
+    animation: none;
+  }
 }
