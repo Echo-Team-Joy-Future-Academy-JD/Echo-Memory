@@ -123,6 +123,9 @@ img {
 }
 
 .top-nav__inner {
+  width: min(1120px, calc(100% - 2rem));
+  max-width: 100%;
+  margin-inline: auto;
   min-height: var(--nav-h);
   display: flex;
   align-items: center;
@@ -258,10 +261,19 @@ img {
   min-height: clamp(640px, 88vh, 920px);
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .section--snap > .container {
-  width: 100%;
+  width: min(1120px, calc(100% - 2rem));
+  max-width: 100%;
+  margin-inline: auto;
+  flex: 0 1 auto;
+}
+
+#hero.section--snap,
+#bibtex.section--snap {
+  min-height: auto;
 }
 
 .section--center .container {
@@ -599,6 +611,10 @@ img {
 .bibtex-wrap {
   position: relative;
   margin-top: 1rem;
+  width: 100%;
+  max-width: 52rem;
+  margin-inline: auto;
+  text-align: left;
 }
 
 .copy-btn {
@@ -649,6 +665,12 @@ img {
   padding: 2rem 0 2.5rem;
   border-top: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+.footer .container {
+  width: min(1120px, calc(100% - 2rem));
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .footer-row {
