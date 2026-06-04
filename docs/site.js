@@ -49,15 +49,6 @@
     });
   });
 
-  if (navMobile) {
-    Array.from(navMobile.querySelectorAll("a[data-nav]")).forEach(function (a) {
-      a.addEventListener("click", function (e) {
-        e.preventDefault();
-        scrollToSection(a.getAttribute("data-nav"));
-      });
-    });
-  }
-
   if (navToggle && navMobile) {
     navToggle.addEventListener("click", function () {
       var open = navMobile.hidden;
@@ -66,6 +57,28 @@
       document.querySelector(".top-nav").classList.toggle("is-open", open);
     });
   }
+
+  function hydrateMetric(card) {
+    var valueEl = card.querySelector("[data-metric-value]");
+    var badgeUrl = card.getAttribute("data-badge-url");
+    if (!valueEl || !badgeUrl) return;
+
+    fetch(badgeUrl, { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("Request failed");
+        return res.json();
+      })
+      .then(function (data) {
+        valueEl.textContent = data.value || data.message || valueEl.dataset.fallback || "—";
+      })
+      .catch(function () {
+        valueEl.textContent = valueEl.dataset.fallback || "—";
+      });
+  }
+
+  document.querySelectorAll("[data-badge-url]").forEach(function (card) {
+    hydrateMetric(card);
+  });
 
   document.querySelectorAll("[data-qual-viewer]").forEach(function (viewer) {
     var image = viewer.querySelector("[data-qual-image]");
