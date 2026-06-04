@@ -7,8 +7,8 @@
 <div align="center">
 <a href="#"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
 <a href="#"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-TBD-blue" alt="Hugging Face: TBD"></a>
-<a href="#"><img src="https://img.shields.io/badge/Project%20Page-TBD-green" alt="Project Page: TBD"></a>
-<a href="https://github.com/WayneJin0918/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
+<a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
+<a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
 
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
