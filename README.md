@@ -65,7 +65,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
   </tr>
   <tr>
     <td><b>Compression</b></td>
-    <td><b>FramePack length r=4</b></td>
+    <td><b>Compression r = 4</b></td>
     <td>Whether a compact temporal representation can retain useful history without raw-frame growth.</td>
   </tr>
   <tr>
@@ -75,7 +75,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
   </tr>
   <tr>
     <td><b>State-space</b></td>
-    <td><b>Legacy VideoSSM Hybrid / Block-wise SSM</b></td>
+    <td><b>Legacy Hybrid / Block-wise SSM</b></td>
     <td>Whether recurrent state updates can stabilize revisits beyond short context windows.</td>
   </tr>
 </table>
@@ -124,7 +124,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
       <img src="assets/readme_previews/context_k5_replay_gt.gif" width="140">
     </td>
     <td align="center">
-      <b>FramePack length r=4</b><br>
+      <b>Compression r = 4</b><br>
       <img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" width="140">
     </td>
     <td align="center">
@@ -132,7 +132,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
       <img src="assets/readme_previews/spatial_memory_replay_gt.gif" width="140">
     </td>
     <td align="center">
-      <b>Legacy VideoSSM Hybrid</b><br>
+      <b>Legacy Hybrid</b><br>
       <img src="assets/readme_previews/ssm_legacy_replay_gt.gif" width="140">
     </td>
     <td align="center">
