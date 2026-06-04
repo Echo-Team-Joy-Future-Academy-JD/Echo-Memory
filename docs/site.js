@@ -1,49 +1,11 @@
 (function () {
   "use strict";
 
-  const REPO = "Echo-Team-Joy-Future-Academy-JD/Echo-Memory";
-  const REPO_API = "https://api.github.com/repos/" + REPO;
   const NAV_OFFSET = 72;
-
   const sectionEls = Array.from(document.querySelectorAll(".section[data-section]"));
   const navLinks = Array.from(document.querySelectorAll("[data-nav]"));
   const navToggle = document.getElementById("nav-toggle");
   const navMobile = document.getElementById("nav-menu-mobile");
-
-  function formatCount(n) {
-    if (typeof n !== "number" || Number.isNaN(n)) return "—";
-    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
-    return String(n);
-  }
-
-  function setStat(name, value) {
-    document.querySelectorAll('[data-stat="' + name + '"]').forEach(function (el) {
-      el.textContent = value;
-    });
-  }
-
-  function loadGitHubStats() {
-    fetch(REPO_API, {
-      headers: { Accept: "application/vnd.github+json" },
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error("GitHub API " + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        var stars = formatCount(data.stargazers_count);
-        setStat("stars", stars);
-        setStat("forks", formatCount(data.forks_count));
-        setStat("issues", formatCount(data.open_issues_count));
-        var navCount = document.getElementById("nav-star-count");
-        if (navCount) navCount.textContent = stars;
-      })
-      .catch(function () {
-        setStat("stars", "—");
-        setStat("forks", "—");
-        setStat("issues", "—");
-      });
-  }
 
   function setActiveNav(id) {
     navLinks.forEach(function (a) {
@@ -146,6 +108,4 @@
       );
     });
   }
-
-  loadGitHubStats();
 })();
