@@ -40,7 +40,7 @@ This release directly includes paper-facing visual assets. Each example is a sma
 
 ```text
 assets/opendomain_revisit/  Held-out first-frame sources for the open-domain toy-bear revisit probe
-assets/paper_cases/         Paper teaser, memory overview, qualitative panels, and first/tail evidence frames
+assets/paper_cases/         Paper teaser and memory overview figures
 assets/readme_previews/     Low-resolution animated GIF previews for direct README playback
 ```
 
@@ -117,31 +117,27 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
   <tr>
     <td align="center">
       <b>Context K=1</b><br>
-      <img src="assets/readme_previews/context_k1_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/context_k1_replay_gt.gif" width="140">
     </td>
     <td align="center">
       <b>Context K=5</b><br>
-      <img src="assets/readme_previews/context_k5_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/context_k5_replay_gt.gif" width="140">
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <b>FramePack length r=4</b><br>
-      <img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" width="140">
     </td>
     <td align="center">
       <b>Spatial Memory</b><br>
-      <img src="assets/readme_previews/spatial_memory_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/spatial_memory_replay_gt.gif" width="140">
     </td>
-  </tr>
-  <tr>
     <td align="center">
       <b>Legacy VideoSSM Hybrid</b><br>
-      <img src="assets/readme_previews/ssm_legacy_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/ssm_legacy_replay_gt.gif" width="140">
     </td>
     <td align="center">
       <b>Block-wise SSM</b><br>
-      <img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" width="300">
+      <img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" width="140">
     </td>
   </tr>
 </table>
@@ -159,7 +155,7 @@ eval/v2/                    Static consistency and basic GT replay eval
 eval/metrics/               Visual/basic capability metrics
 scripts/                    Data construction and latent precompute scripts
 assets/opendomain_revisit/  Held-out first frames for open-domain revisit
-assets/paper_cases/         Paper qualitative panels and per-method visual evidence
+assets/paper_cases/         Paper teaser and memory overview figures
 assets/readme_previews/     README-friendly animated previews
 env/                        Shared runtime helpers and action JSONs
 tests/                      Focused checks for memory/context plumbing
@@ -262,111 +258,7 @@ PHASE=stage1 OOD_DIR=assets/opendomain_revisit \
 
 If an OpenAI-compatible VLM endpoint is available, add `PHASE=vlm` or run the default `PHASE=all` with `VLM_API_BASE` and `VLM_MODEL`.
 
-## Visualization and Paper Cases
-
-This repository directly includes the qualitative assets used to inspect the paper's representative open-domain case.
-
-> **Open-domain revisit setup.** Start from a held-out toy-bear image, turn away, and return with a **45-degree revisit action**. The task is intentionally simple to read but hard for memory: the model must recover the same foreground object and nearby scene evidence after leaving the initial view.
-
-<div align="center">
-<table>
-  <tr>
-    <th>Variant</th>
-    <th>First frame</th>
-    <th>Revisit tail</th>
-  </tr>
-  <tr>
-    <td>No memory / I2V floor</td>
-    <td><img src="assets/paper_cases/01_no_memory_i2v_floor_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/01_no_memory_i2v_floor_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>Context K=5</td>
-    <td><img src="assets/paper_cases/02_context_k5_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/02_context_k5_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>FramePack length r=4</td>
-    <td><img src="assets/paper_cases/04_framepack_len_r4_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/04_framepack_len_r4_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>Spatial Memory</td>
-    <td><img src="assets/paper_cases/05_spatial_memory_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/05_spatial_memory_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>State-Space legacy hybrid</td>
-    <td><img src="assets/paper_cases/06_ssm_legacy_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/06_ssm_legacy_tail.png" width="210"></td>
-  </tr>
-  <tr>
-    <td>State-Space block-wise</td>
-    <td><img src="assets/paper_cases/07_ssm_blockwise_first.png" width="210"></td>
-    <td><img src="assets/paper_cases/07_ssm_blockwise_tail.png" width="210"></td>
-  </tr>
-</table>
-</div>
-
-**How to read the table:**
-
-- **First frame** is the source condition given to the model before rollout.
-- **Revisit tail** shows the final frames after the model leaves the view and returns.
-- **Good memory** preserves object identity, similar pose, stable background evidence, and coherent camera return.
-- **Common failure modes** include object replacement, texture drift, background rewrite, or a return view that ignores the start.
-
-The evaluation scripts also write videos and evidence images next to their metrics, so newly generated cases can be inspected without any extra conversion step.
-
-GT replay videos:
-
-```text
-${CKPT_DIR}/evals_v2/basic/replay_gt/<video>_start<frame>/replay_gt_gen_only.mp4
-${CKPT_DIR}/evals_v2/static_consistency/in_domain/long_horizon_gt_replay/*/replay_gt_gen_only.mp4
-```
-
-In-domain loop and open-domain revisit videos:
-
-```text
-${CKPT_DIR}/evals_v2/static_consistency/in_domain/loop_closure/**/*.mp4
-${CKPT_DIR}/evals_v2/static_consistency/in_domain/combo_revisit_in_domain/**/*.mp4
-${CKPT_DIR}/evals_v2/static_consistency/open_domain/multiview_revisit/**/*.mp4
-eval_outputs/revisit_suite_<timestamp>/stage1/**/revisit_gen_only.mp4
-```
-
-Open-domain revisit evidence images, useful for paper figures and qualitative panels:
-
-```text
-eval_outputs/revisit_suite_<timestamp>/stage1/**/stage1_frames/first_00.png
-eval_outputs/revisit_suite_<timestamp>/stage1/**/stage1_frames/revisit_tail_*.png
-eval_outputs/revisit_suite_<timestamp>/stage1/**/stage1_frames/first_last_chunk_changes/*.png
-```
-
-To collect paper-ready case tables and image manifests from one or more revisit runs:
-
-```bash
-python eval/v2/revisit_suite/export_revisit_materials.py \
-  --eval-root eval_outputs/revisit_suite_<timestamp> \
-  --out-dir paper_case_materials \
-  --prefix echo_memory_revisit
-```
-
-For lightweight browsing on a remote machine, serve an output folder and open the URL from your workstation:
-
-```bash
-python -m http.server 8000 --directory eval_outputs
-```
-
-The released first-frame sources for the open-domain paper cases live in `assets/opendomain_revisit/`. They are the input images behind the toy-bear revisit probe; generated videos and VLM evidence frames are produced by `eval/v2/revisit_suite`.
-
-If MP4 files are generated on a remote machine, open them through the file browser or serve the output directory:
-
-```bash
-python -m http.server 8000 --directory eval_outputs
-```
-
-Then open `http://<host>:8000/` and navigate to `revisit_suite_<timestamp>/stage1/.../revisit_gen_only.mp4`.
-
-Capability metrics:
+## Capability Metrics
 
 ```bash
 python eval/metrics/run_all_metrics.py --help
