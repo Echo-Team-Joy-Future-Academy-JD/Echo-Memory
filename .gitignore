@@ -42,3 +42,4 @@ models/
 !docs/**/*.jpg
 !docs/**/*.jpeg
 !docs/**/*.webp
+!docs/**/*.pdf

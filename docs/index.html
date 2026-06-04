@@ -1,187 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Echo-Memory</title>
-  <meta name="description" content="A controlled study of memory in action-conditioned video world models.">
-  <style>
-    :root {
-      --text: #1f2328;
-      --muted: #57606a;
-      --border: #d8dee4;
-      --bg: #ffffff;
-      --accent: #0969da;
-      --quote: #f6f8fa;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      line-height: 1.6;
-    }
-    .wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 32px 20px 64px;
-    }
-    header { text-align: center; margin-bottom: 28px; }
-    h1 { font-size: 2.2rem; margin: 0 0 8px; }
-    .subtitle { font-size: 1.1rem; margin: 0 0 6px; }
-    .team { color: var(--muted); margin: 0 0 18px; }
-    .badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
-    .badges a {
-      display: inline-block;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      text-decoration: none;
-      color: var(--text);
-      font-size: 0.9rem;
-      background: #fff;
-    }
-    .badges a.primary { background: #dafbe1; border-color: #4ac26b; }
-    .badges a.code { background: #f6f8fa; }
-    blockquote {
-      margin: 0 0 24px;
-      padding: 14px 18px;
-      background: var(--quote);
-      border-left: 4px solid var(--accent);
-      border-radius: 8px;
-    }
-    .hero, .figure, .grid { text-align: center; margin: 24px 0; }
-    .hero img, .figure img { max-width: 100%; height: auto; border-radius: 8px; }
-    .caption { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
-    h2 { margin-top: 40px; font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 0.95rem;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      vertical-align: top;
-    }
-    th { background: #fff5f7; }
-    .sources img, .videos img {
-      width: 140px;
-      max-width: 100%;
-      height: auto;
-      border-radius: 6px;
-    }
-    .videos td { width: 16.66%; }
-    .videos b { display: block; font-size: 0.82rem; margin-bottom: 8px; }
-    p.lead { font-size: 1rem; }
-    a { color: var(--accent); }
-    h2.citation { margin-top: 48px; }
-    pre.bibtex {
-      margin: 12px 0 0;
-      padding: 14px 16px;
-      background: #f6f8fa;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      text-align: left;
-    }
-    footer {
-      margin-top: 32px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-  </style>
+  <meta
+    name="description"
+    content="Echo-Memory: A controlled study of memory mechanisms in action-conditioned world models."
+  />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="wrap">
-    <header>
+  <header class="hero">
+    <div class="container">
+      <p class="eyebrow">Technical Report</p>
       <h1>Echo-Memory</h1>
-      <p class="subtitle"><b>A Controlled Study of Memory in Action World Models</b></p>
-      <p class="team"><b>Echo Team @ Joy Future Academy, JD</b></p>
-      <div class="badges">
-        <a href="#">arXiv (TBD)</a>
-        <a href="#">Hugging Face (TBD)</a>
-        <a class="primary" href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
-        <a class="code" href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub Code</a>
+      <p class="subtitle">A Controlled Study of Memory in Action World Models</p>
+
+      <div class="authors">
+        <span>Wayne King</span>
+        <span>Zeyue Xue</span>
+        <span>Yuxuan Bian</span>
+        <span>Jie Huang</span>
+        <span>Haoran Li</span>
+        <span>Yaowei Li</span>
+        <span>Yaofeng Su</span>
+        <span>Yuming Li</span>
+        <span>Haoyu Wang</span>
+        <span>Shiyi Zhang</span>
+        <span>Songchun Zhang</span>
+        <span>Yuwei Niu</span>
+        <span>Sihan Xu</span>
+        <span>Junhao Zhuang</span>
+        <span>Haoyang Huang</span>
+        <span>Nan Duan</span>
       </div>
-    </header>
 
-    <blockquote>
-      <b>Core question.</b> When a generated scene must leave and later return, which kind of memory helps an action world model preserve <b>identity</b>, <b>layout</b>, and <b>viewpoint</b> instead of drifting into a plausible but different world?
-    </blockquote>
+      <p class="affiliations">
+        The University of Hong Kong · Joy Future Academy, JD · The Chinese
+        University of Hong Kong · Peking University · Fudan University ·
+        Tsinghua University · HKUST · University of Michigan
+      </p>
 
-    <div class="hero">
-      <img src="assets/paper_cases/figure_1_abs_framework.png" alt="Echo-Memory paper teaser and workflow">
-      <p class="caption"><b>Paper teaser.</b> Echo-Memory studies how Context, Compression, Spatial, and State-Space memory carry historical observations across chunk-wise action-world generation and revisit trajectories.</p>
+      <nav class="project-links" aria-label="Project links">
+        <a href="assets/echo-memory-paper.pdf">Paper</a>
+        <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">Code</a>
+      </nav>
+
+      <nav class="toc" aria-label="Page sections">
+        <a href="#overview">Overview</a>
+        <a href="#protocol">Protocol</a>
+        <a href="#design">Design</a>
+        <a href="#evaluation">Evaluation</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#findings">Conclusions</a>
+      </nav>
+
+      <div class="hero-tiles" aria-label="Project highlights">
+        <a class="hero-tile" href="#protocol">
+          <span class="tile-icon" aria-hidden="true">U</span>
+          <strong>Unified Protocol</strong>
+          <small>One training and evaluation path.</small>
+        </a>
+        <a class="hero-tile" href="#design">
+          <span class="tile-icon" aria-hidden="true">M</span>
+          <strong>Memory Design</strong>
+          <small>Capacity, compression, read-out, recurrence.</small>
+        </a>
+        <a class="hero-tile" href="#evaluation">
+          <span class="tile-icon" aria-hidden="true">E</span>
+          <strong>Three-Branch Eval</strong>
+          <small>Replay, loop closure, open-domain return.</small>
+        </a>
+        <a class="hero-tile" href="#evidence">
+          <span class="tile-icon" aria-hidden="true">R</span>
+          <strong>Return Evidence</strong>
+          <small>Identity drift made visible.</small>
+        </a>
+      </div>
     </div>
+  </header>
 
-    <p class="lead"><b>Echo-Memory</b> is the release code for the paper's controlled memory study. It keeps the shared <b>Wan video backbone</b>, memory modules, training recipes, data utilities, open-domain revisit assets, and public replay/static evaluation suites.</p>
+  <main>
+    <section id="overview" class="section">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Overview</p>
+          <h2>World models must both follow and remember.</h2>
+        </div>
+        <div class="prose">
+          <p>
+            Action-conditioned world models generate video chunk by chunk from a
+            first frame, text prompt, and camera-action sequence. Local frames can
+            look plausible while the scene or salient object silently changes once
+            the camera leaves and returns. Echo-Memory isolates that memory failure
+            instead of introducing another bespoke module.
+          </p>
+          <ul class="overview-list">
+            <li>
+              <strong>Controlled comparison.</strong> We fix the video DiT backbone,
+              data interface, relative-RT actions, sampler, and evaluation code
+              path, and vary only how history is stored and read.
+            </li>
+            <li>
+              <strong>Unified training.</strong> Every row uses the same
+              single-stage schedule, optimizer, segment length, and in-training
+              replay diagnostics on a shared held-out pool.
+            </li>
+            <li>
+              <strong>Unified evaluation.</strong> Replay, in-domain loop closure,
+              and open-domain return are reported as a stacked bundle rather than
+              a single scalar.
+            </li>
+            <li>
+              <strong>Factorized design space.</strong> The matrix separates
+              capacity, compression, read-out, and recurrence instead of mixing them
+              across unrelated system changes.
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="container-wide section-figure-gap">
+        <div class="visual-card overview-diagram premium-diagram" aria-label="Echo-Memory overview diagram">
+          <div class="diagram-orbit" aria-hidden="true"></div>
+          <div class="overview-panel input-column" tabindex="0">
+            <span class="diagram-label">Conditioning Signals</span>
+            <div class="signal-stack">
+              <div class="signal-chip"><span></span>First frame</div>
+              <div class="signal-chip"><span></span>Text prompt</div>
+              <div class="signal-chip"><span></span>Camera actions</div>
+              <div class="signal-chip"><span></span>History buffer</div>
+            </div>
+          </div>
+          <div class="flow-bridge" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </div>
+          <div class="diagram-core model-core" tabindex="0">
+            <span class="diagram-label">Fixed Action-World Interface</span>
+            <div class="model-window">
+              <div class="window-bar"><span></span><span></span><span></span></div>
+              <h3>Echo-Memory</h3>
+              <p>Same backbone, sampler, retriever, training path, and evaluation code.</p>
+              <div class="model-badges">
+                <span>Video DiT</span>
+                <span>RT action</span>
+                <span>VAE context</span>
+              </div>
+            </div>
+          </div>
+          <div class="flow-bridge" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </div>
+          <div class="overview-panel output-column" tabindex="0">
+            <span class="diagram-label">Return Memory Probe</span>
+            <div class="trajectory-card">
+              <div class="trajectory-line" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="return-card">
+                <strong>Generate chunks</strong>
+                <span>follow camera motion</span>
+              </div>
+              <div class="return-card accent">
+                <strong>Revisit the scene</strong>
+                <span>verify what survives</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <h2>Memory Context List</h2>
-    <table>
-      <tr><th>Family</th><th>Memory row</th><th>What it tests</th></tr>
-      <tr><td><b>Floor</b></td><td><b>No memory / I2V floor</b></td><td>Re-generate from the first frame only; a lower bound for revisit consistency.</td></tr>
-      <tr><td><b>Raw context</b></td><td><b>Context K=1 / K=5 / K=20</b></td><td>Whether simply keeping more recent frames is enough to prevent long-horizon drift.</td></tr>
-      <tr><td><b>Compression</b></td><td><b>Compression r = 4</b></td><td>Whether a compact temporal representation can retain useful history without raw-frame growth.</td></tr>
-      <tr><td><b>Spatial</b></td><td><b>Spatial Memory</b></td><td>Whether explicit spatial read/write state improves scene-layout recall.</td></tr>
-      <tr><td><b>State-space</b></td><td><b>Legacy Hybrid / Block-wise SSM</b></td><td>Whether recurrent state updates can stabilize revisits beyond short context windows.</td></tr>
-    </table>
+    <section id="protocol" class="section tinted">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Building the Unified Protocol</p>
+          <h2>One training path and one evaluation path for every memory row.</h2>
+          <p>
+            Existing memory papers are hard to compare because gains are entangled
+            with backbone, training recipe, retrieval, and evaluation differences.
+            Echo-Memory treats those pieces as constants and promotes only the
+            memory profile across rows.
+          </p>
+        </div>
 
-    <div class="figure">
-      <img src="assets/paper_cases/figure_2_mem_overview.png" alt="Overview of four memory approaches">
-      <p class="caption"><b>Memory design matrix.</b> The paper groups concrete variants by what is stored and how it is read back: raw context, compressed history, spatial state, or recurrent state-space memory.</p>
+        <div class="prose protocol-prose">
+          <h3>What stays fixed?</h3>
+          <p>
+            All variants share a pre-trained video diffusion transformer with
+            per-frame VAE context, rectified-flow training on target frames only,
+            suffix context placement, a 10% overlap-drop policy, and the same
+            field-of-view retriever over historical frames. Camera actions are
+            12-dimensional relative RTs in the first-frame reference; trajectories
+            are constructed before generation so replay remains a test of control
+            and memory, not post-hoc alignment.
+          </p>
+
+          <h3>How do we train every row?</h3>
+          <p>
+            Training uses the Context-as-Memory dataset: 81-frame segments at
+            352×640 with per-frame poses and prompts. For each segment, the model
+            receives the target chunk plus K historical observations retrieved from
+            pre-computed FOV overlap labels keyed on the segment mid-frame. We
+            deliberately avoid multi-stage curricula so that differences across rows
+            read as memory effects rather than schedule artifacts.
+          </p>
+          <p>
+            Flow-matching loss alone is a weak progress signal for action world
+            models—two runs can look similar on the loss while diverging on return
+            trajectories. We therefore run replay sampling during training on a
+            fixed held-out first-frame pool, using the same generation procedure as
+            final evaluation. Sampled videos become an early monitor for boundary
+            continuity, identity preservation, and action–visual alignment before
+            the full three-branch bundle is computed.
+          </p>
+
+          <div class="table-wrap">
+            <table class="protocol-table">
+              <caption>Shared single-stage hyper-parameters (only memory-related columns vary across rows).</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Setting</th>
+                  <th scope="col">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Backbone</td><td>Video DiT (per-frame VAE context)</td></tr>
+                <tr><td>Resolution / segment</td><td>352×640, 81 frames</td></tr>
+                <tr><td>Context length K</td><td>{1, 5, 20}, default 5</td></tr>
+                <tr><td>Optimizer / LR</td><td>AdamW, 5×10⁻⁵ (1×10⁻⁴ at K=1)</td></tr>
+                <tr><td>Compute / steps</td><td>8× A100-80G, 5k steps</td></tr>
+                <tr><td>Supervision</td><td>Target frames only; flow noise shift 1.0</td></tr>
+                <tr><td>Memory module</td><td>Context, Compression, Spatial, or State-Space</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3>What prevents hidden protocol changes?</h3>
+          <p>
+            Every checkpoint is evaluated only if the run passes the same hard-fail
+            checks used in the paper:
+          </p>
+          <ul class="invariant-list">
+            <li>Context handling and noise levels match between training and inference.</li>
+            <li>Context budget K matches between training and inference.</li>
+            <li>Camera-action weights are loaded before any evaluation branch runs.</li>
+            <li>Train and eval use the same reference-frame rule for FOV retrieval.</li>
+            <li>State-Space and Compression hybrid rows obey explicit mutual-exclusion rules.</li>
+          </ul>
+
+          <h3>How is evaluation constructed?</h3>
+          <p>
+            Evaluation is built on the same generation stack as training replay:
+            identical retriever, relative-RT constructor, memory write/read profile,
+            and chunk length. We separate two problems that are often collapsed—
+            <em>following</em> an observed trajectory versus <em>remembering</em> a
+            scene after the camera returns—and report three pose settings on that
+            shared path.
+          </p>
+          <ul class="overview-list compact">
+            <li>
+              <strong>Replay</strong> drives the dataset GT trajectory for multiple
+              chunks and reports PSNR / SSIM / LPIPS. It acts like a cheap pretraining
+              monitor (analogous to perplexity), not the final memory score.
+            </li>
+            <li>
+              <strong>In-domain loop closure</strong> uses dataset-backed samples with
+              a 180° return loop, reporting paired PSNR and VLM verification where pixel
+              correspondences exist.
+            </li>
+            <li>
+              <strong>Open-domain return</strong> uses held-out edited first frames
+              with a shorter 45° revisit probe scored by VLM when no GT trajectory
+              is available.
+            </li>
+          </ul>
+          <p>
+            Replay, revisit PSNR, VLM scores, and qualitative panels are reported
+            together. When the branches disagree—as they routinely do—the rank shift
+            is itself evidence that replay fidelity is not a sufficient proxy for
+            remembering a world.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="design" class="section">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Memory Design Space</p>
+          <h2>Only the write–read profile changes across rows.</h2>
+          <p>
+            Every variant receives the same evidence set from FOV retrieval; the
+            memory profile π decides how evidence is written into state and exposed
+            back to the denoiser. The four families in our matrix are Context (raw
+            capacity), Compression (token budget), Spatial (summaries and read-out),
+            and State-Space (block-wise recurrence).
+          </p>
+        </div>
+      </div>
+      <div class="container-wide section-figure-gap">
+        <div class="visual-card design-diagram premium-diagram" aria-label="Memory design space diagram">
+          <div class="diagram-orbit" aria-hidden="true"></div>
+          <div class="design-shared">
+            <span class="diagram-label">Shared Evidence</span>
+            <strong>FOV retrieval + per-frame VAE tokens</strong>
+            <small>Every row receives the same observations before memory write/read.</small>
+          </div>
+          <div class="memory-grid">
+            <article tabindex="0">
+              <span>Capacity</span>
+              <h3>Context</h3>
+              <p>Keep raw history nearly unchanged.</p>
+            </article>
+            <article tabindex="0">
+              <span>Compression</span>
+              <h3>Token Budget</h3>
+              <p>Shorten or reweight temporal evidence.</p>
+            </article>
+            <article tabindex="0">
+              <span>Read-out</span>
+              <h3>Spatial</h3>
+              <p>Summarize evidence into scene tokens.</p>
+            </article>
+            <article tabindex="0">
+              <span>Recurrence</span>
+              <h3>State-Space</h3>
+              <p>Carry memory through block-wise state.</p>
+            </article>
+          </div>
+          <div class="write-read-row">
+            <div><strong>Write</strong><span>W<sub>π</sub>(history, evidence)</span></div>
+            <div class="denoiser-node"><strong>Read</strong><span>R<sub>π</sub>(memory) → denoiser</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evaluation" class="section tinted">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Three-Branch Evaluation</p>
+          <h2>Each branch answers a different failure mode.</h2>
+          <p>
+            The taxonomy below is the evaluation half of the unified protocol: same
+            models, same sampler, different camera-pose settings and metric bundles.
+          </p>
+        </div>
+
+        <div class="branch-grid">
+          <article tabindex="0">
+            <h3>Replay</h3>
+            <p>
+              Long-horizon GT-trajectory synthesis over multiple 81-frame chunks.
+              Measures whether the generator can follow observed motion with stable
+              frame quality. Strong replay does not imply strong return memory.
+            </p>
+          </article>
+          <article tabindex="0">
+            <h3>In-domain revisit</h3>
+            <p>
+              Symmetric yaw loops on dataset samples with GT poses and images. PSNR
+              at mirrored trajectory positions tests visual loop closure; VLM scoring
+              catches identity and layout drift pixels may miss.
+            </p>
+          </article>
+          <article tabindex="0">
+            <h3>Open-domain probe</h3>
+            <p>
+              Held-out first frames with Qwen-edited identity anchors and a controlled
+              45° return. Without pixel-aligned GT, semantic VLM verification is the
+              primary signal for whether the same object survives.
+            </p>
+          </article>
+        </div>
+      </div>
+      <div class="container-wide section-figure-gap">
+        <div class="visual-card eval-diagram premium-diagram" aria-label="Three-branch evaluation diagram">
+          <div class="diagram-orbit" aria-hidden="true"></div>
+          <article>
+            <span class="eval-index">01</span>
+            <div class="eval-track" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h3>Replay</h3>
+            <p>Follow the dataset camera trajectory over multiple chunks.</p>
+            <strong>PSNR / SSIM / LPIPS</strong>
+          </article>
+          <article>
+            <span class="eval-index">02</span>
+            <div class="eval-track loop" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h3>In-domain Loop</h3>
+            <p>Return to a GT-backed scene under controlled yaw motion.</p>
+            <strong>Revisit PSNR + VLM</strong>
+          </article>
+          <article>
+            <span class="eval-index">03</span>
+            <div class="eval-track open" aria-hidden="true"><span></span><span></span><span></span></div>
+            <h3>Open-domain Return</h3>
+            <p>Probe edited first frames without pixel-aligned ground truth.</p>
+            <strong>VLM verification</strong>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="section gallery">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Qualitative Evidence</p>
+          <h2>Return probes make identity drift visible.</h2>
+          <p>
+            After the unified metrics are computed, we inspect representative
+            sweeps and edited first frames. The question is not local plausibility
+            but whether the same object and scene are still there when the camera
+            comes back.
+          </p>
+        </div>
+      </div>
+      <div class="container-gallery">
+        <div class="qual-viewer" data-qual-viewer>
+          <figure class="qual-stage">
+            <img
+              data-qual-image
+              src="assets/representative_memory_results.png"
+              alt="Representative memory comparisons across variants"
+            />
+            <figcaption data-qual-caption>
+              Representative memory comparisons across variants.
+            </figcaption>
+          </figure>
+          <div class="qual-selector" role="tablist" aria-label="Qualitative result panels">
+            <button
+              class="qual-option is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-src="assets/representative_memory_results.png"
+              data-alt="Representative memory comparisons across variants"
+              data-caption="Representative memory comparisons across variants."
+            >
+              <span>01</span>
+              <strong>Memory Results</strong>
+              <small>Variant-by-variant return behavior.</small>
+            </button>
+            <button
+              class="qual-option"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-src="assets/representative_sweep_panel.png"
+              data-alt="Representative open-domain return sweep"
+              data-caption="Open-domain return sweep across the design matrix."
+            >
+              <span>02</span>
+              <strong>Open-Domain Sweep</strong>
+              <small>How each row behaves under return probes.</small>
+            </button>
+            <button
+              class="qual-option"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-src="assets/open_domain_revisit_panel.png"
+              data-alt="Open-domain edited first frames"
+              data-caption="Qwen-edit first frames used as identity anchors for open-domain return probes."
+            >
+              <span>03</span>
+              <strong>Identity Anchors</strong>
+              <small>Edited first frames for memory probing.</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="findings" class="section tinted">
+      <div class="container">
+        <div class="section-heading align-left">
+          <p class="section-kicker">Main Conclusions</p>
+          <h2>Replay quality is not memory quality.</h2>
+          <p>
+            Under the unified protocol above, the central result is a metric
+            inversion: methods strong under GT replay can fail on return, while
+            designs with weaker replay fidelity can preserve the world better.
+          </p>
+        </div>
+
+        <div class="findings">
+          <article>
+            <span>01</span>
+            <h3>Raw context is the capacity baseline.</h3>
+            <p>
+              Increasing raw history improves open-domain return far more than
+              it improves replay metrics. Revisit consistency scales with
+              available evidence, not pixel fidelity alone.
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Compact memory can lose the object.</h3>
+            <p>
+              Spatial summaries and hybrid compression are efficient, but they
+              can discard the salient identity evidence needed when the camera
+              leaves and returns.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Structured recurrence is the strongest return bias.</h3>
+            <p>
+              Block-wise State-Space memory reaches the best open-domain return
+              score in our matrix despite lower replay fidelity.
+            </p>
+          </article>
+        </div>
+      </div>
+      <div class="container-wide section-figure-gap">
+        <figure class="wide-figure">
+          <img src="assets/replay_revisit_metric_alignment.png" alt="Replay and revisit metric alignment" />
+          <figcaption>
+            Replay is a health signal, not the final memory score. The rank shift
+            from replay to return is the main quantitative evidence.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="bibtex" class="section bibtex">
+      <div class="container">
+        <p class="section-kicker">Citation</p>
+        <h2>BibTeX</h2>
+        <pre><code>@article{king2026echomemory,
+  title   = {Echo-Memory: A Controlled Study of Memory in Action World Models},
+  author  = {King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
+  journal = {Echo-Memory technical report},
+  year    = {2026}
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Echo-Memory · Joy Future Academy, JD</p>
     </div>
+  </footer>
+  <script>
+    document.querySelectorAll("[data-qual-viewer]").forEach((viewer) => {
+      const image = viewer.querySelector("[data-qual-image]");
+      const caption = viewer.querySelector("[data-qual-caption]");
+      const options = viewer.querySelectorAll(".qual-option");
 
-    <h2>Open-Domain Revisit Sources</h2>
-    <table class="sources">
-      <tr>
-        <td><img src="assets/opendomain_revisit/1774363417.png" alt="source 1"><br>Source 1</td>
-        <td><img src="assets/opendomain_revisit/1774363487.png" alt="source 2"><br>Source 2</td>
-        <td><img src="assets/opendomain_revisit/1774363572.png" alt="source 3"><br>Source 3</td>
-        <td><img src="assets/opendomain_revisit/1774369504.png" alt="source 4"><br>Source 4</td>
-      </tr>
-      <tr>
-        <td><img src="assets/opendomain_revisit/1774369548.png" alt="source 5"><br>Source 5</td>
-        <td><img src="assets/opendomain_revisit/1774369942.png" alt="source 6"><br>Source 6</td>
-        <td><img src="assets/opendomain_revisit/1774370005.png" alt="source 7"><br>Source 7</td>
-        <td><img src="assets/opendomain_revisit/1774370010.png" alt="source 8"><br>Source 8</td>
-      </tr>
-    </table>
+      options.forEach((option) => {
+        option.addEventListener("click", () => {
+          options.forEach((item) => {
+            item.classList.remove("is-active");
+            item.setAttribute("aria-selected", "false");
+          });
 
-    <h2>Replay Video List</h2>
-    <p>Representative replay videos are shown as compressed previews. These clips replay ground-truth trajectories with each memory mechanism.</p>
-    <table class="videos">
-      <tr>
-        <td><b>Context K=1</b><img src="assets/readme_previews/context_k1_replay_gt.gif" alt="Context K=1"></td>
-        <td><b>Context K=5</b><img src="assets/readme_previews/context_k5_replay_gt.gif" alt="Context K=5"></td>
-        <td><b>Compression r = 4</b><img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" alt="Compression r = 4"></td>
-        <td><b>Spatial Memory</b><img src="assets/readme_previews/spatial_memory_replay_gt.gif" alt="Spatial Memory"></td>
-        <td><b>Legacy Hybrid</b><img src="assets/readme_previews/ssm_legacy_replay_gt.gif" alt="Legacy Hybrid"></td>
-        <td><b>Block-wise SSM</b><img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" alt="Block-wise SSM"></td>
-      </tr>
-    </table>
-
-    <h2 class="citation">Citation</h2>
-    <p>If you use this repository or the Echo-Memory report, please cite:</p>
-    <pre class="bibtex">@article{king2026echomemory,
-  title={Echo-Memory: A Controlled Study of Memory in Action World Models},
-  author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
-  journal={Echo-Memory technical report},
-  year={2026}
-}</pre>
-
-    <footer>
-      Released by <b>Echo Team @ Joy Future Academy, JD</b>.
-      Full documentation and scripts are on
-      <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>.
-    </footer>
-  </div>
+          option.classList.add("is-active");
+          option.setAttribute("aria-selected", "true");
+          image.src = option.dataset.src;
+          image.alt = option.dataset.alt;
+          caption.textContent = option.dataset.caption;
+        });
+      });
+    });
+  </script>
 </body>
 </html>
