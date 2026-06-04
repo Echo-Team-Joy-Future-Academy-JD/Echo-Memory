@@ -3,254 +3,290 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Echo-Memory</title>
+  <title>Echo-Memory | Echo Team</title>
   <meta
     name="description"
     content="Echo-Memory: A controlled study of memory mechanisms in action-conditioned world models."
   />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Update href when arXiv is posted (e.g. https://arxiv.org/abs/2606.XXXXX) -->
-  <header class="hero">
-    <div class="container">
-      <p class="eyebrow">Technical Report</p>
-      <h1>Echo-Memory</h1>
-      <p class="subtitle">A Controlled Study of Memory in Action World Models</p>
-
-      <div class="authors">
-        <span>Wayne King</span>
-        <span>Zeyue Xue</span>
-        <span>Yuxuan Bian</span>
-        <span>Jie Huang</span>
-        <span>Haoran Li</span>
-        <span>Yaowei Li</span>
-        <span>Yaofeng Su</span>
-        <span>Yuming Li</span>
-        <span>Haoyu Wang</span>
-        <span>Shiyi Zhang</span>
-        <span>Songchun Zhang</span>
-        <span>Yuwei Niu</span>
-        <span>Sihan Xu</span>
-        <span>Junhao Zhuang</span>
-        <span>Haoyang Huang</span>
-        <span>Nan Duan</span>
-      </div>
-
-      <p class="affiliations">
-        The University of Hong Kong · Joy Future Academy, JD · The Chinese
-        University of Hong Kong · Peking University · Fudan University ·
-        Tsinghua University · HKUST · University of Michigan
-      </p>
-
-      <nav class="project-links" aria-label="Project links">
-        <a href="https://arxiv.org/abs/TBD" title="arXiv preprint (ID pending)">arXiv (TBD)</a>
-        <a href="assets/echo-memory-paper.pdf">Paper</a>
-        <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">Code</a>
+  <!-- arXiv: replace TBD with real ID when posted -->
+  <header class="top-nav" role="banner">
+    <div class="nav-inner">
+      <a class="brand" href="#hero">
+        <span class="brand-name">Echo-Memory</span>
+        <span class="brand-team">Echo Team</span>
+      </a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#hero" data-nav="hero">Home</a>
+        <a href="#overview" data-nav="overview">Overview</a>
+        <a href="#design" data-nav="design">Design</a>
+        <a href="#evaluation" data-nav="evaluation">Eval</a>
+        <a href="#evidence" data-nav="evidence">Evidence</a>
+        <a href="#findings" data-nav="findings">Results</a>
+        <a href="#bibtex" data-nav="bibtex">BibTeX</a>
       </nav>
-
-      <nav class="toc" aria-label="Page sections">
-        <a href="#overview">Overview</a>
-        <a href="#design">Design</a>
-        <a href="#evaluation">Evaluation</a>
-        <a href="#evidence">Evidence</a>
-        <a href="#findings">Conclusions</a>
-        <a href="#bibtex">BibTeX</a>
-      </nav>
-
-      <p class="hero-lead">
-        When the camera leaves and returns, which memory keeps the <strong>same world</strong>
-        instead of a plausible but different scene?
-      </p>
+      <a
+        class="nav-star"
+        id="nav-star-btn"
+        href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Star on GitHub"
+      >
+        <svg class="star-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .419 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .419-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+        </svg>
+        <span>Star</span>
+        <span class="nav-star-count" id="nav-star-count">—</span>
+      </a>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-menu-mobile" id="nav-toggle">
+        <span class="sr-only">Menu</span>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav-mobile" id="nav-menu-mobile" hidden>
+      <a href="#hero" data-nav="hero">Home</a>
+      <a href="#overview" data-nav="overview">Overview</a>
+      <a href="#design" data-nav="design">Design</a>
+      <a href="#evaluation" data-nav="evaluation">Eval</a>
+      <a href="#evidence" data-nav="evidence">Evidence</a>
+      <a href="#findings" data-nav="findings">Results</a>
+      <a href="#bibtex" data-nav="bibtex">BibTeX</a>
     </div>
   </header>
 
-  <main>
-    <section id="overview" class="section">
-      <div class="container">
-        <div class="section-heading align-left">
-          <p class="section-kicker">Overview</p>
-          <h2>One backbone, one protocol — only memory changes.</h2>
-          <p class="lead-short">
-            Echo-Memory fixes the action-to-video stack and varies only how history is stored
-            and read back. Replay, in-domain loop closure, and open-domain return are reported
-            together so metric rank shifts stay visible.
-          </p>
+  <aside class="slide-dots" aria-label="Slide navigation">
+    <button type="button" data-slide="hero" class="is-active" aria-label="Home"></button>
+    <button type="button" data-slide="overview" aria-label="Overview"></button>
+    <button type="button" data-slide="design" aria-label="Design"></button>
+    <button type="button" data-slide="evaluation" aria-label="Evaluation"></button>
+    <button type="button" data-slide="evidence" aria-label="Evidence"></button>
+    <button type="button" data-slide="findings" aria-label="Results"></button>
+    <button type="button" data-slide="bibtex" aria-label="BibTeX"></button>
+  </aside>
+
+  <main class="slides" id="slides" tabindex="-1">
+    <section id="hero" class="slide slide-hero" data-slide="hero">
+      <div class="slide-card">
+        <p class="eyebrow">Echo Team · Joy Future Academy, JD · Technical Report</p>
+        <h1>Echo-Memory</h1>
+        <p class="subtitle">A Controlled Study of Memory in Action World Models</p>
+        <p class="hero-lead">
+          When the camera leaves and returns, which memory keeps the <strong>same world</strong>
+          instead of a plausible but different scene?
+        </p>
+
+        <div class="cta-row">
+          <a class="btn btn-primary" href="assets/echo-memory-paper.pdf">Paper</a>
+          <a class="btn btn-secondary" href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
+          <a
+            class="btn btn-secondary"
+            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Code</a>
+          <a
+            class="btn btn-star"
+            id="hero-star-btn"
+            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .419 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .419-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+            </svg>
+            Star on GitHub
+          </a>
         </div>
+
+        <div class="stats-row" aria-label="Repository statistics">
+          <a
+            class="stat-card"
+            id="stat-stars"
+            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="stat-label">GitHub Stars</span>
+            <span class="stat-value" data-stat="stars">—</span>
+          </a>
+          <a
+            class="stat-card"
+            id="stat-forks"
+            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/forks"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="stat-label">Forks</span>
+            <span class="stat-value" data-stat="forks">—</span>
+          </a>
+          <a
+            class="stat-card"
+            id="stat-issues"
+            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="stat-label">Open Issues</span>
+            <span class="stat-value" data-stat="issues">—</span>
+          </a>
+        </div>
+
+        <details class="authors-fold">
+          <summary>Authors &amp; affiliations</summary>
+          <p class="authors">
+            Wayne King, Zeyue Xue, Yuxuan Bian, Jie Huang, Haoran Li, Yaowei Li,
+            Yaofeng Su, Yuming Li, Haoyu Wang, Shiyi Zhang, Songchun Zhang,
+            Yuwei Niu, Sihan Xu, Junhao Zhuang, Haoyang Huang, Nan Duan
+          </p>
+          <p class="affiliations">
+            HKU · Joy Future Academy, JD · CUHK · PKU · Fudan · Tsinghua · HKUST · UMich
+          </p>
+        </details>
       </div>
-      <div class="container-wide section-figure-gap">
-        <figure class="wide-figure">
+    </section>
+
+    <section id="overview" class="slide" data-slide="overview">
+      <div class="slide-card">
+        <p class="section-kicker">01 · Overview</p>
+        <h2>One backbone, one protocol — only memory changes.</h2>
+        <p class="slide-text">
+          Echo-Memory fixes the action-to-video stack and varies only how history is stored
+          and read back. Replay, in-domain loop closure, and open-domain return are reported
+          together.
+        </p>
+        <figure class="slide-figure">
           <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
           <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="design" class="section tinted">
-      <div class="container">
-        <div class="section-heading align-left">
-          <p class="section-kicker">Memory Design</p>
-          <h2>Context · Compression · Spatial · State-Space</h2>
-          <ul class="summary-list">
-            <li><strong>Context</strong> — raw history capacity (K = 1 / 5 / 20).</li>
-            <li><strong>Compression</strong> — compact temporal evidence (r = 4).</li>
-            <li><strong>Spatial</strong> — explicit spatial read/write state.</li>
-            <li><strong>State-Space</strong> — block-wise recurrent memory.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="container-wide section-figure-gap">
-        <figure class="wide-figure">
+    <section id="design" class="slide slide-tinted" data-slide="design">
+      <div class="slide-card">
+        <p class="section-kicker">02 · Memory Design</p>
+        <h2>Context · Compression · Spatial · State-Space</h2>
+        <ul class="chip-list">
+          <li><strong>Context</strong> K = 1 / 5 / 20</li>
+          <li><strong>Compression</strong> r = 4</li>
+          <li><strong>Spatial</strong> read/write state</li>
+          <li><strong>State-Space</strong> block-wise SSM</li>
+        </ul>
+        <figure class="slide-figure">
           <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
           <figcaption>Four memory families under a shared write–read interface.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="evaluation" class="section">
-      <div class="container">
-        <div class="section-heading align-left">
-          <p class="section-kicker">Evaluation</p>
-          <h2>Replay · In-domain revisit · Open-domain return</h2>
-          <ul class="summary-list">
-            <li><strong>Replay</strong> — follow GT trajectories (PSNR / SSIM / LPIPS).</li>
-            <li><strong>In-domain revisit</strong> — 180° loop closure with GT poses.</li>
-            <li><strong>Open-domain return</strong> — edited first frames + 45° VLM probe.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="container-wide section-figure-gap">
-        <figure class="wide-figure">
+    <section id="evaluation" class="slide" data-slide="evaluation">
+      <div class="slide-card">
+        <p class="section-kicker">03 · Evaluation</p>
+        <h2>Replay · In-domain revisit · Open-domain return</h2>
+        <ul class="chip-list">
+          <li><strong>Replay</strong> PSNR / SSIM / LPIPS</li>
+          <li><strong>In-domain</strong> 180° loop + VLM</li>
+          <li><strong>Open-domain</strong> edited frames + 45° probe</li>
+        </ul>
+        <figure class="slide-figure">
           <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
-          <figcaption>Evaluation bundle: replay health vs. return memory under the same stack.</figcaption>
+          <figcaption>Replay health vs. return memory under the same stack.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="evidence" class="section gallery tinted">
-      <div class="container">
-        <div class="section-heading align-left">
-          <p class="section-kicker">Qualitative Evidence</p>
-          <h2>Return probes expose identity drift.</h2>
-        </div>
-      </div>
-      <div class="container-gallery">
+    <section id="evidence" class="slide slide-tinted slide-scrollable" data-slide="evidence">
+      <div class="slide-card">
+        <p class="section-kicker">04 · Qualitative Evidence</p>
+        <h2>Return probes expose identity drift.</h2>
         <div class="qual-viewer" data-qual-viewer>
           <figure class="qual-stage">
             <img
               data-qual-image
               src="assets/representative_memory_results.png"
-              alt="Representative memory comparisons across variants"
+              alt="Representative memory comparisons"
             />
-            <figcaption data-qual-caption>
-              Representative memory comparisons across variants.
-            </figcaption>
+            <figcaption data-qual-caption>Representative memory comparisons across variants.</figcaption>
           </figure>
-          <div class="qual-selector" role="tablist" aria-label="Qualitative result panels">
+          <div class="qual-chips" role="tablist" aria-label="Evidence panels">
             <button
-              class="qual-option is-active"
+              class="qual-chip is-active"
               type="button"
               role="tab"
               aria-selected="true"
               data-src="assets/representative_memory_results.png"
-              data-alt="Representative memory comparisons across variants"
+              data-alt="Representative memory comparisons"
               data-caption="Representative memory comparisons across variants."
-            >
-              <span>01</span>
-              <strong>Memory Results</strong>
-            </button>
+            >Memory Results</button>
             <button
-              class="qual-option"
+              class="qual-chip"
               type="button"
               role="tab"
               aria-selected="false"
               data-src="assets/representative_sweep_panel.png"
-              data-alt="Representative open-domain return sweep"
+              data-alt="Open-domain return sweep"
               data-caption="Open-domain return sweep across the design matrix."
-            >
-              <span>02</span>
-              <strong>Open-Domain Sweep</strong>
-            </button>
+            >Open-Domain Sweep</button>
             <button
-              class="qual-option"
+              class="qual-chip"
               type="button"
               role="tab"
               aria-selected="false"
               data-src="assets/open_domain_revisit_panel.png"
-              data-alt="Open-domain edited first frames"
+              data-alt="Edited first frames"
               data-caption="Edited first frames for open-domain return probes."
-            >
-              <span>03</span>
-              <strong>Identity Anchors</strong>
-            </button>
+            >Identity Anchors</button>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="findings" class="section">
-      <div class="container">
-        <div class="section-heading align-left">
-          <p class="section-kicker">Main Conclusions</p>
-          <h2>Replay quality ≠ memory quality.</h2>
-          <ul class="summary-list">
-            <li><strong>Raw context</strong> scales open-domain return more than replay metrics.</li>
-            <li><strong>Compact memory</strong> can drop salient identity when the camera returns.</li>
-            <li><strong>Block-wise SSM</strong> gives the strongest open-domain return in our matrix.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="container-wide section-figure-gap">
-        <figure class="wide-figure">
-          <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metric alignment" />
-          <figcaption>
-            Rank shift from replay to return — replay is a health signal, not the final memory score.
-          </figcaption>
+    <section id="findings" class="slide" data-slide="findings">
+      <div class="slide-card">
+        <p class="section-kicker">05 · Main Conclusions</p>
+        <h2>Replay quality ≠ memory quality.</h2>
+        <ul class="bullet-list">
+          <li><strong>Raw context</strong> scales open-domain return more than replay.</li>
+          <li><strong>Compact memory</strong> can drop identity on return.</li>
+          <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
+        </ul>
+        <figure class="slide-figure">
+          <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
+          <figcaption>Rank shift from replay to return — replay is not the final memory score.</figcaption>
         </figure>
       </div>
     </section>
 
-    <section id="bibtex" class="section bibtex tinted">
-      <div class="container">
-        <p class="section-kicker">Citation</p>
+    <section id="bibtex" class="slide slide-tinted slide-scrollable" data-slide="bibtex">
+      <div class="slide-card">
+        <p class="section-kicker">06 · Citation</p>
         <h2>BibTeX</h2>
-        <pre><code>@article{king2026echomemory,
+        <div class="bibtex-wrap">
+          <button type="button" class="btn btn-copy" id="copy-bibtex">Copy</button>
+          <pre class="bibtex" id="bibtex-block"><code>@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
   journal={Echo-Memory technical report},
   year={2026}
 }</code></pre>
+        </div>
+        <footer class="slide-footer">
+          <p>© Echo Team · Joy Future Academy, JD</p>
+          <p>
+            <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
+            · <a href="assets/echo-memory-paper.pdf">Paper</a>
+          </p>
+          <p class="build-id" hidden aria-hidden="true">site-build-0ce5d6b</p>
+        </footer>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="container">
-      <p>Echo-Memory · Joy Future Academy, JD</p>
-      <p class="build-id" hidden aria-hidden="true">site-build-4b7ab3a</p>
-    </div>
-  </footer>
-  <script>
-    document.querySelectorAll("[data-qual-viewer]").forEach((viewer) => {
-      const image = viewer.querySelector("[data-qual-image]");
-      const caption = viewer.querySelector("[data-qual-caption]");
-      const options = viewer.querySelectorAll(".qual-option");
-
-      options.forEach((option) => {
-        option.addEventListener("click", () => {
-          options.forEach((item) => {
-            item.classList.remove("is-active");
-            item.setAttribute("aria-selected", "false");
-          });
-
-          option.classList.add("is-active");
-          option.setAttribute("aria-selected", "true");
-          image.src = option.dataset.src;
-          image.alt = option.dataset.alt;
-          caption.textContent = option.dataset.caption;
-        });
-      });
-    });
-  </script>
+  <script src="site.js" defer></script>
 </body>
 </html>
