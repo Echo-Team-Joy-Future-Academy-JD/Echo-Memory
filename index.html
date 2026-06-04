@@ -11,282 +11,309 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="ambient-bg" aria-hidden="true"></div>
   <!-- arXiv: replace TBD with real ID when posted -->
   <!-- Paper: replace # with final report URL when ready -->
-  <header class="top-nav" role="banner">
-    <div class="nav-inner">
-      <a class="brand" href="#hero">
-        <span class="brand-name">Echo-Memory</span>
-        <span class="brand-team">Echo Team</span>
-      </a>
-      <nav class="nav-links" aria-label="Sections">
-        <a href="#hero" data-nav="hero">Home</a>
-        <a href="#overview" data-nav="overview">Overview</a>
-        <a href="#design" data-nav="design">Design</a>
-        <a href="#evaluation" data-nav="evaluation">Eval</a>
-        <a href="#evidence" data-nav="evidence">Evidence</a>
-        <a href="#findings" data-nav="findings">Results</a>
-        <a href="#bibtex" data-nav="bibtex">BibTeX</a>
-      </nav>
-      <a
-        class="nav-star"
-        id="nav-star-btn"
-        href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Star on GitHub"
-      >
-        <svg class="star-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .419 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .419-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
-        </svg>
-        <span>Star</span>
-        <span class="nav-star-count" id="nav-star-count">—</span>
-      </a>
-      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-menu-mobile" id="nav-toggle">
-        <span class="sr-only">Menu</span>
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-    <div class="nav-mobile" id="nav-menu-mobile" hidden>
-      <a href="#hero" data-nav="hero">Home</a>
-      <a href="#overview" data-nav="overview">Overview</a>
-      <a href="#design" data-nav="design">Design</a>
-      <a href="#evaluation" data-nav="evaluation">Eval</a>
-      <a href="#evidence" data-nav="evidence">Evidence</a>
-      <a href="#findings" data-nav="findings">Results</a>
-      <a href="#bibtex" data-nav="bibtex">BibTeX</a>
-    </div>
-  </header>
-
-  <main class="page" id="page">
-    <section id="hero" class="section section-hero" data-section="hero">
-      <div class="section-inner">
-        <p class="eyebrow">Echo Team · Joy Future Academy, JD · Technical Report</p>
-        <h1 class="hero-title">
-          <span class="title-gradient">Echo-Memory</span>
-        </h1>
-        <p class="hero-tagline">A Controlled Study of Memory in Action World Models</p>
-        <p class="hero-lead">
-          When the camera leaves and returns, which memory keeps the <strong>same world</strong>
-          instead of a plausible but different scene?
-        </p>
-
-        <div class="cta-row">
-          <a class="btn btn-secondary" href="#" title="Paper link coming soon">Paper (TBD)</a>
-          <a class="btn btn-secondary" href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
+  <div class="page-shell">
+    <header class="top-nav" role="banner">
+      <div class="container top-nav__inner">
+        <a class="brand" href="#hero">
+          <span class="brand-name">Echo-Memory</span>
+          <span class="brand-team">Echo Team</span>
+        </a>
+        <nav class="nav-links" aria-label="Sections">
+          <a class="nav-link" href="#hero" data-nav="hero">Home</a>
+          <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
+          <a class="nav-link" href="#design" data-nav="design">Design</a>
+          <a class="nav-link" href="#evaluation" data-nav="evaluation">Eval</a>
+          <a class="nav-link" href="#evidence" data-nav="evidence">Evidence</a>
+          <a class="nav-link" href="#findings" data-nav="findings">Results</a>
+          <a class="nav-link" href="#bibtex" data-nav="bibtex">BibTeX</a>
+        </nav>
+        <div class="nav-actions">
           <a
-            class="btn btn-secondary"
+            class="action-btn"
             href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
             target="_blank"
             rel="noopener noreferrer"
-          >Code</a>
-          <a
-            class="btn btn-star"
-            id="hero-star-btn"
-            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
-            target="_blank"
-            rel="noopener noreferrer"
+          >GitHub</a>
+          <button
+            type="button"
+            class="nav-toggle"
+            aria-expanded="false"
+            aria-controls="nav-menu-mobile"
+            id="nav-toggle"
           >
-            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-              <path fill="currentColor" d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .419 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .419-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
-            </svg>
-            Star on GitHub
-          </a>
+            <span class="sr-only">Menu</span>
+            <span></span><span></span><span></span>
+          </button>
         </div>
-
-        <div class="stats-row" aria-label="Repository statistics">
-          <a
-            class="stat-card"
-            id="stat-stars"
-            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="stat-label">GitHub Stars</span>
-            <span class="stat-value" data-stat="stars">—</span>
-          </a>
-          <a
-            class="stat-card"
-            id="stat-forks"
-            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/forks"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="stat-label">Forks</span>
-            <span class="stat-value" data-stat="forks">—</span>
-          </a>
-          <a
-            class="stat-card"
-            id="stat-issues"
-            href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="stat-label">Open Issues</span>
-            <span class="stat-value" data-stat="issues">—</span>
-          </a>
-        </div>
-
-        <details class="authors-fold">
-          <summary>Authors &amp; affiliations</summary>
-          <p class="authors">
-            Wayne King, Zeyue Xue, Yuxuan Bian, Jie Huang, Haoran Li, Yaowei Li,
-            Yaofeng Su, Yuming Li, Haoyu Wang, Shiyi Zhang, Songchun Zhang,
-            Yuwei Niu, Sihan Xu, Junhao Zhuang, Haoyang Huang, Nan Duan
-          </p>
-          <p class="affiliations">
-            HKU · Joy Future Academy, JD · CUHK · PKU · Fudan · Tsinghua · HKUST · UMich
-          </p>
-        </details>
       </div>
-    </section>
-
-    <section id="overview" class="section" data-section="overview">
-      <div class="section-inner">
-        <p class="section-kicker">01 · Overview</p>
-        <h2>One backbone, one protocol — only memory changes.</h2>
-        <p class="section-text">
-          Echo-Memory fixes the action-to-video stack and varies only how history is stored
-          and read back. Replay, in-domain loop closure, and open-domain return are reported
-          together.
-        </p>
-        <figure class="section-figure">
-          <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
-          <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
-        </figure>
+      <div class="nav-mobile container" id="nav-menu-mobile" hidden>
+        <a class="nav-link" href="#hero" data-nav="hero">Home</a>
+        <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
+        <a class="nav-link" href="#design" data-nav="design">Design</a>
+        <a class="nav-link" href="#evaluation" data-nav="evaluation">Eval</a>
+        <a class="nav-link" href="#evidence" data-nav="evidence">Evidence</a>
+        <a class="nav-link" href="#findings" data-nav="findings">Results</a>
+        <a class="nav-link" href="#bibtex" data-nav="bibtex">BibTeX</a>
       </div>
-    </section>
+    </header>
 
-    <section id="design" class="section section-alt" data-section="design">
-      <div class="section-inner">
-        <p class="section-kicker">02 · Memory Design</p>
-        <h2>Context · Compression · Spatial · State-Space</h2>
-        <ul class="chip-list">
-          <li><strong>Context</strong> K = 1 / 5 / 20</li>
-          <li><strong>Compression</strong> r = 4</li>
-          <li><strong>Spatial</strong> read/write state</li>
-          <li><strong>State-Space</strong> block-wise SSM</li>
-        </ul>
-        <figure class="section-figure">
-          <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
-          <figcaption>Four memory families under a shared write–read interface.</figcaption>
-        </figure>
-      </div>
-    </section>
+    <main id="main-content">
+      <section id="hero" class="section section--compact" data-section="hero">
+        <div class="container hero hero--single">
+          <div>
+            <div class="hero-badge">Echo Team · Joy Future Academy, JD · Technical Report</div>
+            <h1 class="hero-title">
+              <span class="hero-highlight">Echo-Memory</span>
+              <br />
+              A Controlled Study of Memory in Action World Models
+            </h1>
+            <p class="hero-subtitle">
+              When the camera leaves and returns, which memory keeps the <strong>same world</strong>
+              instead of a plausible but different scene?
+            </p>
+            <div class="hero-cta-group">
+              <a class="cta cta--primary" href="#" title="Paper link coming soon">Paper (TBD)</a>
+              <a class="cta cta--secondary" href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
+              <a
+                class="cta cta--secondary"
+                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Code</a>
+            </div>
 
-    <section id="evaluation" class="section" data-section="evaluation">
-      <div class="section-inner">
-        <p class="section-kicker">03 · Evaluation</p>
-        <h2>Replay · In-domain revisit · Open-domain return</h2>
-        <ul class="chip-list">
-          <li><strong>Replay</strong> PSNR / SSIM / LPIPS</li>
-          <li><strong>In-domain</strong> 180° loop + VLM</li>
-          <li><strong>Open-domain</strong> edited frames + 45° probe</li>
-        </ul>
-        <figure class="section-figure">
-          <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
-          <figcaption>Replay health vs. return memory under the same stack.</figcaption>
-        </figure>
-      </div>
-    </section>
+            <div class="metrics-grid">
+              <a
+                class="metric-card"
+                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-badge-url="https://img.shields.io/github/stars/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
+              >
+                <span class="metric-label">GitHub Stars</span>
+                <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
+              </a>
+              <a
+                class="metric-card"
+                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/network/members"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-badge-url="https://img.shields.io/github/forks/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
+              >
+                <span class="metric-label">Forks</span>
+                <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
+              </a>
+              <a
+                class="metric-card"
+                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-badge-url="https://img.shields.io/github/issues/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
+              >
+                <span class="metric-label">Open Issues</span>
+                <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
+              </a>
+            </div>
 
-    <section id="evidence" class="section section-alt" data-section="evidence">
-      <div class="section-inner">
-        <p class="section-kicker">04 · Qualitative Evidence</p>
-        <h2>Return probes expose identity drift.</h2>
-        <div class="qual-viewer" data-qual-viewer>
-          <figure class="qual-stage">
-            <img
-              data-qual-image
-              src="assets/representative_memory_results.png"
-              alt="Representative memory comparisons"
-            />
-            <figcaption data-qual-caption>Representative memory comparisons across variants.</figcaption>
-          </figure>
-          <div class="qual-chips" role="tablist" aria-label="Evidence panels">
-            <button
-              class="qual-chip is-active"
-              type="button"
-              role="tab"
-              aria-selected="true"
-              data-src="assets/representative_memory_results.png"
-              data-alt="Representative memory comparisons"
-              data-caption="Representative memory comparisons across variants."
-            >Memory Results</button>
-            <button
-              class="qual-chip"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-src="assets/representative_sweep_panel.png"
-              data-alt="Open-domain return sweep"
-              data-caption="Open-domain return sweep across the design matrix."
-            >Open-Domain Sweep</button>
-            <button
-              class="qual-chip"
-              type="button"
-              role="tab"
-              aria-selected="false"
-              data-src="assets/open_domain_revisit_panel.png"
-              data-alt="Edited first frames"
-              data-caption="Edited first frames for open-domain return probes."
-            >Identity Anchors</button>
+            <details class="authors-fold">
+              <summary>Authors &amp; affiliations</summary>
+              <p class="authors">
+                Wayne King, Zeyue Xue, Yuxuan Bian, Jie Huang, Haoran Li, Yaowei Li,
+                Yaofeng Su, Yuming Li, Haoyu Wang, Shiyi Zhang, Songchun Zhang,
+                Yuwei Niu, Sihan Xu, Junhao Zhuang, Haoyang Huang, Nan Duan
+              </p>
+              <p class="affiliations">
+                HKU · Joy Future Academy, JD · CUHK · PKU · Fudan · Tsinghua · HKUST · UMich
+              </p>
+            </details>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section id="findings" class="section" data-section="findings">
-      <div class="section-inner">
-        <p class="section-kicker">05 · Main Conclusions</p>
-        <h2>Replay quality ≠ memory quality.</h2>
-        <ul class="bullet-list">
-          <li><strong>Raw context</strong> scales open-domain return more than replay.</li>
-          <li><strong>Compact memory</strong> can drop identity on return.</li>
-          <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
-        </ul>
-        <figure class="section-figure">
-          <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
-          <figcaption>Rank shift from replay to return — replay is not the final memory score.</figcaption>
-        </figure>
-      </div>
-    </section>
+      <section id="overview" class="section" data-section="overview">
+        <div class="container">
+          <p class="section-kicker">01 · Overview</p>
+          <h2 class="section-title">One backbone, one protocol — only memory changes.</h2>
+          <p class="section-lead">
+            Echo-Memory fixes the action-to-video stack and varies only how history is stored
+            and read back. Replay, in-domain loop closure, and open-domain return are reported
+            together.
+          </p>
+          <figure class="section-figure">
+            <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
+            <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
+          </figure>
+        </div>
+      </section>
 
-    <section id="bibtex" class="section section-alt" data-section="bibtex">
-      <div class="section-inner">
-        <p class="section-kicker">06 · Citation</p>
-        <h2>BibTeX</h2>
-        <div class="bibtex-wrap">
-          <button type="button" class="btn btn-copy" id="copy-bibtex">Copy</button>
-          <pre class="bibtex" id="bibtex-block"><code>@article{king2026echomemory,
+      <section id="design" class="section section-alt" data-section="design">
+        <div class="container">
+          <p class="section-kicker">02 · Memory Design</p>
+          <h2 class="section-title">Context · Compression · Spatial · State-Space</h2>
+          <p class="section-lead">
+            Four memory families share a write–read interface; only capacity and representation differ.
+          </p>
+          <div class="feature-grid">
+            <article class="card">
+              <h3>Context</h3>
+              <p>Raw history windows at K = 1, 5, or 20 chunks.</p>
+            </article>
+            <article class="card">
+              <h3>Compression</h3>
+              <p>Learned compact tokens at compression ratio r = 4.</p>
+            </article>
+            <article class="card">
+              <h3>Spatial</h3>
+              <p>Explicit read/write spatial state across chunks.</p>
+            </article>
+            <article class="card">
+              <h3>State-Space</h3>
+              <p>Block-wise SSM memory for long-horizon carry.</p>
+            </article>
+          </div>
+          <figure class="section-figure">
+            <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
+            <figcaption>Four memory families under a shared write–read interface.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="evaluation" class="section" data-section="evaluation">
+        <div class="container">
+          <p class="section-kicker">03 · Evaluation</p>
+          <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
+          <p class="section-lead">
+            Three branches probe replay fidelity, loop closure, and identity under edited returns.
+          </p>
+          <div class="feature-grid feature-grid--three">
+            <article class="card">
+              <h3>Replay</h3>
+              <p>PSNR, SSIM, and LPIPS on chunk-wise reconstruction.</p>
+            </article>
+            <article class="card">
+              <h3>In-domain</h3>
+              <p>180° loop closure with VLM-assisted scoring.</p>
+            </article>
+            <article class="card">
+              <h3>Open-domain</h3>
+              <p>Edited first frames plus 45° return probes.</p>
+            </article>
+          </div>
+          <figure class="section-figure">
+            <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
+            <figcaption>Replay health vs. return memory under the same stack.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="evidence" class="section section-alt" data-section="evidence">
+        <div class="container">
+          <p class="section-kicker">04 · Qualitative Evidence</p>
+          <h2 class="section-title">Return probes expose identity drift.</h2>
+          <p class="section-lead">
+            Side-by-side panels compare memory variants on revisit and open-domain return.
+          </p>
+          <div class="qual-viewer" data-qual-viewer>
+            <figure class="qual-stage">
+              <img
+                data-qual-image
+                src="assets/representative_memory_results.png"
+                alt="Representative memory comparisons"
+              />
+              <figcaption data-qual-caption>Representative memory comparisons across variants.</figcaption>
+            </figure>
+            <div class="qual-chips" role="tablist" aria-label="Evidence panels">
+              <button
+                class="qual-chip is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-src="assets/representative_memory_results.png"
+                data-alt="Representative memory comparisons"
+                data-caption="Representative memory comparisons across variants."
+              >Memory Results</button>
+              <button
+                class="qual-chip"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-src="assets/representative_sweep_panel.png"
+                data-alt="Open-domain return sweep"
+                data-caption="Open-domain return sweep across the design matrix."
+              >Open-Domain Sweep</button>
+              <button
+                class="qual-chip"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-src="assets/open_domain_revisit_panel.png"
+                data-alt="Edited first frames"
+                data-caption="Edited first frames for open-domain return probes."
+              >Identity Anchors</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="findings" class="section" data-section="findings">
+        <div class="container">
+          <p class="section-kicker">05 · Main Conclusions</p>
+          <h2 class="section-title">Replay quality ≠ memory quality.</h2>
+          <p class="section-lead">
+            Rankings shift from replay metrics to return probes — replay alone is not the final memory score.
+          </p>
+          <ul class="bullet-list">
+            <li><strong>Raw context</strong> scales open-domain return more than replay.</li>
+            <li><strong>Compact memory</strong> can drop identity on return.</li>
+            <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
+          </ul>
+          <figure class="section-figure">
+            <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
+            <figcaption>Rank shift from replay to return — replay is not the final memory score.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="bibtex" class="section section-alt" data-section="bibtex">
+        <div class="container">
+          <p class="section-kicker">06 · Citation</p>
+          <h2 class="section-title">BibTeX</h2>
+          <p class="section-lead">Copy the entry below when citing this technical report.</p>
+          <div class="bibtex-wrap">
+            <button type="button" class="copy-btn" id="copy-bibtex">Copy</button>
+            <pre class="bibtex" id="bibtex-block"><code>@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
   journal={Echo-Memory technical report},
   year={2026}
 }</code></pre>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <p>© Echo Team · Joy Future Academy, JD</p>
-      <p>
-        <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
-        · <a href="#" title="Paper link coming soon">Paper (TBD)</a>
-        · <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
-      </p>
-      <p class="build-id" hidden aria-hidden="true">site-build-9643324</p>
-    </div>
-  </footer>
+    <footer class="footer">
+      <div class="container footer-row">
+        <div>
+          <p class="footer-copy">© Echo Team · Joy Future Academy, JD</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
+          <a href="#" title="Paper link coming soon">Paper (TBD)</a>
+          <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
+        </div>
+        <p class="build-id" hidden aria-hidden="true">site-build-01fb254</p>
+      </div>
+    </footer>
+  </div>
 
   <script src="site.js" defer></script>
 </body>

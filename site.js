@@ -1,49 +1,11 @@
 (function () {
   "use strict";
 
-  const REPO = "Echo-Team-Joy-Future-Academy-JD/Echo-Memory";
-  const REPO_API = "https://api.github.com/repos/" + REPO;
   const NAV_OFFSET = 72;
-
   const sectionEls = Array.from(document.querySelectorAll(".section[data-section]"));
   const navLinks = Array.from(document.querySelectorAll("[data-nav]"));
   const navToggle = document.getElementById("nav-toggle");
   const navMobile = document.getElementById("nav-menu-mobile");
-
-  function formatCount(n) {
-    if (typeof n !== "number" || Number.isNaN(n)) return "—";
-    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, "") + "k";
-    return String(n);
-  }
-
-  function setStat(name, value) {
-    document.querySelectorAll('[data-stat="' + name + '"]').forEach(function (el) {
-      el.textContent = value;
-    });
-  }
-
-  function loadGitHubStats() {
-    fetch(REPO_API, {
-      headers: { Accept: "application/vnd.github+json" },
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error("GitHub API " + res.status);
-        return res.json();
-      })
-      .then(function (data) {
-        var stars = formatCount(data.stargazers_count);
-        setStat("stars", stars);
-        setStat("forks", formatCount(data.forks_count));
-        setStat("issues", formatCount(data.open_issues_count));
-        var navCount = document.getElementById("nav-star-count");
-        if (navCount) navCount.textContent = stars;
-      })
-      .catch(function () {
-        setStat("stars", "—");
-        setStat("forks", "—");
-        setStat("issues", "—");
-      });
-  }
 
   function setActiveNav(id) {
     navLinks.forEach(function (a) {
@@ -87,15 +49,6 @@
     });
   });
 
-  if (navMobile) {
-    Array.from(navMobile.querySelectorAll("a[data-nav]")).forEach(function (a) {
-      a.addEventListener("click", function (e) {
-        e.preventDefault();
-        scrollToSection(a.getAttribute("data-nav"));
-      });
-    });
-  }
-
   if (navToggle && navMobile) {
     navToggle.addEventListener("click", function () {
       var open = navMobile.hidden;
@@ -104,6 +57,28 @@
       document.querySelector(".top-nav").classList.toggle("is-open", open);
     });
   }
+
+  function hydrateMetric(card) {
+    var valueEl = card.querySelector("[data-metric-value]");
+    var badgeUrl = card.getAttribute("data-badge-url");
+    if (!valueEl || !badgeUrl) return;
+
+    fetch(badgeUrl, { cache: "no-store" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("Request failed");
+        return res.json();
+      })
+      .then(function (data) {
+        valueEl.textContent = data.value || data.message || valueEl.dataset.fallback || "—";
+      })
+      .catch(function () {
+        valueEl.textContent = valueEl.dataset.fallback || "—";
+      });
+  }
+
+  document.querySelectorAll("[data-badge-url]").forEach(function (card) {
+    hydrateMetric(card);
+  });
 
   document.querySelectorAll("[data-qual-viewer]").forEach(function (viewer) {
     var image = viewer.querySelector("[data-qual-image]");
@@ -146,6 +121,4 @@
       );
     });
   }
-
-  loadGitHubStats();
 })();
