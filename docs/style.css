@@ -215,6 +215,39 @@ h1 {
   text-decoration: none;
 }
 
+.hero-lead {
+  max-width: 40rem;
+  margin: 20px auto 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.lead-short {
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.summary-list {
+  margin: 14px 0 0;
+  padding-left: 1.25rem;
+}
+
+.summary-list li {
+  margin-bottom: 0.45rem;
+}
+
+.figure-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.figure-stack .wide-figure {
+  margin: 0;
+}
+
 .hero-tiles {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
