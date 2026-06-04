@@ -266,3 +266,16 @@ python eval/metrics/run_visual_eval.py --help
 ```
 
 Dynamic evaluation and training are not part of this release.
+
+## Citation
+
+If you use this repository or the Echo-Memory report, please cite:
+
+```bibtex
+@article{king2026echomemory,
+  title={Echo-Memory: A Controlled Study of Memory in Action World Models},
+  author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
+  journal={Echo-Memory technical report},
+  year={2026}
+}
+```

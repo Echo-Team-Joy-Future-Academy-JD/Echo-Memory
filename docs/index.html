@@ -77,8 +77,20 @@
     .videos b { display: block; font-size: 0.82rem; margin-bottom: 8px; }
     p.lead { font-size: 1rem; }
     a { color: var(--accent); }
+    h2.citation { margin-top: 48px; }
+    pre.bibtex {
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      background: #f6f8fa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      text-align: left;
+    }
     footer {
-      margin-top: 48px;
+      margin-top: 32px;
       padding-top: 16px;
       border-top: 1px solid var(--border);
       color: var(--muted);
@@ -155,6 +167,15 @@
         <td><b>Block-wise SSM</b><img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" alt="Block-wise SSM"></td>
       </tr>
     </table>
+
+    <h2 class="citation">Citation</h2>
+    <p>If you use this repository or the Echo-Memory report, please cite:</p>
+    <pre class="bibtex">@article{king2026echomemory,
+  title={Echo-Memory: A Controlled Study of Memory in Action World Models},
+  author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
+  journal={Echo-Memory technical report},
+  year={2026}
+}</pre>
 
     <footer>
       Released by <b>Echo Team @ Joy Future Academy, JD</b>.
