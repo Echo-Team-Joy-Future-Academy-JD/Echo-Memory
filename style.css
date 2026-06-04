@@ -60,6 +60,12 @@ img {
 
 .page-shell {
   position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#main-content {
+  width: 100%;
 }
 
 .page-shell::before {
@@ -123,9 +129,6 @@ img {
 }
 
 .top-nav__inner {
-  width: min(1120px, calc(100% - 2rem));
-  max-width: 100%;
-  margin-inline: auto;
   min-height: var(--nav-h);
   display: flex;
   align-items: center;
@@ -250,30 +253,11 @@ img {
   padding: 0.55rem 0.65rem;
 }
 
-/* Sections */
+/* Sections (starVLA-style: normal flow, container max-width) */
 .section {
   padding: 4.5rem 0;
   scroll-margin-top: var(--nav-h);
   scroll-snap-align: start;
-}
-
-.section--snap {
-  min-height: clamp(640px, 88vh, 920px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.section--snap > .container {
-  width: min(1120px, calc(100% - 2rem));
-  max-width: 100%;
-  margin-inline: auto;
-  flex: 0 1 auto;
-}
-
-#hero.section--snap,
-#bibtex.section--snap {
-  min-height: auto;
 }
 
 .section--center .container {
@@ -304,8 +288,7 @@ img {
 }
 
 .section-alt {
-  background: color-mix(in srgb, var(--surface-2) 65%, transparent);
-  border-block: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  /* reserved; no full-bleed bands — match starVLA unified page background */
 }
 
 .section-kicker {
@@ -426,6 +409,7 @@ img {
   display: grid;
   gap: 0.85rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 640px;
 }
 
 .metric-card {
@@ -667,12 +651,6 @@ img {
   background: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 
-.footer .container {
-  width: min(1120px, calc(100% - 2rem));
-  max-width: 100%;
-  margin-inline: auto;
-}
-
 .footer-row {
   display: flex;
   flex-wrap: wrap;
@@ -734,11 +712,6 @@ img {
     flex-wrap: wrap;
     padding: 0.65rem 0;
     min-height: auto;
-  }
-
-  .section--snap {
-    min-height: auto;
-    display: block;
   }
 
   .metrics-grid,
