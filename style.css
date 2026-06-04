@@ -449,6 +449,30 @@ img {
   max-width: 640px;
 }
 
+.metrics-grid--duo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 420px;
+}
+
+.hero-note {
+  margin: 1.25rem 0 0;
+  max-width: 52ch;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-soft);
+}
+
+.section-lead a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.section-lead a:hover {
+  color: var(--brand);
+}
+
 .metric-card {
   display: block;
   padding: 0.9rem 1rem;
@@ -770,6 +794,7 @@ img {
   }
 
   .metrics-grid,
+  .metrics-grid--duo,
   .feature-grid,
   .feature-grid--three {
     grid-template-columns: 1fr;

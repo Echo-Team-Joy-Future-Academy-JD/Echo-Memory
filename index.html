@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=section-dividers" />
+  <link rel="stylesheet" href="style.css?v=content-rich" />
 </head>
 <body>
   <!-- arXiv: replace TBD with real ID when posted -->
@@ -100,7 +100,7 @@
               >Code</a>
             </div>
 
-            <div class="metrics-grid">
+            <div class="metrics-grid metrics-grid--duo">
               <a
                 class="metric-card"
                 href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"
@@ -121,17 +121,12 @@
                 <span class="metric-label">Forks</span>
                 <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
               </a>
-              <a
-                class="metric-card"
-                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
-                target="_blank"
-                rel="noopener noreferrer"
-                data-badge-url="https://img.shields.io/github/issues/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
-              >
-                <span class="metric-label">Open Issues</span>
-                <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
-              </a>
             </div>
+
+            <p class="hero-note">
+              Controlled memory ablations on a shared <strong>Wan</strong> action-to-video stack —
+              reproducible rows, evaluation scripts, and qualitative revisit panels.
+            </p>
 
             <details class="authors-fold">
               <summary>Authors &amp; affiliations</summary>
@@ -153,10 +148,16 @@
           <p class="section-kicker">01 · Overview</p>
           <h2 class="section-title">One backbone, one protocol — only memory changes.</h2>
           <p class="section-lead">
-            Echo-Memory fixes the action-to-video stack and varies only how history is stored
-            and read back. Replay, in-domain loop closure, and open-domain return are reported
-            together.
+            Echo-Memory holds the video backbone, training recipe, and data protocol fixed, and
+            swaps only the memory module. The goal is to separate <strong>replay fidelity</strong>
+            from <strong>return memory</strong> when the camera leaves and comes back to the same place.
           </p>
+          <ul class="bullet-list">
+            <li><strong>Shared stack</strong> — chunk-wise action-conditioned world generation on Wan.</li>
+            <li><strong>Controlled variable</strong> — Context, Compression, Spatial, or State-Space memory.</li>
+            <li><strong>Three probes</strong> — replay metrics, in-domain 180° loop, open-domain edited return.</li>
+            <li><strong>Release</strong> — ablation scripts, GT replay, revisit assets, and paper-aligned figures.</li>
+          </ul>
           <figure class="section-figure">
             <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
             <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
@@ -169,24 +170,25 @@
           <p class="section-kicker">02 · Memory Design</p>
           <h2 class="section-title">Context · Compression · Spatial · State-Space</h2>
           <p class="section-lead">
-            Four memory families share a write–read interface; only capacity and representation differ.
+            All variants plug into the same write–read interface; we only change what is stored and how
+            history is retrieved. A no-memory I2V floor re-generates from the first frame as a lower bound.
           </p>
           <div class="feature-grid">
             <article class="card">
               <h3>Context</h3>
-              <p>Raw history windows at K = 1, 5, or 20 chunks.</p>
+              <p>Raw recent frames at K = 1, 5, or 20 chunks — tests whether longer windows alone stop drift.</p>
             </article>
             <article class="card">
               <h3>Compression</h3>
-              <p>Learned compact tokens at compression ratio r = 4.</p>
+              <p>Learned compact tokens at ratio r = 4 — history without growing raw-frame storage.</p>
             </article>
             <article class="card">
               <h3>Spatial</h3>
-              <p>Explicit read/write spatial state across chunks.</p>
+              <p>Explicit spatial read/write state — targets layout, object pose, and viewpoint carry.</p>
             </article>
             <article class="card">
               <h3>State-Space</h3>
-              <p>Block-wise SSM memory for long-horizon carry.</p>
+              <p>Block-wise SSM updates — recurrent carry beyond short context windows on revisit.</p>
             </article>
           </div>
           <figure class="section-figure">
@@ -201,20 +203,21 @@
           <p class="section-kicker">03 · Evaluation</p>
           <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
           <p class="section-lead">
-            Three branches probe replay fidelity, loop closure, and identity under edited returns.
+            Each branch asks a different question: Can the model reconstruct the past? Can it close a loop
+            in-domain? After an edited first frame, does it return to the <strong>same world</strong>?
           </p>
           <div class="feature-grid feature-grid--three">
             <article class="card">
               <h3>Replay</h3>
-              <p>PSNR, SSIM, and LPIPS on chunk-wise reconstruction.</p>
+              <p>PSNR, SSIM, LPIPS on chunk-wise reconstruction — measures short-horizon pixel fidelity.</p>
             </article>
             <article class="card">
               <h3>In-domain</h3>
-              <p>180° loop closure with VLM-assisted scoring.</p>
+              <p>180° trajectory loop closure with VLM-assisted scoring on held layouts.</p>
             </article>
             <article class="card">
               <h3>Open-domain</h3>
-              <p>Edited first frames plus 45° return probes.</p>
+              <p>Edited first frames and 45° return probes — stresses object identity and scene persistence.</p>
             </article>
           </div>
           <figure class="section-figure">
@@ -229,7 +232,9 @@
           <p class="section-kicker">04 · Qualitative Evidence</p>
           <h2 class="section-title">Return probes expose identity drift.</h2>
           <p class="section-lead">
-            Side-by-side panels compare memory variants on revisit and open-domain return.
+            Qualitative panels follow a simple diagnostic: <strong>first frame → leave the view → revisit tail</strong>.
+            We compare whether memory restores the same object, pose, background, and camera geometry —
+            not merely a plausible new scene.
           </p>
           <div class="qual-viewer" data-qual-viewer>
             <figure class="qual-stage">
@@ -278,12 +283,14 @@
           <p class="section-kicker">05 · Main Conclusions</p>
           <h2 class="section-title">Replay quality ≠ memory quality.</h2>
           <p class="section-lead">
-            Rankings shift from replay metrics to return probes — replay alone is not the final memory score.
+            Replay metrics and return probes do not always agree — a model can look sharp on reconstruction
+            yet fail when the camera returns. Rankings reorder once identity under revisit is measured.
           </p>
-          <ul class="bullet-list">
-            <li><strong>Raw context</strong> scales open-domain return more than replay.</li>
-            <li><strong>Compact memory</strong> can drop identity on return.</li>
-            <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
+          <ul class="bullet-list bullet-list--center">
+            <li><strong>Raw context</strong> — more history helps open-domain return more than replay alone.</li>
+            <li><strong>Compression</strong> — compact tokens can preserve replay while losing identity on return.</li>
+            <li><strong>Spatial vs. SSM</strong> — explicit state and block-wise SSM trade off layout carry and long-horizon stability.</li>
+            <li><strong>Takeaway</strong> — treat replay as a health check, not the final memory benchmark.</li>
           </ul>
           <figure class="section-figure">
             <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
@@ -296,7 +303,10 @@
         <div class="container">
           <p class="section-kicker">06 · Citation</p>
           <h2 class="section-title">BibTeX</h2>
-          <p class="section-lead">Copy the entry below when citing this technical report.</p>
+          <p class="section-lead">
+            Copy the entry below when citing this technical report. Code, evaluation assets, and figures
+            ship with the <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">Echo-Memory repository</a>.
+          </p>
           <div class="bibtex-wrap">
             <button type="button" class="copy-btn" id="copy-bibtex">Copy</button>
             <pre class="bibtex" id="bibtex-block"><code>@article{king2026echomemory,
@@ -320,11 +330,11 @@
           <a href="#" title="Paper link coming soon">Paper (TBD)</a>
           <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
         </div>
-        <p class="build-id" hidden aria-hidden="true">site-build-782c9b7</p>
+        <p class="build-id" hidden aria-hidden="true">site-build-33c44c4</p>
       </div>
     </footer>
   </div>
 
-  <script src="site.js?v=section-dividers" defer></script>
+  <script src="site.js?v=content-rich" defer></script>
 </body>
 </html>
