@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Echo-Memory</title>
+  <meta name="description" content="A controlled study of memory in action-conditioned video world models.">
+  <style>
+    :root {
+      --text: #1f2328;
+      --muted: #57606a;
+      --border: #d8dee4;
+      --bg: #ffffff;
+      --accent: #0969da;
+      --quote: #f6f8fa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    header { text-align: center; margin-bottom: 28px; }
+    h1 { font-size: 2.2rem; margin: 0 0 8px; }
+    .subtitle { font-size: 1.1rem; margin: 0 0 6px; }
+    .team { color: var(--muted); margin: 0 0 18px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 24px; }
+    .badges a {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      background: #fff;
+    }
+    .badges a.primary { background: #dafbe1; border-color: #4ac26b; }
+    .badges a.code { background: #f6f8fa; }
+    blockquote {
+      margin: 0 0 24px;
+      padding: 14px 18px;
+      background: var(--quote);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+    }
+    .hero, .figure, .grid { text-align: center; margin: 24px 0; }
+    .hero img, .figure img { max-width: 100%; height: auto; border-radius: 8px; }
+    .caption { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+    h2 { margin-top: 40px; font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+    th { background: #fff5f7; }
+    .sources img, .videos img {
+      width: 140px;
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+    .videos td { width: 16.66%; }
+    .videos b { display: block; font-size: 0.82rem; margin-bottom: 8px; }
+    p.lead { font-size: 1rem; }
+    a { color: var(--accent); }
+    footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Echo-Memory</h1>
+      <p class="subtitle"><b>A Controlled Study of Memory in Action World Models</b></p>
+      <p class="team"><b>Echo Team @ Joy Future Academy, JD</b></p>
+      <div class="badges">
+        <a href="#">arXiv (TBD)</a>
+        <a href="#">Hugging Face (TBD)</a>
+        <a class="primary" href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
+        <a class="code" href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub Code</a>
+      </div>
+    </header>
+
+    <blockquote>
+      <b>Core question.</b> When a generated scene must leave and later return, which kind of memory helps an action world model preserve <b>identity</b>, <b>layout</b>, and <b>viewpoint</b> instead of drifting into a plausible but different world?
+    </blockquote>
+
+    <div class="hero">
+      <img src="assets/paper_cases/figure_1_abs_framework.png" alt="Echo-Memory paper teaser and workflow">
+      <p class="caption"><b>Paper teaser.</b> Echo-Memory studies how Context, Compression, Spatial, and State-Space memory carry historical observations across chunk-wise action-world generation and revisit trajectories.</p>
+    </div>
+
+    <p class="lead"><b>Echo-Memory</b> is the release code for the paper's controlled memory study. It keeps the shared <b>Wan video backbone</b>, memory modules, training recipes, data utilities, open-domain revisit assets, and public replay/static evaluation suites.</p>
+
+    <h2>Memory Context List</h2>
+    <table>
+      <tr><th>Family</th><th>Memory row</th><th>What it tests</th></tr>
+      <tr><td><b>Floor</b></td><td><b>No memory / I2V floor</b></td><td>Re-generate from the first frame only; a lower bound for revisit consistency.</td></tr>
+      <tr><td><b>Raw context</b></td><td><b>Context K=1 / K=5 / K=20</b></td><td>Whether simply keeping more recent frames is enough to prevent long-horizon drift.</td></tr>
+      <tr><td><b>Compression</b></td><td><b>Compression r = 4</b></td><td>Whether a compact temporal representation can retain useful history without raw-frame growth.</td></tr>
+      <tr><td><b>Spatial</b></td><td><b>Spatial Memory</b></td><td>Whether explicit spatial read/write state improves scene-layout recall.</td></tr>
+      <tr><td><b>State-space</b></td><td><b>Legacy Hybrid / Block-wise SSM</b></td><td>Whether recurrent state updates can stabilize revisits beyond short context windows.</td></tr>
+    </table>
+
+    <div class="figure">
+      <img src="assets/paper_cases/figure_2_mem_overview.png" alt="Overview of four memory approaches">
+      <p class="caption"><b>Memory design matrix.</b> The paper groups concrete variants by what is stored and how it is read back: raw context, compressed history, spatial state, or recurrent state-space memory.</p>
+    </div>
+
+    <h2>Open-Domain Revisit Sources</h2>
+    <table class="sources">
+      <tr>
+        <td><img src="assets/opendomain_revisit/1774363417.png" alt="source 1"><br>Source 1</td>
+        <td><img src="assets/opendomain_revisit/1774363487.png" alt="source 2"><br>Source 2</td>
+        <td><img src="assets/opendomain_revisit/1774363572.png" alt="source 3"><br>Source 3</td>
+        <td><img src="assets/opendomain_revisit/1774369504.png" alt="source 4"><br>Source 4</td>
+      </tr>
+      <tr>
+        <td><img src="assets/opendomain_revisit/1774369548.png" alt="source 5"><br>Source 5</td>
+        <td><img src="assets/opendomain_revisit/1774369942.png" alt="source 6"><br>Source 6</td>
+        <td><img src="assets/opendomain_revisit/1774370005.png" alt="source 7"><br>Source 7</td>
+        <td><img src="assets/opendomain_revisit/1774370010.png" alt="source 8"><br>Source 8</td>
+      </tr>
+    </table>
+
+    <h2>Replay Video List</h2>
+    <p>Representative replay videos are shown as compressed previews. These clips replay ground-truth trajectories with each memory mechanism.</p>
+    <table class="videos">
+      <tr>
+        <td><b>Context K=1</b><img src="assets/readme_previews/context_k1_replay_gt.gif" alt="Context K=1"></td>
+        <td><b>Context K=5</b><img src="assets/readme_previews/context_k5_replay_gt.gif" alt="Context K=5"></td>
+        <td><b>Compression r = 4</b><img src="assets/readme_previews/framepack_len_r4_replay_gt.gif" alt="Compression r = 4"></td>
+        <td><b>Spatial Memory</b><img src="assets/readme_previews/spatial_memory_replay_gt.gif" alt="Spatial Memory"></td>
+        <td><b>Legacy Hybrid</b><img src="assets/readme_previews/ssm_legacy_replay_gt.gif" alt="Legacy Hybrid"></td>
+        <td><b>Block-wise SSM</b><img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" alt="Block-wise SSM"></td>
+      </tr>
+    </table>
+
+    <footer>
+      Released by <b>Echo Team @ Joy Future Academy, JD</b>.
+      Full documentation and scripts are on
+      <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>.
+    </footer>
+  </div>
+</body>
+</html>

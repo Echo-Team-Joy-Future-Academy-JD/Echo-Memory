@@ -37,3 +37,8 @@ models/
 !assets/**/*.jpg
 !assets/**/*.jpeg
 !assets/**/*.webp
+!docs/**/*.gif
+!docs/**/*.png
+!docs/**/*.jpg
+!docs/**/*.jpeg
+!docs/**/*.webp
