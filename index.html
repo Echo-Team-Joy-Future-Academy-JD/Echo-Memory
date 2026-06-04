@@ -11,12 +11,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- arXiv: replace TBD with real ID when posted -->
+  <!-- Paper: replace # with final report URL when ready -->
   <div class="page-shell">
     <header class="top-nav" role="banner">
       <div class="container top-nav__inner">
@@ -98,9 +100,9 @@
               >Code</a>
             </div>
 
-            <div class="metrics-grid metrics-grid--duo">
+            <div class="metrics-grid">
               <a
-                class="metric-card is-loading"
+                class="metric-card"
                 href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -110,13 +112,23 @@
                 <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
               </a>
               <a
-                class="metric-card is-loading"
+                class="metric-card"
                 href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/network/members"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-badge-url="https://img.shields.io/github/forks/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
               >
                 <span class="metric-label">Forks</span>
+                <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
+              </a>
+              <a
+                class="metric-card"
+                href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-badge-url="https://img.shields.io/github/issues/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
+              >
+                <span class="metric-label">Open Issues</span>
                 <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
               </a>
             </div>
@@ -136,149 +148,57 @@
         </div>
       </section>
 
-      <section id="overview" class="section section--snap" data-section="overview">
+      <section id="overview" class="section section--snap section--center" data-section="overview">
         <div class="container">
-          <p class="section-kicker">Fig. 01 · Overview</p>
+          <p class="section-kicker">01 · Overview</p>
           <h2 class="section-title">One backbone, one protocol — only memory changes.</h2>
           <p class="section-lead">
             Echo-Memory fixes the action-to-video stack and varies only how history is stored
             and read back. Replay, in-domain loop closure, and open-domain return are reported
             together.
           </p>
-          <div
-            class="echo-diagram"
-            id="diagram-overview"
-            role="img"
-            aria-label="Echo-Memory controlled framework: action chunks feed a shared backbone with swappable memory, then three evaluation branches."
-            data-diagram="overview"
-          >
-            <svg class="diagram-svg" viewBox="0 0 820 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <defs>
-                <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-                  <path d="M0,0 L6,3 L0,6 Z" fill="currentColor" />
-                </marker>
-                <linearGradient id="pipeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#bf5276" stop-opacity="0.35" />
-                  <stop offset="100%" stop-color="#d97498" stop-opacity="0.85" />
-                </linearGradient>
-              </defs>
-              <path class="diagram-flow diagram-flow--main" d="M 40 95 H 200" marker-end="url(#arrow)" />
-              <path class="diagram-flow diagram-flow--main" d="M 280 95 H 420" marker-end="url(#arrow)" />
-              <path class="diagram-flow diagram-flow--main" d="M 500 95 H 640" marker-end="url(#arrow)" />
-              <path class="diagram-flow diagram-flow--branch" d="M 720 120 V 280" marker-end="url(#arrow)" />
-              <rect class="diagram-node" x="40" y="55" width="120" height="56" rx="12" />
-              <text class="diagram-label" x="100" y="88">Action chunks</text>
-              <rect class="diagram-node" x="200" y="55" width="120" height="56" rx="12" />
-              <text class="diagram-label" x="260" y="88">Wan backbone</text>
-              <rect class="diagram-node diagram-node--hub" x="420" y="42" width="140" height="82" rx="14" />
-              <text class="diagram-label" x="490" y="78">Memory interface</text>
-              <rect class="diagram-node" x="640" y="55" width="120" height="56" rx="12" />
-              <text class="diagram-label" x="700" y="88">Generated world</text>
-              <g class="diagram-memory-group">
-                <rect class="diagram-mem" data-memory="context" x="360" y="168" width="108" height="44" rx="10" tabindex="0" role="button" />
-                <text x="414" y="196">Context</text>
-                <rect class="diagram-mem" data-memory="compression" x="478" y="168" width="108" height="44" rx="10" tabindex="0" role="button" />
-                <text x="532" y="196">Compression</text>
-                <rect class="diagram-mem" data-memory="spatial" x="360" y="224" width="108" height="44" rx="10" tabindex="0" role="button" />
-                <text x="414" y="252">Spatial</text>
-                <rect class="diagram-mem" data-memory="ssm" x="478" y="224" width="108" height="44" rx="10" tabindex="0" role="button" />
-                <text x="532" y="252">State-Space</text>
-              </g>
-              <rect class="diagram-node diagram-node--eval" x="560" y="300" width="100" height="44" rx="10" />
-              <text class="diagram-label diagram-label--sm" x="610" y="328">Replay</text>
-              <rect class="diagram-node diagram-node--eval" x="670" y="300" width="120" height="44" rx="10" />
-              <text class="diagram-label diagram-label--sm" x="730" y="328">In-domain</text>
-              <rect class="diagram-node diagram-node--eval" x="560" y="352" width="230" height="44" rx="10" />
-              <text class="diagram-label diagram-label--sm" x="675" y="380">Open-domain return</text>
-            </svg>
-            <p class="diagram-caption" data-overview-caption>
-              <strong>Context memory</strong> — raw history windows (K = 1 / 5 / 20) carried across chunk-wise generation.
-            </p>
-          </div>
-          <noscript>
-            <figure class="section-figure">
-              <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
-            </figure>
-          </noscript>
+          <figure class="section-figure">
+            <img src="assets/figure_1_abs_framework.png" alt="Echo-Memory framework overview" />
+            <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
+          </figure>
         </div>
       </section>
 
-      <section id="design" class="section section-alt section--snap" data-section="design">
+      <section id="design" class="section section-alt section--snap section--center" data-section="design">
         <div class="container">
-          <p class="section-kicker">Fig. 02 · Memory Design</p>
+          <p class="section-kicker">02 · Memory Design</p>
           <h2 class="section-title">Context · Compression · Spatial · State-Space</h2>
           <p class="section-lead">
             Four memory families share a write–read interface; only capacity and representation differ.
           </p>
-          <div class="feature-grid feature-grid--design" data-design-cards>
-            <article class="card" data-design="context">
+          <div class="feature-grid">
+            <article class="card">
               <h3>Context</h3>
               <p>Raw history windows at K = 1, 5, or 20 chunks.</p>
             </article>
-            <article class="card" data-design="compression">
+            <article class="card">
               <h3>Compression</h3>
               <p>Learned compact tokens at compression ratio r = 4.</p>
             </article>
-            <article class="card" data-design="spatial">
+            <article class="card">
               <h3>Spatial</h3>
               <p>Explicit read/write spatial state across chunks.</p>
             </article>
-            <article class="card" data-design="ssm">
+            <article class="card">
               <h3>State-Space</h3>
               <p>Block-wise SSM memory for long-horizon carry.</p>
             </article>
           </div>
-          <div
-            class="echo-diagram echo-diagram--matrix"
-            id="diagram-design"
-            role="img"
-            aria-label="Four memory families connected to a shared write-read interface."
-            data-diagram="design"
-          >
-            <svg class="diagram-svg" viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <line class="diagram-spoke" data-spoke="context" x1="320" y1="210" x2="120" y2="80" />
-              <line class="diagram-spoke" data-spoke="compression" x1="320" y1="210" x2="520" y2="80" />
-              <line class="diagram-spoke" data-spoke="spatial" x1="320" y1="210" x2="120" y2="340" />
-              <line class="diagram-spoke" data-spoke="ssm" x1="320" y1="210" x2="520" y2="340" />
-              <circle class="diagram-hub" cx="320" cy="210" r="52" />
-              <text class="diagram-label" x="320" y="205">Shared</text>
-              <text class="diagram-label" x="320" y="225">write–read</text>
-              <g class="diagram-cell" data-design-cell="context" tabindex="0" role="button">
-                <rect x="48" y="36" width="144" height="88" rx="14" />
-                <text x="120" y="72">Context</text>
-                <text class="diagram-meta" x="120" y="98">K = 1 · 5 · 20</text>
-              </g>
-              <g class="diagram-cell" data-design-cell="compression" tabindex="0" role="button">
-                <rect x="448" y="36" width="144" height="88" rx="14" />
-                <text x="520" y="72">Compression</text>
-                <text class="diagram-meta" x="520" y="98">r = 4</text>
-              </g>
-              <g class="diagram-cell" data-design-cell="spatial" tabindex="0" role="button">
-                <rect x="48" y="296" width="144" height="88" rx="14" />
-                <text x="120" y="332">Spatial</text>
-                <text class="diagram-meta" x="120" y="358">read / write</text>
-              </g>
-              <g class="diagram-cell" data-design-cell="ssm" tabindex="0" role="button">
-                <rect x="448" y="296" width="144" height="88" rx="14" />
-                <text x="520" y="332">State-Space</text>
-                <text class="diagram-meta" x="520" y="358">block SSM</text>
-              </g>
-            </svg>
-            <p class="diagram-caption" data-design-caption>
-              Click a family to highlight its link to the shared interface.
-            </p>
-          </div>
-          <noscript>
-            <figure class="section-figure">
-              <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
-            </figure>
-          </noscript>
+          <figure class="section-figure">
+            <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
+            <figcaption>Four memory families under a shared write–read interface.</figcaption>
+          </figure>
         </div>
       </section>
 
       <section id="evaluation" class="section section--snap section--center" data-section="evaluation">
         <div class="container">
-          <p class="section-kicker">Fig. 03 · Evaluation</p>
+          <p class="section-kicker">03 · Evaluation</p>
           <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
           <p class="section-lead">
             Three branches probe replay fidelity, loop closure, and identity under edited returns.
@@ -306,34 +226,18 @@
 
       <section id="evidence" class="section section-alt section--snap section--center" data-section="evidence">
         <div class="container">
-          <p class="section-kicker">Fig. 04 · Qualitative Evidence</p>
+          <p class="section-kicker">04 · Qualitative Evidence</p>
           <h2 class="section-title">Return probes expose identity drift.</h2>
           <p class="section-lead">
             Side-by-side panels compare memory variants on revisit and open-domain return.
           </p>
           <div class="qual-viewer" data-qual-viewer>
             <figure class="qual-stage">
-              <div class="qual-image-stack">
-                <img
-                  class="is-visible"
-                  data-qual-image
-                  data-qual-index="0"
-                  src="assets/representative_memory_results.png"
-                  alt="Representative memory comparisons"
-                />
-                <img
-                  data-qual-image
-                  data-qual-index="1"
-                  src="assets/representative_sweep_panel.png"
-                  alt="Open-domain return sweep"
-                />
-                <img
-                  data-qual-image
-                  data-qual-index="2"
-                  src="assets/open_domain_revisit_panel.png"
-                  alt="Edited first frames"
-                />
-              </div>
+              <img
+                data-qual-image
+                src="assets/representative_memory_results.png"
+                alt="Representative memory comparisons"
+              />
               <figcaption data-qual-caption>Representative memory comparisons across variants.</figcaption>
             </figure>
             <div class="qual-chips" role="tablist" aria-label="Evidence panels">
@@ -342,7 +246,8 @@
                 type="button"
                 role="tab"
                 aria-selected="true"
-                data-qual-index="0"
+                data-src="assets/representative_memory_results.png"
+                data-alt="Representative memory comparisons"
                 data-caption="Representative memory comparisons across variants."
               >Memory Results</button>
               <button
@@ -350,7 +255,8 @@
                 type="button"
                 role="tab"
                 aria-selected="false"
-                data-qual-index="1"
+                data-src="assets/representative_sweep_panel.png"
+                data-alt="Open-domain return sweep"
                 data-caption="Open-domain return sweep across the design matrix."
               >Open-Domain Sweep</button>
               <button
@@ -358,7 +264,8 @@
                 type="button"
                 role="tab"
                 aria-selected="false"
-                data-qual-index="2"
+                data-src="assets/open_domain_revisit_panel.png"
+                data-alt="Edited first frames"
                 data-caption="Edited first frames for open-domain return probes."
               >Identity Anchors</button>
             </div>
@@ -368,12 +275,12 @@
 
       <section id="findings" class="section section--snap section--center" data-section="findings">
         <div class="container">
-          <p class="section-kicker">Fig. 05 · Main Conclusions</p>
+          <p class="section-kicker">05 · Main Conclusions</p>
           <h2 class="section-title">Replay quality ≠ memory quality.</h2>
           <p class="section-lead">
             Rankings shift from replay metrics to return probes — replay alone is not the final memory score.
           </p>
-          <ul class="bullet-list bullet-list--center">
+          <ul class="bullet-list">
             <li><strong>Raw context</strong> scales open-domain return more than replay.</li>
             <li><strong>Compact memory</strong> can drop identity on return.</li>
             <li><strong>Block-wise SSM</strong> strongest open-domain return in our matrix.</li>
@@ -387,7 +294,7 @@
 
       <section id="bibtex" class="section section-alt section--snap" data-section="bibtex">
         <div class="container">
-          <p class="section-kicker">Fig. 06 · Citation</p>
+          <p class="section-kicker">06 · Citation</p>
           <h2 class="section-title">BibTeX</h2>
           <p class="section-lead">Copy the entry below when citing this technical report.</p>
           <div class="bibtex-wrap">
@@ -413,7 +320,7 @@
           <a href="#" title="Paper link coming soon">Paper (TBD)</a>
           <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
         </div>
-        <p class="build-id" hidden aria-hidden="true">site-build-f53d442</p>
+        <p class="build-id" hidden aria-hidden="true">site-build-49228ac</p>
       </div>
     </footer>
   </div>
