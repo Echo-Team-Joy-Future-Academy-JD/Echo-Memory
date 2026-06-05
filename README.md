@@ -28,6 +28,45 @@
 
 **What is intentionally removed:** private dynamic benchmarks, cluster submit files, logs, generated outputs, and machine-local paths.
 
+## News
+
+**[2026/06/05]** Echo-Memory technical report posted on [ResearchGate](https://doi.org/10.13140/RG.2.2.19906.34248) (CC BY 4.0). Project page: [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/).
+
+**[2026/06/04]** Public release of controlled memory ablations on **Wan 2.1 1.3B** — replay GT, in-domain revisit, and open-domain return probes with bundled qualitative assets.
+
+**[2026/06/04]** One-click revisit suite (`eval/v2/revisit_suite/`) and open-domain first-frame anchors under `assets/opendomain_revisit/`.
+
+## Roadmap / TODO
+
+<details open>
+<summary><b>Training &amp; Models</b></summary>
+
+- [ ] Refresh and expand the **Dynamic Training Set** for memory ablations
+- [ ] **Wan 2.2** backbone integration
+- [ ] Multi-scale Wan checkpoints — **5B**, **14B**, and beyond the current **1.3B** baseline
+- [ ] Unified training recipes across model scales
+
+</details>
+
+<details open>
+<summary><b>Evaluation</b></summary>
+
+- [ ] Broader **dynamic evaluation** support (current release is static replay/revisit)
+- [ ] More revisit probe families and open-domain cases
+- [ ] VLM-assisted scoring presets for public endpoints
+- [ ] Benchmark aggregation scripts for paper-style tables
+
+</details>
+
+<details open>
+<summary><b>Release</b></summary>
+
+- [ ] arXiv preprint posting
+- [ ] Hugging Face model / checkpoint release (TBD)
+- [ ] Pretrained memory-row checkpoints
+
+</details>
+
 ## Authors and Release Statement
 
 This repository is released by **Echo Team @ Joy Future Academy, JD**. The code and evaluation assets are intended to support reproducible memory-mechanism comparisons for action-conditioned video world models. If you use this repository, please cite the Echo-Memory paper or acknowledge the Echo Team release.
@@ -289,3 +328,7 @@ If you use this repository or the Echo-Memory report, please cite:
 ```
 
 arXiv preprint forthcoming — use the BibTeX above until posted.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Echo-Team-Joy-Future-Academy-JD/Echo-Memory&type=date&legend=bottom-right)](https://www.star-history.com/#Echo-Team-Joy-Future-Academy-JD/Echo-Memory&type=date&legend=bottom-right)
