@@ -146,23 +146,24 @@
     });
   });
 
-  var copyBtn = document.getElementById("copy-bibtex");
-  var bibtexBlock = document.getElementById("bibtex-block");
-  if (copyBtn && bibtexBlock) {
-    copyBtn.addEventListener("click", function () {
-      navigator.clipboard.writeText(bibtexBlock.textContent).then(
+  document.querySelectorAll("[data-copy-target]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var targetId = btn.getAttribute("data-copy-target");
+      var target = document.getElementById(targetId);
+      if (!target) return;
+      navigator.clipboard.writeText(target.textContent).then(
         function () {
-          copyBtn.textContent = "Copied";
-          copyBtn.classList.add("is-copied");
+          btn.textContent = "Copied";
+          btn.classList.add("is-copied");
           setTimeout(function () {
-            copyBtn.textContent = "Copy";
-            copyBtn.classList.remove("is-copied");
+            btn.textContent = "Copy";
+            btn.classList.remove("is-copied");
           }, 2000);
         },
         function () {
-          copyBtn.textContent = "Failed";
+          btn.textContent = "Failed";
         }
       );
     });
-  }
+  });
 })();

@@ -5,8 +5,9 @@
 </div>
 
 <div align="center">
+<a href="https://doi.org/10.13140/RG.2.2.19906.34248"><img src="https://img.shields.io/badge/ResearchGate-DOI-00CCBB.svg" alt="ResearchGate DOI"></a>
 <a href="https://arxiv.org/abs/TBD"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
-<a href="#"><img src="https://img.shields.io/badge/🤗%20Hugging%20Face-TBD-blue" alt="Hugging Face: TBD"></a>
+<a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
@@ -271,11 +272,33 @@ Dynamic evaluation and training are not part of this release.
 
 If you use this repository or the Echo-Memory report, please cite:
 
+**ResearchGate (June 2026)** · DOI [10.13140/RG.2.2.19906.34248](https://doi.org/10.13140/RG.2.2.19906.34248) · Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
 ```bibtex
 @article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
   journal={Echo-Memory technical report},
-  year={2026}
+  publisher={ResearchGate},
+  year={2026},
+  month={jun},
+  doi={10.13140/RG.2.2.19906.34248},
+  url={https://doi.org/10.13140/RG.2.2.19906.34248},
+  note={Licensed under CC BY 4.0}
+}
+```
+
+ResearchGate-specific entry:
+
+```bibtex
+@misc{king2026echomemory_rg,
+  title={Echo-Memory: A Controlled Study of Memory in Action World Models},
+  author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
+  year={2026},
+  month={jun},
+  howpublished={ResearchGate},
+  doi={10.13140/RG.2.2.19906.34248},
+  url={https://doi.org/10.13140/RG.2.2.19906.34248},
+  note={Technical report. Licensed under CC BY 4.0}
 }
 ```

@@ -792,6 +792,52 @@ img {
 }
 
 /* BibTeX */
+.pub-meta {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.25rem 0 1.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: var(--shadow);
+  max-width: 36rem;
+}
+
+.pub-meta__row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  font-size: 0.9rem;
+}
+
+.pub-meta dt {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+
+.pub-meta dd {
+  margin: 0;
+  color: var(--text);
+}
+
+.pub-meta a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bibtex-heading {
+  margin: 1.5rem 0 0.65rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
 .bibtex-wrap {
   position: relative;
   margin-top: 1rem;
