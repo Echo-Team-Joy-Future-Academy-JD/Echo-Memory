@@ -14,9 +14,10 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=rg-doi" />
+  <link rel="stylesheet" href="style.css?v=polish-v2" />
 </head>
 <body>
+  <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
   <!-- arXiv: replace TBD with real ID when posted -->
   <!-- Report: https://doi.org/10.13140/RG.2.2.19906.34248 (ResearchGate, CC BY 4.0) -->
   <div class="page-shell">
@@ -72,19 +73,33 @@
     </header>
 
     <aside class="slide-dots" aria-label="Section navigation">
-      <button type="button" class="is-active" data-slide="hero" aria-label="Home"></button>
-      <button type="button" data-slide="overview" aria-label="Overview"></button>
-      <button type="button" data-slide="design" aria-label="Design"></button>
-      <button type="button" data-slide="evaluation" aria-label="Evaluation"></button>
-      <button type="button" data-slide="evidence" aria-label="Evidence"></button>
-      <button type="button" data-slide="findings" aria-label="Results"></button>
-      <button type="button" data-slide="bibtex" aria-label="BibTeX"></button>
+      <button type="button" class="is-active" data-slide="hero" data-label="Home" aria-label="Home"></button>
+      <button type="button" data-slide="overview" data-label="Overview" aria-label="Overview"></button>
+      <button type="button" data-slide="design" data-label="Design" aria-label="Design"></button>
+      <button type="button" data-slide="evaluation" data-label="Eval" aria-label="Evaluation"></button>
+      <button type="button" data-slide="evidence" data-label="Evidence" aria-label="Evidence"></button>
+      <button type="button" data-slide="findings" data-label="Results" aria-label="Results"></button>
+      <button type="button" data-slide="bibtex" data-label="BibTeX" aria-label="BibTeX"></button>
     </aside>
 
+    <button type="button" class="back-top" id="back-top" aria-label="Back to top" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Expanded figure">
+      <button type="button" class="lightbox__close" aria-label="Close">&times;</button>
+      <figure class="lightbox__inner">
+        <img src="" alt="" id="lightbox-img" />
+        <figcaption id="lightbox-caption"></figcaption>
+      </figure>
+    </div>
+
     <main id="main-content">
-      <section id="hero" class="section section--compact" data-section="hero">
-        <div class="container hero hero--single">
-          <div>
+      <section id="hero" class="section section--compact reveal" data-section="hero">
+        <div class="container hero">
+          <div class="hero__copy">
             <div class="hero-badge">Echo Team · Joy Future Academy, JD · June 2026 · CC BY 4.0</div>
             <h1 class="hero-title">
               <span class="hero-highlight">Echo-Memory</span>
@@ -151,10 +166,19 @@
               </p>
             </details>
           </div>
+          <figure class="hero-visual" data-zoomable>
+            <div class="hero-visual__frame">
+              <img
+                src="assets/figure_1_abs_framework.png?v=fig1-crop"
+                alt="Echo-Memory framework overview"
+              />
+            </div>
+            <figcaption>Chunk-wise generation with revisitable memory.</figcaption>
+          </figure>
         </div>
       </section>
 
-      <section id="overview" class="section" data-section="overview">
+      <section id="overview" class="section reveal" data-section="overview">
         <div class="container">
           <p class="section-kicker">01 · Overview</p>
           <h2 class="section-title">One backbone, one protocol — only memory changes.</h2>
@@ -169,14 +193,14 @@
             <li><strong>Three probes</strong> — replay metrics, in-domain 180° loop, open-domain edited return.</li>
             <li><strong>Release</strong> — ablation scripts, GT replay, revisit assets, and paper-aligned figures.</li>
           </ul>
-          <figure class="section-figure">
+          <figure class="section-figure" data-zoomable>
             <img src="assets/figure_1_abs_framework.png?v=fig1-crop" alt="Echo-Memory framework overview" />
-            <figcaption>Controlled memory study over chunk-wise action-world generation.</figcaption>
+            <figcaption>Controlled memory study over chunk-wise action-world generation. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
-      <section id="design" class="section" data-section="design">
+      <section id="design" class="section reveal" data-section="design">
         <div class="container">
           <p class="section-kicker">02 · Memory Design</p>
           <h2 class="section-title">Context · Compression · Spatial · State-Space</h2>
@@ -185,31 +209,43 @@
             history is retrieved. A no-memory I2V floor re-generates from the first frame as a lower bound.
           </p>
           <div class="feature-grid">
-            <article class="card">
+            <article class="card card--accent" data-accent="context">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 9h10M7 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              </div>
               <h3>Context</h3>
               <p>Raw recent frames at K = 1, 5, or 20 chunks — tests whether longer windows alone stop drift.</p>
             </article>
-            <article class="card">
+            <article class="card card--accent" data-accent="compression">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.6"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke="currentColor" stroke-width="1.6"/></svg>
+              </div>
               <h3>Compression</h3>
               <p>Learned compact tokens at ratio r = 4 — history without growing raw-frame storage.</p>
             </article>
-            <article class="card">
+            <article class="card card--accent" data-accent="spatial">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-4 8 4v8l-8 4-8-4V8z" stroke="currentColor" stroke-width="1.6"/><path d="M12 4v16M4 8l8 4 8-4" stroke="currentColor" stroke-width="1.6"/></svg>
+              </div>
               <h3>Spatial</h3>
               <p>Explicit spatial read/write state — targets layout, object pose, and viewpoint carry.</p>
             </article>
-            <article class="card">
+            <article class="card card--accent" data-accent="ssm">
+              <div class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 12a7 7 0 0114 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 12h8M16 9l2 3-2 3M8 9l-2 3 2 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
               <h3>State-Space</h3>
               <p>Block-wise SSM updates — recurrent carry beyond short context windows on revisit.</p>
             </article>
           </div>
-          <figure class="section-figure">
+          <figure class="section-figure" data-zoomable>
             <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
-            <figcaption>Four memory families under a shared write–read interface.</figcaption>
+            <figcaption>Four memory families under a shared write–read interface. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
-      <section id="evaluation" class="section section--center" data-section="evaluation">
+      <section id="evaluation" class="section section--center reveal" data-section="evaluation">
         <div class="container">
           <p class="section-kicker">03 · Evaluation</p>
           <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
@@ -231,14 +267,14 @@
               <p>Edited first frames and 45° return probes — stresses object identity and scene persistence.</p>
             </article>
           </div>
-          <figure class="section-figure">
+          <figure class="section-figure" data-zoomable>
             <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
-            <figcaption>Replay health vs. return memory under the same stack.</figcaption>
+            <figcaption>Replay health vs. return memory under the same stack. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
-      <section id="evidence" class="section section--center" data-section="evidence">
+      <section id="evidence" class="section section--center reveal" data-section="evidence">
         <div class="container">
           <p class="section-kicker">04 · Qualitative Evidence</p>
           <h2 class="section-title">Return probes expose identity drift.</h2>
@@ -248,13 +284,16 @@
             not merely a plausible new scene.
           </p>
           <div class="qual-viewer" data-qual-viewer>
-            <figure class="qual-stage">
-              <img
-                data-qual-image
-                src="assets/representative_memory_results.png"
-                alt="Representative memory comparisons"
-              />
-              <figcaption data-qual-caption>Representative memory comparisons across variants.</figcaption>
+            <figure class="qual-stage" data-zoomable>
+              <div class="qual-stage__media">
+                <img
+                  data-qual-image
+                  class="is-active"
+                  src="assets/representative_memory_results.png"
+                  alt="Representative memory comparisons"
+                />
+              </div>
+              <figcaption data-qual-caption>Representative memory comparisons across variants. <span class="zoom-hint">Click to expand</span></figcaption>
             </figure>
             <div class="qual-chips" role="tablist" aria-label="Evidence panels">
               <button
@@ -289,7 +328,7 @@
         </div>
       </section>
 
-      <section id="findings" class="section section--center" data-section="findings">
+      <section id="findings" class="section section--center reveal" data-section="findings">
         <div class="container">
           <p class="section-kicker">05 · Main Conclusions</p>
           <h2 class="section-title">Replay quality ≠ memory quality.</h2>
@@ -303,14 +342,14 @@
             <li><strong>Spatial vs. SSM</strong> — explicit state and block-wise SSM trade off layout carry and long-horizon stability.</li>
             <li><strong>Takeaway</strong> — treat replay as a health check, not the final memory benchmark.</li>
           </ul>
-          <figure class="section-figure">
+          <figure class="section-figure" data-zoomable>
             <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
-            <figcaption>Rank shift from replay to return — replay is not the final memory score.</figcaption>
+            <figcaption>Rank shift from replay to return — replay is not the final memory score. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
-      <section id="bibtex" class="section" data-section="bibtex">
+      <section id="bibtex" class="section reveal" data-section="bibtex">
         <div class="container">
           <p class="section-kicker">06 · Citation</p>
           <h2 class="section-title">BibTeX</h2>
@@ -422,11 +461,11 @@
           <a href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
           <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
         </div>
-        <p class="build-id" hidden aria-hidden="true">site-build-85e2c0b</p>
+        <p class="build-id" hidden aria-hidden="true">site-build-7480831</p>
       </div>
     </footer>
   </div>
 
-  <script src="site.js?v=cite-switch" defer></script>
+  <script src="site.js?v=polish-v2" defer></script>
 </body>
 </html>
