@@ -270,9 +270,12 @@ Dynamic evaluation and training are not part of this release.
 
 ## Citation
 
-If you use this repository or the Echo-Memory report, please cite:
+If you use this repository or the Echo-Memory report, please cite the version you read:
 
 **ResearchGate (June 2026)** · DOI [10.13140/RG.2.2.19906.34248](https://doi.org/10.13140/RG.2.2.19906.34248) · Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+<details>
+<summary><b>BibTeX — ResearchGate</b></summary>
 
 ```bibtex
 @article{king2026echomemory,
@@ -288,17 +291,26 @@ If you use this repository or the Echo-Memory report, please cite:
 }
 ```
 
-ResearchGate-specific entry:
+</details>
+
+<details>
+<summary><b>BibTeX — arXiv (TBD)</b></summary>
+
+Replace `xxxx.xxxxx` when the preprint is posted.
 
 ```bibtex
-@misc{king2026echomemory_rg,
+@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
+  journal={arXiv preprint arXiv:xxxx.xxxxx},
   year={2026},
   month={jun},
-  howpublished={ResearchGate},
-  doi={10.13140/RG.2.2.19906.34248},
-  url={https://doi.org/10.13140/RG.2.2.19906.34248},
-  note={Technical report. Licensed under CC BY 4.0}
+  eprint={xxxx.xxxxx},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/TBD},
+  note={Licensed under CC BY 4.0. Replace xxxx.xxxxx when posted.}
 }
 ```
+
+</details>
