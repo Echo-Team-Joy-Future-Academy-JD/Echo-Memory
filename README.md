@@ -30,42 +30,15 @@
 
 ## News
 
-**[2026/06/05]** Echo-Memory technical report posted on [ResearchGate](https://doi.org/10.13140/RG.2.2.19906.34248) (CC BY 4.0). Project page: [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/).
+**[2026/06]** Report on [ResearchGate](https://doi.org/10.13140/RG.2.2.19906.34248) (CC BY 4.0) and [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/) released.
 
-**[2026/06/04]** Public release of controlled memory ablations on **Wan 2.1 1.3B** — replay GT, in-domain revisit, and open-domain return probes with bundled qualitative assets.
+**[2026/06]** Public code: **Wan 2.1 1.3B** memory ablations, replay/revisit eval, `eval/v2/revisit_suite/`, and `assets/opendomain_revisit/`.
 
-**[2026/06/04]** One-click revisit suite (`eval/v2/revisit_suite/`) and open-domain first-frame anchors under `assets/opendomain_revisit/`.
+## Roadmap
 
-## Roadmap / TODO
-
-<details open>
-<summary><b>Training &amp; Models</b></summary>
-
-- [ ] Refresh and expand the **Dynamic Training Set** for memory ablations
-- [ ] **Wan 2.2** backbone integration
-- [ ] Multi-scale Wan checkpoints — **5B**, **14B**, and beyond the current **1.3B** baseline
-- [ ] Unified training recipes across model scales
-
-</details>
-
-<details open>
-<summary><b>Evaluation</b></summary>
-
-- [ ] Broader **dynamic evaluation** support (current release is static replay/revisit)
-- [ ] More revisit probe families and open-domain cases
-- [ ] VLM-assisted scoring presets for public endpoints
-- [ ] Benchmark aggregation scripts for paper-style tables
-
-</details>
-
-<details open>
-<summary><b>Release</b></summary>
-
-- [ ] arXiv preprint posting
-- [ ] Hugging Face model / checkpoint release (TBD)
-- [ ] Pretrained memory-row checkpoints
-
-</details>
+- [ ] **Models** — update Dynamic Training Set; add **Wan 2.2** and multi-scale **5B / 14B** backbones
+- [ ] **Eval** — dynamic evaluation beyond static replay/revisit; more revisit probes and scoring presets
+- [ ] **Release** — arXiv, Hugging Face checkpoints, pretrained memory-row weights
 
 ## Authors and Release Statement
 

@@ -1073,7 +1073,7 @@ img {
   }
 }
 
-/* News, roadmap, star history */
+/* News & roadmap */
 .updates-grid {
   margin-top: 1.5rem;
   display: grid;
@@ -1182,42 +1182,6 @@ img {
   border: 1.5px solid color-mix(in srgb, var(--brand) 55%, var(--border));
   border-radius: 0.22rem;
   background: color-mix(in srgb, var(--brand) 6%, var(--surface));
-}
-
-.star-history {
-  margin-top: 1.5rem;
-  padding: 1.2rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  text-align: center;
-}
-
-.star-history__lead {
-  margin: 0 0 1rem;
-  font-size: 0.88rem;
-  color: var(--text-soft);
-}
-
-.star-history__link {
-  display: inline-block;
-  max-width: 100%;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s ease;
-}
-
-.star-history__link:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  text-decoration: none;
-}
-
-.star-history__link img {
-  width: min(920px, 100%);
-  height: auto;
-  margin: 0 auto;
 }
 
 /* BibTeX */
