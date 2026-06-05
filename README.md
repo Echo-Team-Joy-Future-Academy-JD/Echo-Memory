@@ -15,7 +15,7 @@
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
 
 <div align="center">
-<img src="assets/paper_cases/figure_1_abs_framework.png?v=fig1-jun5" alt="Echo-Memory paper teaser and workflow" width="92%">
+<img src="assets/paper_cases/figure_1_abs_framework.png?v=fig1-crop" alt="Echo-Memory paper teaser and workflow" width="92%">
 </div>
 
 <p align="center">
