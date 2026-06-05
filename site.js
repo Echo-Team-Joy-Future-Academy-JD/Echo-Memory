@@ -146,6 +146,32 @@
     });
   });
 
+  function initCiteSwitcher() {
+    document.querySelectorAll("[data-cite-switcher]").forEach(function (switcher) {
+      var chips = switcher.querySelectorAll(".cite-chip");
+      var panels = switcher.querySelectorAll("[data-cite-panel]");
+
+      chips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          var key = chip.getAttribute("data-cite");
+          chips.forEach(function (c) {
+            c.classList.remove("is-active");
+            c.setAttribute("aria-selected", "false");
+          });
+          chip.classList.add("is-active");
+          chip.setAttribute("aria-selected", "true");
+          panels.forEach(function (panel) {
+            var match = panel.getAttribute("data-cite-panel") === key;
+            panel.classList.toggle("is-active", match);
+            panel.hidden = !match;
+          });
+        });
+      });
+    });
+  }
+
+  initCiteSwitcher();
+
   document.querySelectorAll("[data-copy-target]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var targetId = btn.getAttribute("data-copy-target");
