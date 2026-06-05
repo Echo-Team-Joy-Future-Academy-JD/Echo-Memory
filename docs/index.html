@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=updates-v2" />
+  <link rel="stylesheet" href="style.css?v=updates-v3" />
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
@@ -376,21 +376,35 @@
                 <article class="todo-group">
                   <h4>Models</h4>
                   <ul class="todo-list">
-                    <li><span class="todo-check" aria-hidden="true"></span>Update <strong>Dynamic Training Set</strong></li>
-                    <li><span class="todo-check" aria-hidden="true"></span><strong>Wan 2.2</strong> + multi-scale <strong>5B / 14B</strong></li>
+                    <li class="is-done">
+                      <span class="todo-check is-done" aria-hidden="true"></span>
+                      <strong>Wan 2.1 1.3B</strong> backbone and training recipes
+                    </li>
+                    <li class="is-done">
+                      <span class="todo-check is-done" aria-hidden="true"></span>
+                      Four memory families — Context, Compression, Spatial, State-Space
+                    </li>
+                    <li>
+                      <span class="todo-check" aria-hidden="true"></span>
+                      Update <strong>Dynamic Training Set</strong>
+                    </li>
+                    <li>
+                      <span class="todo-check" aria-hidden="true"></span>
+                      <strong>Wan 2.2</strong> + multi-scale <strong>5B / 14B</strong>
+                    </li>
                   </ul>
                 </article>
                 <article class="todo-group">
                   <h4>Eval</h4>
                   <ul class="todo-list">
-                    <li><span class="todo-check" aria-hidden="true"></span><strong>Dynamic eval</strong> beyond static replay/revisit</li>
-                    <li><span class="todo-check" aria-hidden="true"></span>More revisit probes and scoring presets</li>
-                  </ul>
-                </article>
-                <article class="todo-group">
-                  <h4>Release</h4>
-                  <ul class="todo-list">
-                    <li><span class="todo-check" aria-hidden="true"></span>arXiv · Hugging Face · pretrained memory rows</li>
+                    <li>
+                      <span class="todo-check" aria-hidden="true"></span>
+                      <strong>Dynamic eval</strong> beyond static replay/revisit
+                    </li>
+                    <li>
+                      <span class="todo-check" aria-hidden="true"></span>
+                      More revisit probes and scoring presets
+                    </li>
                   </ul>
                 </article>
               </div>

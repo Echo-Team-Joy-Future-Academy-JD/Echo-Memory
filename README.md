@@ -36,9 +36,15 @@
 
 ## Roadmap
 
-- [ ] **Models** — update Dynamic Training Set; add **Wan 2.2** and multi-scale **5B / 14B** backbones
-- [ ] **Eval** — dynamic evaluation beyond static replay/revisit; more revisit probes and scoring presets
-- [ ] **Release** — arXiv, Hugging Face checkpoints, pretrained memory-row weights
+**Models**
+- [x] **Wan 2.1 1.3B** backbone and public training recipes
+- [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
+- [ ] Update **Dynamic Training Set**
+- [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
+
+**Eval**
+- [ ] Dynamic evaluation beyond static replay/revisit
+- [ ] More revisit probes and scoring presets
 
 ## Authors and Release Statement
 

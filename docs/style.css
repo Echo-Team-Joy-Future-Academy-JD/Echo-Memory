@@ -1184,6 +1184,28 @@ img {
   background: color-mix(in srgb, var(--brand) 6%, var(--surface));
 }
 
+.todo-list li.is-done {
+  color: color-mix(in srgb, var(--text) 72%, var(--text-soft));
+}
+
+.todo-check.is-done {
+  border-color: var(--brand);
+  background: var(--brand);
+  position: relative;
+}
+
+.todo-check.is-done::after {
+  content: "";
+  position: absolute;
+  left: 0.18rem;
+  top: 0.12rem;
+  width: 0.35rem;
+  height: 0.55rem;
+  border: solid #fff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+
 /* BibTeX */
 .pub-meta {
   display: grid;
