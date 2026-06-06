@@ -67,7 +67,7 @@ Replace both copies when the QR code refreshes. Crop the WeChat screenshot to **
 Then republish gh-pages.
 
 <div align="center">
-<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="220">
+<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" style="max-width:280px;height:auto;">
 <p><b>Echo-Memory 交流群</b></p>
 </div>
 
