@@ -360,7 +360,7 @@ Dynamic evaluation is not part of this release.
 
 Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
 
-Maintainers: [Developer Guide (EN/中文)](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) — dev workflows & Cursor tips
+Maintainers: [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) · Cursor skills in [`.cursor/skills/`](.cursor/skills/)
 
 <div align="center">
 <img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="1166" height="1640" style="width:240px;height:auto;max-width:100%;">

@@ -1209,6 +1209,13 @@ img {
   min-width: 0;
 }
 
+.dev-skills-title {
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--accent);
+}
+
 .dev-section--accent {
   border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
   background: color-mix(in srgb, var(--brand) 4%, var(--surface));
