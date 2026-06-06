@@ -17,8 +17,7 @@
   function detectDefaultLang() {
     var saved = localStorage.getItem(STORAGE_KEY);
     if (saved === "en" || saved === "zh") return saved;
-    var lang = (navigator.language || "en").toLowerCase();
-    return lang.indexOf("zh") === 0 ? "zh" : "en";
+    return "en";
   }
 
   function dict(lang) {
@@ -93,11 +92,13 @@
       qualCaption.innerHTML = d["evidence.cap1"];
     }
 
-    var toggle = document.getElementById("lang-toggle");
-    if (toggle && d["lang.toggle"]) toggle.textContent = d["lang.toggle"];
-
     var langCurrent = document.querySelector("[data-lang-current]");
+    var langAlt = document.querySelector("[data-lang-alt]");
     if (langCurrent && d["lang.current"]) langCurrent.textContent = d["lang.current"];
+    if (langAlt && d["lang.toggle"]) langAlt.textContent = d["lang.toggle"];
+
+    var toggle = document.getElementById("lang-toggle");
+    if (toggle && d["lang.switch"]) toggle.setAttribute("aria-label", d["lang.switch"]);
 
     document.querySelectorAll("[data-copy-target]").forEach(function (btn) {
       if (!btn.classList.contains("is-copied") && d["bibtex.copy"]) {
