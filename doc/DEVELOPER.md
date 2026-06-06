@@ -59,7 +59,7 @@ hf upload Echo-Team/Echo-Memory ./ckpts/spatial_mem/epoch-0.safetensors spatial_
 
 ## 5. WeChat group / 微信群
 
-Replace both copies when the QR code refreshes. **Crop to the square QR only** (drop WeChat screenshot header/footer) so pages scale it without distortion:
+Replace both copies when the QR code refreshes. Crop the WeChat screenshot to **avatar + group title + QR only**: bottom edge **just above the gray expiry line**, width **~600px** centered on the QR (drop side margins and footer). Source template: crop box `(282, 278, 882, 1410)` on the full portrait screenshot.
 
 - `docs/assets/wechat_group_qrcode.jpg` (project page)
 - `assets/wechat_group_qrcode.jpg` (README)
