@@ -42,7 +42,13 @@
     } else if (d["meta.title"]) {
       document.title = d["meta.title"];
     }
-    if (descMeta && d["meta.description"]) descMeta.setAttribute("content", d["meta.description"]);
+    if (descMeta) {
+      if (pageTitleKey === "dev.meta.title" && d["dev.meta.description"]) {
+        descMeta.setAttribute("content", d["dev.meta.description"]);
+      } else if (d["meta.description"]) {
+        descMeta.setAttribute("content", d["meta.description"]);
+      }
+    }
 
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
       var key = el.getAttribute("data-i18n");

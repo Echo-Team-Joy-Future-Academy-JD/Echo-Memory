@@ -3,249 +3,105 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Echo-Memory Developer Guide · 开发者指南</title>
-  <meta name="description" content="Echo-Memory development guide — local workflows, eval, and Cursor vibe coding. Bilingual EN/中文." />
+  <title>Echo-Memory Developer Guide</title>
+  <meta name="description" content="Echo-Memory development guide — workflows, eval, and Cursor vibe coding." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=dev-bilingual-v1" />
+  <link rel="stylesheet" href="style.css?v=dev-i18n-v1" />
 </head>
-<body class="developer-page">
+<body class="developer-page" data-title-key="dev.meta.title">
   <div class="page-shell page-shell--doc">
     <header class="top-nav top-nav--doc" role="banner">
-      <div class="container top-nav__inner">
+      <div class="container top-nav__inner top-nav__inner--doc">
         <a class="brand" href="index.html">
           <span class="brand-name">Echo-Memory</span>
           <span class="brand-team">Echo Team</span>
         </a>
         <div class="nav-actions">
-          <a class="action-btn action-btn--ghost" href="index.html">← Back to project page / 返回项目页</a>
+          <a class="action-btn action-btn--ghost action-btn--compact" href="index.html" data-i18n="dev.back">← Back to project page</a>
+          <button type="button" class="lang-toggle" id="lang-toggle" data-i18n-attr="aria-label:lang.switch" aria-label="Switch language">
+            <span data-lang-current>EN</span> / <span data-lang-alt>中文</span>
+          </button>
         </div>
       </div>
     </header>
 
-    <main class="container dev-main dev-main--bilingual">
-      <p class="section-kicker">Development · Cursor · EN / 中文</p>
-      <h1 class="dev-title">Developer Guide <span class="dev-title__zh">开发者指南</span></h1>
-      <p class="section-lead dev-lead-bilingual">
-        <span>Hands-on coding, training, eval, and <strong>Cursor vibe coding</strong> for Echo-Memory — not a duplicate of the public README.</span>
-        <span class="dev-lead-bilingual__sep" aria-hidden="true">·</span>
-        <span>Echo-Memory 实战开发、训练评测与 <strong>Cursor 协作编程</strong> — 不是 README 的重复版。</span>
-      </p>
+    <main class="container dev-main">
+      <p class="section-kicker" data-i18n="dev.kicker">Development · Cursor</p>
+      <h1 class="dev-title" data-i18n="dev.title">Developer Guide</h1>
+      <p class="section-lead" data-i18n-html="dev.subtitle"></p>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>1. What this guide is</h2>
-            <ul class="bullet-list">
-              <li><strong>README</strong> — paper story, quick start, checkpoints, community QR.</li>
-              <li><strong>This guide</strong> — where code lives, how to train/eval, and how to work efficiently in <strong>Cursor Agent</strong>.</li>
-              <li><strong><code>doc/</code></strong> — dataset &amp; checkpoint deep dives.</li>
-            </ul>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>1. 本指南定位</h2>
-            <ul class="bullet-list">
-              <li><strong>README</strong> — 论文叙事、快速上手、权重索引、社区二维码。</li>
-              <li><strong>本页</strong> — 代码地图、训练/评测流程、<strong>Cursor Agent</strong> 协作方式。</li>
-              <li><strong><code>doc/</code></strong> — 数据集与权重细节文档。</li>
-            </ul>
-          </div>
-        </div>
+        <h2 data-i18n="dev.s1.title">1. What this guide is</h2>
+        <ul class="bullet-list" data-i18n-html="dev.s1.body"></ul>
       </article>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>2. Environment &amp; paths</h2>
-            <p>Set these before training or eval:</p>
-            <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+        <h2 data-i18n="dev.s2.title">2. Environment &amp; paths</h2>
+        <p data-i18n="dev.s2.intro">Set these before training or eval:</p>
+        <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 export OUTPUT_BASE_ROOT=$PWD/outputs</code></pre>
-            <ul class="bullet-list">
-              <li><strong>Static in-domain pool</strong> — default root above; see <code>doc/dataset_preprocessing.md</code>.</li>
-              <li><strong>Dynamic training pool</strong> — e.g. <code>data/dynamic-memory-dataset</code>; see <code>doc/dynamic_dataset_preprocessing.md</code>.</li>
-              <li><strong>Checkpoints</strong> — <a href="https://huggingface.co/Echo-Team/Echo-Memory">Echo-Team/Echo-Memory</a>; index in <code>doc/checkpoints.md</code>.</li>
-            </ul>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>2. 环境与路径</h2>
-            <p>训练或评测前设置：</p>
-            <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-export PYTHONPATH=$PWD:${PYTHONPATH:-}
-export OUTPUT_BASE_ROOT=$PWD/outputs</code></pre>
-            <ul class="bullet-list">
-              <li><strong>Static in-domain pool</strong> — 默认路径见上；详见 <code>doc/dataset_preprocessing.md</code>。</li>
-              <li><strong>Dynamic training pool</strong> — 如 <code>data/dynamic-memory-dataset</code>；详见 <code>doc/dynamic_dataset_preprocessing.md</code>。</li>
-              <li><strong>权重</strong> — <a href="https://huggingface.co/Echo-Team/Echo-Memory">Echo-Team/Echo-Memory</a>；索引见 <code>doc/checkpoints.md</code>。</li>
-            </ul>
-          </div>
-        </div>
+        <ul class="bullet-list" data-i18n-html="dev.s2.body"></ul>
       </article>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>3. Code map</h2>
-            <table class="dev-table">
-              <thead><tr><th>Path</th><th>Role</th></tr></thead>
-              <tbody>
-                <tr><td><code>train/memory_baselines_basic/</code></td><td>Spatial / SSM / compression ablations</td></tr>
-                <tr><td><code>train/context_learning/</code></td><td>Context K=1/5/20 recipes</td></tr>
-                <tr><td><code>eval/v2/</code></td><td>Replay, loop closure, open-domain revisit</td></tr>
-                <tr><td><code>env/memory_baseline_runtime.py</code></td><td>Checkpoint → memory profile</td></tr>
-                <tr><td><code>diffsynth/</code></td><td>Wan backbone &amp; training stack</td></tr>
-                <tr><td><code>docs/</code></td><td>GitHub Pages (project + this guide)</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>3. 代码地图</h2>
-            <table class="dev-table">
-              <thead><tr><th>路径</th><th>作用</th></tr></thead>
-              <tbody>
-                <tr><td><code>train/memory_baselines_basic/</code></td><td>Spatial / SSM / 压缩消融</td></tr>
-                <tr><td><code>train/context_learning/</code></td><td>Context K=1/5/20 配方</td></tr>
-                <tr><td><code>eval/v2/</code></td><td>回放、闭环、开放域 revisit</td></tr>
-                <tr><td><code>env/memory_baseline_runtime.py</code></td><td>权重 → 记忆配置映射</td></tr>
-                <tr><td><code>diffsynth/</code></td><td>Wan 骨干与训练栈</td></tr>
-                <tr><td><code>docs/</code></td><td>GitHub Pages（项目页 + 本指南）</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <h2 data-i18n="dev.s3.title">3. Code map</h2>
+        <div class="dev-table-wrap" data-i18n-html="dev.s3.table"></div>
       </article>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>4. Common workflows</h2>
-            <p><strong>Train one memory row</strong> (from repo root):</p>
-            <pre class="code-block"><code>bash train/memory_baselines_basic/run_spatial_memory_baseline.sh
-# or context:
+        <h2 data-i18n="dev.s4.title">4. Common workflows</h2>
+        <p data-i18n="dev.s4.trainLabel"><strong>Train one memory row</strong> (from repo root):</p>
+        <pre class="code-block"><code>bash train/memory_baselines_basic/run_spatial_memory_baseline.sh
 bash train/context_learning/run_pre_qkv_ctx20.sh</code></pre>
-            <p><strong>Smoke eval with a HF checkpoint:</strong></p>
-            <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory \
+        <p data-i18n="dev.s4.evalLabel"><strong>Smoke eval with a HF checkpoint:</strong></p>
+        <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory \
   spatial_mem/epoch-0.safetensors --local-dir ./ckpts
 export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
-            <p class="section-note">Keep the row folder name in <code>CKPT</code> so runtime picks the correct memory profile.</p>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>4. 常用工作流</h2>
-            <p><strong>训练一条 memory 行</strong>（仓库根目录）：</p>
-            <pre class="code-block"><code>bash train/memory_baselines_basic/run_spatial_memory_baseline.sh
-# 或 Context：
-bash train/context_learning/run_pre_qkv_ctx20.sh</code></pre>
-            <p><strong>用 HF 权重做 smoke eval：</strong></p>
-            <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory \
-  spatial_mem/epoch-0.safetensors --local-dir ./ckpts
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
-bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
-            <p class="section-note"><code>CKPT</code> 路径需保留行目录名，以便 runtime 匹配记忆配置。</p>
-          </div>
-        </div>
+        <p class="section-note" data-i18n-html="dev.s4.note"></p>
       </article>
 
       <article class="dev-section card dev-section--accent">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>5. Cursor vibe coding</h2>
-            <p>Use <strong>Cursor Agent</strong> (Composer) for multi-file changes. Tips tuned for Echo-Memory:</p>
-            <ul class="bullet-list">
-              <li><strong>Scope prompts</strong> — name the memory family, script, and eval branch (<em>replay / in-domain / open-domain</em>).</li>
-              <li><strong>Point to entry scripts</strong> — e.g. <code>run_spatial_memory_baseline.sh</code>, <code>eval/v2/run_basic_replay_gt.sh</code>.</li>
-              <li><strong>Rules</strong> — add <code>.cursor/rules/echo-memory.mdc</code> with pool naming (<em>Static in-domain pool</em>, <em>Dynamic training pool</em>), public doc constraints, and path env vars.</li>
-              <li><strong>Skills</strong> — Cursor skills such as <em>create-rule</em>, <em>create-skill</em>, <em>babysit</em> (CI/PR loops) help repeat release tasks.</li>
-              <li><strong>Ask mode</strong> — use for reading <code>diffsynth/</code> or tracing checkpoint → config without edits.</li>
-            </ul>
-            <p><strong>Example prompts</strong></p>
-            <pre class="code-block code-block--prompt"><code>Add a smoke test script that downloads context_k1 from
-Echo-Team/Echo-Memory and runs eval/v2/run_basic_replay_gt.sh
-with DATASET_BASE_PATH pointing at the static in-domain pool.
-
-Trace how env/memory_baseline_runtime.py maps spatial_mem
-checkpoints to inject flags — summarize in doc/checkpoints.md.</code></pre>
-            <p class="section-note"><strong>Public repo hygiene:</strong> never commit upload bash, internal benchmark names, or machine-local paths. WeChat QR lives on the project page &amp; README only — not here.</p>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>5. Cursor 协作编程</h2>
-            <p>用 <strong>Cursor Agent</strong>（Composer）做多文件改动。Echo-Memory 建议：</p>
-            <ul class="bullet-list">
-              <li><strong>明确范围</strong> — 写清 memory 家族、脚本、评测分支（<em>replay / in-domain / open-domain</em>）。</li>
-              <li><strong>指向入口脚本</strong> — 如 <code>run_spatial_memory_baseline.sh</code>、<code>eval/v2/run_basic_replay_gt.sh</code>。</li>
-              <li><strong>Rules</strong> — 在 <code>.cursor/rules/echo-memory.mdc</code> 写池命名（<em>Static in-domain pool</em>、<em>Dynamic training pool</em>）、公开文档约束与环境变量。</li>
-              <li><strong>Skills</strong> — Cursor 的 <em>create-rule</em>、<em>create-skill</em>、<em>babysit</em>（CI/PR 循环）适合重复发布任务。</li>
-              <li><strong>Ask 模式</strong> — 阅读 <code>diffsynth/</code> 或追踪 checkpoint → 配置，不改代码时使用。</li>
-            </ul>
-            <p><strong>示例 Prompt</strong></p>
-            <pre class="code-block code-block--prompt"><code>添加 smoke test：从 Echo-Team/Echo-Memory 下载 context_k1，
-用 static in-domain pool 跑 eval/v2/run_basic_replay_gt.sh。
-
-追踪 env/memory_baseline_runtime.py 如何把 spatial_mem
-权重映射到 inject 标志，并在 doc/checkpoints.md 摘要说明。</code></pre>
-            <p class="section-note"><strong>公开仓库规范：</strong> 勿提交上传脚本、内部 benchmark 名、本机路径。微信群二维码仅在项目页与 README — 不在本指南。</p>
-          </div>
-        </div>
+        <h2 data-i18n="dev.s5.title">5. Cursor vibe coding</h2>
+        <p data-i18n-html="dev.s5.intro"></p>
+        <ul class="bullet-list" data-i18n-html="dev.s5.body"></ul>
+        <p data-i18n="dev.s5.promptLabel"><strong>Example prompt</strong></p>
+        <pre class="code-block code-block--prompt"><code data-i18n="dev.s5.prompt"></code></pre>
+        <p class="section-note" data-i18n-html="dev.s5.note"></p>
       </article>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>6. Site &amp; release (maintainers)</h2>
-            <p>After editing <code>docs/index.html</code>, <code>docs/style.css</code>, or <code>docs/i18n*.js</code>:</p>
-            <pre class="code-block"><code>bash scripts/publish_gh_pages.sh</code></pre>
-            <p>HF weights: update via Hugging Face UI or <code>hf upload</code> (maintainers only). Upload scripts stay local — not in GitHub.</p>
-            <p>Bilingual project page: strings in <code>docs/i18n.js</code>, runtime in <code>docs/i18n-runtime.js</code>.</p>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>6. 站点与发布（维护者）</h2>
-            <p>修改 <code>docs/index.html</code>、<code>docs/style.css</code> 或 <code>docs/i18n*.js</code> 后：</p>
-            <pre class="code-block"><code>bash scripts/publish_gh_pages.sh</code></pre>
-            <p>HF 权重：网页或 <code>hf upload</code> 更新（仅维护者）；上传脚本保留在本地，不进 GitHub。</p>
-            <p>项目页双语：<code>docs/i18n.js</code> 文案，<code>docs/i18n-runtime.js</code> 切换逻辑。</p>
-          </div>
-        </div>
+        <h2 data-i18n="dev.s6.title">6. Site &amp; release (maintainers)</h2>
+        <p data-i18n-html="dev.s6.intro"></p>
+        <pre class="code-block"><code>bash scripts/publish_gh_pages.sh</code></pre>
+        <p data-i18n-html="dev.s6.body"></p>
       </article>
 
       <article class="dev-section card">
-        <div class="dev-bilingual">
-          <div class="dev-col dev-col--en">
-            <h2>7. Checklist</h2>
-            <ul class="bullet-list">
-              <li>Smoke eval with one HF checkpoint before tagging a release.</li>
-              <li><code>doc/checkpoints.md</code> matches HF folder names.</li>
-              <li>Public docs use Echo pool names — no internal paths or benchmark codenames.</li>
-              <li>Run <code>publish_gh_pages.sh</code> after site changes; spot-check EN/中文 on the live page.</li>
-            </ul>
-          </div>
-          <div class="dev-col dev-col--zh">
-            <h2>7. 检查清单</h2>
-            <ul class="bullet-list">
-              <li>发版前用至少一个 HF 权重跑 smoke eval。</li>
-              <li><code>doc/checkpoints.md</code> 与 HF 目录名一致。</li>
-              <li>公开文档使用 Echo 池命名 — 无内部路径或 benchmark 代号。</li>
-              <li>改站点后运行 <code>publish_gh_pages.sh</code>，检查线上 EN/中文。</li>
-            </ul>
-          </div>
-        </div>
+        <h2 data-i18n="dev.s7.title">7. Checklist</h2>
+        <ul class="bullet-list">
+          <li data-i18n="dev.s7.l1">Smoke eval with one HF checkpoint before tagging a release.</li>
+          <li data-i18n-html="dev.s7.l2"></li>
+          <li data-i18n="dev.s7.l3">Public docs use Echo pool names — no internal paths or benchmark codenames.</li>
+          <li data-i18n-html="dev.s7.l4"></li>
+        </ul>
       </article>
 
-      <p class="dev-repo-link">
-        Repo mirror / 仓库副本:
-        <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/DEVELOPER.md">doc/DEVELOPER.md</a>
-        · Community QR / 社区二维码 on
-        <a href="index.html#updates">project page</a>
-      </p>
+      <p class="dev-repo-link" data-i18n-html="dev.footer"></p>
     </main>
 
     <footer class="footer">
       <div class="container footer-row">
-        <p class="footer-copy">© Echo Team · Joy Future Academy, JD</p>
+        <p class="footer-copy" data-i18n="footer.copy">© Echo Team · Joy Future Academy, JD</p>
       </div>
     </footer>
   </div>
+
+  <script src="i18n.js?v=dev-i18n-v1"></script>
+  <script src="i18n-runtime.js?v=dev-i18n-v1"></script>
 </body>
 </html>
