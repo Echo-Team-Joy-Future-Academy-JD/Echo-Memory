@@ -10,6 +10,7 @@
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
+<a href="https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset"><img src="https://img.shields.io/badge/Dataset-Context--as--Memory-yellow" alt="Context-as-Memory Dataset"></a>
 </div>
 
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
@@ -165,6 +166,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 ## Layout
 
 ```text
+doc/                        Dataset download & preprocessing guides
 diffsynth/                  Core model, pipeline, trainer utilities
 src/model_training/         Main training code and memory/context helpers
 src/model_inference/        Stage-2 inference entrypoints
@@ -206,6 +208,8 @@ export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
 
+`DATASET_BASE_PATH` should point to an extracted [Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) root (see [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)).
+
 `WAN_BASE_MODEL` should contain `diffusion_pytorch_model.safetensors`, `models_t5_umt5-xxl-enc-bf16.pth`, and `Wan2.1_VAE.pth`.
 
 ## Training
@@ -237,9 +241,17 @@ bash train/context_learning/run_pre_qkv_ctx20.sh
 
 Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`.
 
+## Dataset
+
+Training and in-domain evaluation use **[Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset)** on Hugging Face (~340 GB).
+
+Download, merge split zip parts, verify `frames/` / `jsons/` / `overlap_labels/`, and preprocessing:
+
+**→ [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)**
+
 ## Data Construction
 
-Generate metadata for a context-based memory dataset:
+See [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) §4–5. Generate metadata for a context-based memory dataset:
 
 ```bash
 export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset

@@ -1,5 +1,7 @@
 # Data Construction
 
+See **[doc/dataset_preprocessing.md](../doc/dataset_preprocessing.md)** for Hugging Face download, zip merge/extract, and layout verification before running these scripts.
+
 Scripts assume a context-based memory dataset with `frames/`, `jsons/`, and a metadata CSV. Set `DATASET_BASE_PATH` before running them.
 
 ## Metadata CSV
