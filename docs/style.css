@@ -1090,10 +1090,14 @@ img {
 }
 
 .wechat-qr img {
+  display: block;
+  width: min(100%, 220px);
+  height: auto;
   margin: 0 auto;
   border-radius: 0.75rem;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
+  object-fit: contain;
 }
 
 .wechat-qr figcaption {

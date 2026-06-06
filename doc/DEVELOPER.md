@@ -59,7 +59,7 @@ hf upload Echo-Team/Echo-Memory ./ckpts/spatial_mem/epoch-0.safetensors spatial_
 
 ## 5. WeChat group / 微信群
 
-Replace both copies when the QR code refreshes:
+Replace both copies when the QR code refreshes. **Crop to the square QR only** (drop WeChat screenshot header/footer) so pages scale it without distortion:
 
 - `docs/assets/wechat_group_qrcode.jpg` (project page)
 - `assets/wechat_group_qrcode.jpg` (README)
