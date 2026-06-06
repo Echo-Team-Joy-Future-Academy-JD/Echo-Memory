@@ -1,4 +1,4 @@
-# Data scripts
+# Data scripts (static in-domain pool)
 
 Scripts for the **static in-domain pool**. Complete download and layout verification first — see **[doc/dataset_preprocessing.md](../doc/dataset_preprocessing.md)**.
 
@@ -7,7 +7,7 @@ Both training pools share the Echo-Memory layout (`frames/`, `jsons/`, `overlap_
 ## Metadata CSV
 
 ```bash
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 bash scripts/run_generate_metadata.sh
 ```
 
@@ -21,7 +21,7 @@ Optional variables:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 NUM_PROCESSES=8 bash scripts/run_precompute_ctx_target_latents.sh
 ```
 

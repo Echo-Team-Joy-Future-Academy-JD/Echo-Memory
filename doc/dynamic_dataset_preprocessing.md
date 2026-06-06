@@ -50,12 +50,12 @@ Use `SpatialVID_metadata.csv` to filter clips (e.g. `motion score`, `dynamicRati
 
 ---
 
-## 2. Export to Echo-Memory training layout
+## 2. Export to Echo layout (dynamic training pool)
 
-Pick a release root, e.g. `data/dynamic-memory-dataset/`:
+Use `data/dynamic-memory-dataset/` as the local root and set `DATASET_BASE_PATH` to it:
 
 ```text
-dynamic-memory-dataset/
+data/dynamic-memory-dataset/
 ├── frames/{clip_id}/0000.png … 0080.png   # 81 frames per clip
 ├── jsons/{clip_id}.json                   # CineCameraActor poses
 ├── overlap_labels/{clip_id}/              # FOV overlap lists (optional but recommended)
@@ -79,17 +79,15 @@ dynamic-memory-dataset/
 
 ## 3. Training settings
 
-Same env vars and on-disk layout as the static in-domain pool — set `DATASET_BASE_PATH` to the dynamic export root.
-
-Point Echo-Memory at the exported root:
+Same env vars and on-disk layout as the static in-domain pool — only `DATASET_BASE_PATH` changes.
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/dynamic-memory-dataset
+export DATASET_BASE_PATH=data/dynamic-memory-dataset
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
 
-Recommended settings for dynamic-memory fine-tuning (match memory baseline scripts):
+Recommended settings for the dynamic training pool (match memory baseline scripts):
 
 | Parameter | Typical value |
 | --- | --- |
@@ -102,7 +100,7 @@ Recommended settings for dynamic-memory fine-tuning (match memory baseline scrip
 | `--timestep_shift` | **15** |
 | Learning rate | **1e-5** (adjust per row) |
 
-Example — run a memory baseline on dynamic data (override paths in the shell or train script):
+Example — run a memory baseline on the dynamic training pool (override paths in the shell or train script):
 
 ```bash
 bash train/memory_baselines_basic/run_ablation_no_memory_baseline_two_chunk.sh

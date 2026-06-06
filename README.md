@@ -203,7 +203,7 @@ Most scripts are path-portable and use environment variables:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset   # static in-domain pool (default)
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset   # static in-domain pool (code default)
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
 
@@ -245,7 +245,7 @@ Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`
 
 ## Data
 
-Echo-Memory training and in-domain evaluation use two pools that share the same on-disk layout. Set `DATASET_BASE_PATH` to the root of the pool you are using.
+Echo-Memory training and in-domain evaluation use two **training pools** that share the same on-disk layout. Set `DATASET_BASE_PATH` to the root of the pool you are using.
 
 ```text
 {DATASET_BASE_PATH}/
@@ -256,23 +256,16 @@ Echo-Memory training and in-domain evaluation use two pools that share the same 
 └── latents/             # optional
 ```
 
-| | Static in-domain pool | Dynamic training pool |
-| --- | --- | --- |
-| **HF source** | [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) | [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) (simplified subset) |
-| **Local root** | `data/Context-as-Memory-Dataset` | `data/dynamic-memory-dataset` |
-| **Guide** | [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) | [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) |
-| **Metadata** | `scripts/run_generate_metadata.sh` (required) | written at export; do not re-run unless regenerating from raw frames |
-| **Latents** | `scripts/run_precompute_ctx_target_latents.sh` (optional) | same script if needed |
-
 ### Static in-domain pool
 
 - **Source:** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) (~340 GB)
+- **Local root:** `data/Context-as-Memory-Dataset` (code default when `DATASET_BASE_PATH` is unset)
 - **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, merge zip parts, verify layout
 
 **Metadata (required):**
 
 ```bash
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 bash scripts/run_generate_metadata.sh
 ```
 
@@ -280,15 +273,16 @@ bash scripts/run_generate_metadata.sh
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 NUM_PROCESSES=8 bash scripts/run_precompute_ctx_target_latents.sh
 ```
 
 ### Dynamic training pool
 
 - **Source:** simplified [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) subset
+- **Local root:** `data/dynamic-memory-dataset`
 - **Guide:** [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) — download subset, export to Echo layout, training settings
-- **Note:** `metadata_full.csv` is produced during export; latent precompute uses the same script as the static pool if needed
+- **Note:** `metadata_full.csv` is written at export; latent precompute uses the same script as the static pool if needed
 
 ### Open-domain assets
 
@@ -300,7 +294,7 @@ In-domain replay and revisit eval use the **static in-domain pool** (`DATASET_BA
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export CKPT=/path/to/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 bash eval/v2/run_basic_replay_gt.sh
@@ -310,7 +304,7 @@ Run the open-domain revisit suite with the released first frames:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 PHASE=stage1 OOD_DIR=assets/opendomain_revisit \
   bash eval/v2/revisit_suite/run_one_click_revisit_eval.sh
 ```
@@ -324,7 +318,7 @@ python eval/metrics/run_all_metrics.py --help
 python eval/metrics/run_visual_eval.py --help
 ```
 
-Dynamic evaluation and training are not part of this release.
+Dynamic evaluation is not part of this release.
 
 ## Citation
 

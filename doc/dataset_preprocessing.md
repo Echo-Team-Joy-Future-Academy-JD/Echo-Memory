@@ -38,12 +38,12 @@ You should end up with a directory named `Context-as-Memory-Dataset/` (adjust th
 
 ---
 
-## 2. Expected layout
+## 2. Expected layout (static in-domain pool)
 
-After extraction, the dataset root should look like this:
+After extraction, point `DATASET_BASE_PATH` at the pool root (default: `data/Context-as-Memory-Dataset/`):
 
 ```text
-Context-as-Memory-Dataset/
+data/Context-as-Memory-Dataset/
 ├── frames/              # 100 scene folders, ~7601 PNGs each
 │   ├── AncientTempleEnv_0/
 │   │   ├── 0000.png
@@ -63,7 +63,7 @@ Context-as-Memory-Dataset/
 Quick sanity check:
 
 ```bash
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 
 test -d "${DATASET_BASE_PATH}/frames" && echo "frames OK"
 test -d "${DATASET_BASE_PATH}/jsons" && echo "jsons OK"
@@ -74,10 +74,10 @@ ls "${DATASET_BASE_PATH}/jsons" | head
 
 ---
 
-## 3. Point Echo-Memory at the dataset
+## 3. Point Echo-Memory at the static in-domain pool
 
 ```bash
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
@@ -92,7 +92,7 @@ Build `metadata_full.csv` — segment list with context/target frame indices and
 
 ```bash
 cd /path/to/Echo-Memory
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 
 bash scripts/run_generate_metadata.sh
 ```
@@ -121,7 +121,7 @@ If you train with precomputed VAE latents:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 NUM_PROCESSES=8 bash scripts/run_precompute_ctx_target_latents.sh
 ```
 
@@ -129,11 +129,12 @@ Latents are written under `${DATASET_BASE_PATH}/latents/`. The script can use `o
 
 ---
 
-## 6. What Echo-Memory uses vs. open-domain assets
+## 6. Training pools vs. open-domain assets
 
-| Asset | Location | Purpose |
+| Echo pool / asset | Location | Purpose |
 | --- | --- | --- |
-| Static in-domain pool | `DATASET_BASE_PATH` | Training, in-domain replay/revisit, metadata |
+| Static in-domain pool | `DATASET_BASE_PATH` → `data/Context-as-Memory-Dataset` | Training, in-domain replay/revisit, metadata |
+| Dynamic training pool | `DATASET_BASE_PATH` → `data/dynamic-memory-dataset` | Training on the dynamic pool ([guide](dynamic_dataset_preprocessing.md)) |
 | Open-domain first frames | `assets/opendomain_revisit/` | Held-out OOD revisit probes (already in repo) |
 
 You do **not** need to rebuild open-domain anchors for the released revisit suite.
