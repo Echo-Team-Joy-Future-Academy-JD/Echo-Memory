@@ -11,6 +11,7 @@
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 <a href="https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset"><img src="https://img.shields.io/badge/Dataset-Context--as--Memory-yellow" alt="Context-as-Memory Dataset"></a>
+<a href="https://huggingface.co/datasets/SpatialVID/SpatialVID"><img src="https://img.shields.io/badge/Dataset-SpatialVID-orange" alt="SpatialVID Dataset"></a>
 </div>
 
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
@@ -40,7 +41,7 @@
 **Models**
 - [x] **Wan 2.1 1.3B** backbone and public training recipes
 - [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
-- [ ] Update **Dynamic Training Set**
+- [x] **Dynamic training set** — SpatialVID → CamCL-ready export ([doc](doc/dynamic_dataset_preprocessing.md))
 - [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
 
 **Eval**
@@ -248,6 +249,12 @@ Training and in-domain evaluation use **[Context-as-Memory-Dataset](https://hugg
 Download, merge split zip parts, verify `frames/` / `jsons/` / `overlap_labels/`, and preprocessing:
 
 **→ [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)**
+
+### Dynamic training set
+
+Built from [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) via the CAM-CL / DynMemBench-V2 export pipeline (`camcl_ready/` layout, L1/L2/L3 levels).
+
+**→ [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)**
 
 ## Data Construction
 
