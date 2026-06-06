@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=lang-v2" />
+  <link rel="stylesheet" href="style.css?v=lang-v3" />
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
@@ -46,8 +46,8 @@
         </nav>
         <div class="nav-actions">
           <a class="action-btn action-btn--ghost" href="developer.html" data-i18n="nav.developer">Developer Guide</a>
-          <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language">
-            <span data-lang-current>EN</span> / <span data-i18n="lang.toggle">中文</span>
+          <button type="button" class="lang-toggle" id="lang-toggle" data-i18n-attr="aria-label:lang.switch" aria-label="Switch language">
+            <span data-lang-current>EN</span> / <span data-lang-alt>中文</span>
           </button>
           <a
             class="action-btn"
@@ -628,8 +628,8 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
     </footer>
   </div>
 
-  <script src="i18n.js?v=lang-v1"></script>
-  <script src="i18n-runtime.js?v=lang-v1"></script>
+  <script src="i18n.js?v=lang-v2"></script>
+  <script src="i18n-runtime.js?v=lang-v2"></script>
   <script src="site.js?v=lang-v1" defer></script>
 </body>
 </html>
