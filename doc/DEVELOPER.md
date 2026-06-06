@@ -59,15 +59,15 @@ hf upload Echo-Team/Echo-Memory ./ckpts/spatial_mem/epoch-0.safetensors spatial_
 
 ## 5. WeChat group / 微信群
 
-Replace both copies when the QR code refreshes. Crop the WeChat screenshot to **avatar + group title + QR only**: bottom edge **just above the gray expiry line**, width **~600px** centered on the QR (drop side margins and footer). Source template: crop box `(282, 278, 882, 1410)` on the full portrait screenshot.
+Replace both copies when the QR code refreshes. Use the **full WeChat group screenshot** as-is (no manual crop):
 
 - `docs/assets/wechat_group_qrcode.jpg` (project page)
 - `assets/wechat_group_qrcode.jpg` (README)
 
-Then republish gh-pages.
+Then republish gh-pages. Pages scale the portrait image proportionally (`height: auto`).
 
 <div align="center">
-<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" style="max-width:280px;height:auto;">
+<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" style="max-width:320px;height:auto;">
 <p><b>Echo-Memory 交流群</b></p>
 </div>
 

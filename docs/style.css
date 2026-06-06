@@ -1111,7 +1111,11 @@ img {
 }
 
 .developer-page .wechat-qr img {
-  max-width: min(100%, 280px);
+  max-width: min(100%, 320px);
+}
+
+.community-panel .wechat-qr img {
+  max-width: min(100%, 300px);
 }
 
 .wechat-qr figcaption {

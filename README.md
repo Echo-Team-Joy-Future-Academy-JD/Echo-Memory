@@ -363,7 +363,7 @@ Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.githu
 Maintainers: [Developer Guide (EN/中文)](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md)
 
 <div align="center">
-<img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" style="max-width:240px;height:auto;">
+<img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" style="max-width:320px;height:auto;">
 <p><b>Echo-Memory 交流群</b> — scan to join (QR refreshes periodically)</p>
 </div>
 
