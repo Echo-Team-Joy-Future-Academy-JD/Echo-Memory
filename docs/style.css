@@ -1088,46 +1088,36 @@ img {
   margin: 0.75rem 0 0;
 }
 
-.wechat-qr {
-  margin: 0.75rem auto 0;
-  text-align: center;
-  width: fit-content;
-  max-width: 100%;
+.community-panel {
+  overflow: visible;
 }
 
-.wechat-qr img,
+.wechat-qr {
+  margin: 0.75rem auto 0;
+  padding: 0;
+  text-align: center;
+  overflow: visible;
+}
+
+/* Portrait WeChat screenshot: set display width only; height follows intrinsic ratio (1166×1640). */
 .wechat-qr__photo {
   display: block;
-  width: auto;
+  width: 220px;
+  max-width: 100%;
   height: auto;
-  max-height: none;
   margin: 0 auto;
   border-radius: 0.75rem;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  object-fit: none;
-  flex-shrink: 0;
-}
-
-/* Main project page — scaled down, portrait ratio preserved */
-.community-panel .wechat-qr img,
-.community-panel .wechat-qr__photo {
-  max-width: min(100%, 220px);
 }
 
 .developer-page .wechat-qr {
   margin: 1rem auto 0;
-  width: fit-content;
-  max-width: 100%;
+  overflow: visible;
 }
 
-/* Developer guide — explicit intrinsic sizing (avoid card layout squash) */
-.developer-page .wechat-qr img,
 .developer-page .wechat-qr__photo {
-  width: auto !important;
-  height: auto !important;
-  max-width: min(100%, 280px) !important;
-  max-height: none !important;
+  width: 260px;
 }
 
 .wechat-qr figcaption {

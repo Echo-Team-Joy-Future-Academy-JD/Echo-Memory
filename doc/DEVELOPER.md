@@ -67,7 +67,7 @@ Replace both copies when the QR code refreshes. Use the **full WeChat group scre
 Then republish gh-pages. Pages scale the portrait image proportionally (`height: auto`).
 
 <div align="center">
-<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="260">
+<img src="../assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="1166" height="1640" style="width:260px;height:auto;max-width:100%;">
 <p><b>Echo-Memory 交流群</b></p>
 </div>
 
