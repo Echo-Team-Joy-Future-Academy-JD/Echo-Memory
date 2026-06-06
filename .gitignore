@@ -46,5 +46,6 @@ models/
 !docs/**/*.png
 !docs/**/*.jpg
 !docs/**/*.jpeg
-!docs/**/*.webp
+!docs/assets/**/*.jpg
+!assets/wechat_group_qrcode.jpg
 !docs/**/*.pdf

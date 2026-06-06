@@ -10,8 +10,8 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ ! -f docs/index.html || ! -f docs/style.css || ! -f docs/site.js ]]; then
-  echo "error: docs/index.html, docs/style.css, and docs/site.js are required" >&2
+if [[ ! -f docs/index.html || ! -f docs/style.css || ! -f docs/site.js || ! -f docs/i18n.js ]]; then
+  echo "error: docs/index.html, docs/style.css, docs/site.js, and docs/i18n.js are required" >&2
   exit 1
 fi
 
@@ -28,7 +28,7 @@ fi
 
 find "$WORKTREE" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 
-cp docs/index.html docs/style.css docs/site.js "$WORKTREE/"
+cp docs/index.html docs/style.css docs/site.js docs/i18n.js docs/i18n-runtime.js docs/developer.html "$WORKTREE/"
 cp docs/.nojekyll "$WORKTREE/" 2>/dev/null || : >"$WORKTREE/.nojekyll"
 rm -rf "$WORKTREE/assets"
 mkdir -p "$WORKTREE/assets"

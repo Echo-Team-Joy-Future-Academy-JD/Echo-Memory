@@ -2,6 +2,7 @@
 
 | Doc | Echo pool | Covers |
 | --- | --- | --- |
+| [DEVELOPER.md](DEVELOPER.md) | **Maintainer guide** — gh-pages, HF weights, i18n, WeChat QR |
 | [checkpoints.md](checkpoints.md) | **Hugging Face weights** — [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) baseline index |
 | [dataset_preprocessing.md](dataset_preprocessing.md) | Static in-domain pool | download → layout → metadata → latents |
 | [dynamic_dataset_preprocessing.md](dynamic_dataset_preprocessing.md) | Dynamic training pool | subset download → export → training settings |

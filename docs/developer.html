@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Echo-Memory Developer Guide</title>
+  <meta name="description" content="Echo-Memory maintainer guide — repo, GitHub Pages, Hugging Face, bilingual site." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=lang-v1" />
+</head>
+<body class="developer-page" data-title-key="dev.meta.title">
+  <div class="page-shell page-shell--doc">
+    <header class="top-nav top-nav--doc" role="banner">
+      <div class="container top-nav__inner">
+        <a class="brand" href="index.html">
+          <span class="brand-name">Echo-Memory</span>
+          <span class="brand-team">Echo Team</span>
+        </a>
+        <div class="nav-actions">
+          <a class="action-btn action-btn--ghost" href="index.html" data-i18n="dev.back">← Back to project page</a>
+          <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language">
+            <span data-lang-current>EN</span> / <span data-i18n="lang.toggle">中文</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="container dev-main">
+      <p class="section-kicker">Maintainer · 维护者</p>
+      <h1 class="dev-title" data-i18n="dev.title">Developer Guide</h1>
+      <p class="section-lead" data-i18n="dev.subtitle">Maintaining the Echo-Memory repo, project page, Hugging Face weights, and community channels.</p>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s1.title">1. Repository layout</h2>
+        <p data-i18n-html="dev.s1.body"></p>
+      </article>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s2.title">2. Publish the project page</h2>
+        <p data-i18n-html="dev.s2.body"></p>
+        <pre class="code-block"><code>cd Echo-Memory
+bash scripts/publish_gh_pages.sh</code></pre>
+        <p class="section-note">Source: <code>docs/</code> → branch <code>gh-pages</code> → <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a></p>
+      </article>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s3.title">3. Update Hugging Face checkpoints</h2>
+        <p data-i18n-html="dev.s3.body"></p>
+        <pre class="code-block"><code>hf auth login
+hf upload Echo-Team/Echo-Memory ./ckpts/spatial_mem/epoch-0.safetensors spatial_mem/epoch-0.safetensors</code></pre>
+      </article>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s4.title">4. Bilingual page (EN / 中文)</h2>
+        <p data-i18n-html="dev.s4.body"></p>
+      </article>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s5.title">5. WeChat community QR</h2>
+        <p data-i18n-html="dev.s5.body"></p>
+        <figure class="wechat-qr">
+          <img src="assets/wechat_group_qrcode.jpg" width="220" height="220" data-i18n-attr="alt:community.qr.alt" alt="Echo-Memory WeChat group QR code" />
+          <figcaption data-i18n="community.qr.caption">Echo-Memory 交流群 · scan to join (QR refreshes periodically)</figcaption>
+        </figure>
+      </article>
+
+      <article class="dev-section card">
+        <h2 data-i18n="dev.s6.title">6. Checklist before release</h2>
+        <ul class="bullet-list">
+          <li data-i18n="dev.s6.l1">Run targeted eval smoke test with one HF checkpoint.</li>
+          <li data-i18n="dev.s6.l2">Verify <code>doc/checkpoints.md</code> matches HF folder names.</li>
+          <li data-i18n="dev.s6.l3">Publish gh-pages and confirm EN/ZH toggle on the live site.</li>
+          <li data-i18n="dev.s6.l4">Update News on the project page if the release is user-visible.</li>
+        </ul>
+      </article>
+
+      <p class="dev-repo-link">
+        Repo mirror: <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/DEVELOPER.md">doc/DEVELOPER.md</a>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-row">
+        <p class="footer-copy" data-i18n="footer.copy">© Echo Team · Joy Future Academy, JD</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="i18n.js?v=lang-v1"></script>
+  <script src="i18n-runtime.js?v=lang-v1"></script>
+</body>
+</html>

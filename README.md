@@ -9,6 +9,7 @@
 <a href="https://arxiv.org/abs/TBD"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
+<a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html"><img src="https://img.shields.io/badge/Developer%20Guide-EN%2F中文-blue" alt="Developer Guide"></a>
 <a href="https://huggingface.co/Echo-Team/Echo-Memory"><img src="https://img.shields.io/badge/🤗%20Checkpoints-Echo--Team%2FEcho--Memory-yellow" alt="Hugging Face checkpoints"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
@@ -30,6 +31,8 @@
 **What is intentionally removed:** private dynamic benchmarks, cluster submit files, logs, generated outputs, and machine-local paths.
 
 ## News
+
+**[2026/06]** Project page **EN / 中文** toggle + [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) ([doc/DEVELOPER.md](doc/DEVELOPER.md)).
 
 **[2026/06]** Paper baseline checkpoints on Hugging Face: [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (Wan 2.1 1.3B, epoch-0, 30k steps). See [doc/checkpoints.md](doc/checkpoints.md).
 
@@ -352,6 +355,17 @@ python eval/metrics/run_visual_eval.py --help
 ```
 
 Dynamic evaluation is not part of this release.
+
+## Community
+
+Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
+
+Maintainers: [Developer Guide (EN/中文)](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md)
+
+<div align="center">
+<img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="200">
+<p><b>Echo-Memory 交流群</b> — scan to join (QR refreshes periodically)</p>
+</div>
 
 ## Citation
 
