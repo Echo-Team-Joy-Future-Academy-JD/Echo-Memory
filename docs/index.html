@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=updates-v4" />
+  <link rel="stylesheet" href="style.css?v=checkpoints-v1" />
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
@@ -37,6 +37,7 @@
           <a class="nav-link" href="#hero" data-nav="hero">Home</a>
           <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
           <a class="nav-link" href="#design" data-nav="design">Design</a>
+          <a class="nav-link" href="#checkpoints" data-nav="checkpoints">Checkpoints</a>
           <a class="nav-link" href="#evaluation" data-nav="evaluation">Eval</a>
           <a class="nav-link" href="#evidence" data-nav="evidence">Evidence</a>
           <a class="nav-link" href="#findings" data-nav="findings">Results</a>
@@ -66,6 +67,7 @@
         <a class="nav-link" href="#hero" data-nav="hero">Home</a>
         <a class="nav-link" href="#overview" data-nav="overview">Overview</a>
         <a class="nav-link" href="#design" data-nav="design">Design</a>
+        <a class="nav-link" href="#checkpoints" data-nav="checkpoints">Checkpoints</a>
         <a class="nav-link" href="#evaluation" data-nav="evaluation">Eval</a>
         <a class="nav-link" href="#evidence" data-nav="evidence">Evidence</a>
         <a class="nav-link" href="#findings" data-nav="findings">Results</a>
@@ -78,6 +80,7 @@
       <button type="button" class="is-active" data-slide="hero" data-label="Home" aria-label="Home"></button>
       <button type="button" data-slide="overview" data-label="Overview" aria-label="Overview"></button>
       <button type="button" data-slide="design" data-label="Design" aria-label="Design"></button>
+      <button type="button" data-slide="checkpoints" data-label="Checkpoints" aria-label="Checkpoints"></button>
       <button type="button" data-slide="evaluation" data-label="Eval" aria-label="Evaluation"></button>
       <button type="button" data-slide="evidence" data-label="Evidence" aria-label="Evidence"></button>
       <button type="button" data-slide="findings" data-label="Results" aria-label="Results"></button>
@@ -244,9 +247,62 @@
         </div>
       </section>
 
+      <section id="checkpoints" class="section reveal" data-section="checkpoints">
+        <div class="container">
+          <p class="section-kicker">03 · Checkpoints</p>
+          <h2 class="section-title">Paper baselines on Hugging Face</h2>
+          <p class="section-lead">
+            Wan 2.1 1.3B memory rows — <strong>epoch-0</strong>, <strong>30,000 steps</strong>, static in-domain pool.
+            All weights:
+            <a href="https://huggingface.co/Echo-Team/Echo-Memory" target="_blank" rel="noopener noreferrer"><strong>Echo-Team/Echo-Memory</strong></a>
+          </p>
+          <div class="table-wrap">
+            <table class="ckpt-table">
+              <thead>
+                <tr>
+                  <th>Family</th>
+                  <th>Paper row</th>
+                  <th>HF path</th>
+                  <th>Steps</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Raw context</td><td>Context K=1</td><td><code>context_k1/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Raw context</td><td>Context K=20</td><td><code>context_k20/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Spatial</td><td>Spatial Memory</td><td><code>spatial_mem/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>State-space</td><td>Block-wise SSM</td><td><code>block_wise_ssm_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>State-space</td><td>Legacy Hybrid</td><td><code>videossm_hybrid/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Spatial</td><td>concat text (abl.)</td><td><code>spatial_concat_text_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Spatial</td><td>inject none (abl.)</td><td><code>spatial_inject_none_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Spatial</td><td>cross-attn t32 (abl.)</td><td><code>spatial_cross_attn_readout_t32_g4_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>State-space</td><td>SSM ctx1/e4/h21</td><td><code>ssm_ablation_ctx1_every4_hint21/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>State-space</td><td>SSM ctx5/e1/h21</td><td><code>ssm_ablation_ctx5_every1_hint21/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>State-space</td><td>SSM ctx5/e4/h81</td><td><code>ssm_ablation_ctx5_every4_hint81/epoch-0.safetensors</code></td><td>30,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="code-block-wrap">
+            <p class="code-block-label">Download</p>
+            <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts</code></pre>
+          </div>
+          <div class="code-block-wrap">
+            <p class="code-block-label">In-domain eval (Echo-Memory repo)</p>
+            <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
+export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
+          </div>
+          <p class="section-note">
+            Keep the row folder in <code>CKPT</code> — <code>env/memory_baseline_runtime.py</code> infers memory flags from the path.
+            Full index:
+            <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/checkpoints.md" target="_blank" rel="noopener noreferrer">doc/checkpoints.md</a>.
+          </p>
+        </div>
+      </section>
+
       <section id="evaluation" class="section section--center reveal" data-section="evaluation">
         <div class="container">
-          <p class="section-kicker">03 · Evaluation</p>
+          <p class="section-kicker">04 · Evaluation</p>
           <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
           <p class="section-lead">
             Each branch asks a different question: Can the model reconstruct the past? Can it close a loop
@@ -275,7 +331,7 @@
 
       <section id="evidence" class="section section--center reveal" data-section="evidence">
         <div class="container">
-          <p class="section-kicker">04 · Qualitative Evidence</p>
+          <p class="section-kicker">05 · Qualitative Evidence</p>
           <h2 class="section-title">Return probes expose identity drift.</h2>
           <p class="section-lead">
             Qualitative panels follow a simple diagnostic: <strong>first frame → leave the view → revisit tail</strong>.
@@ -329,7 +385,7 @@
 
       <section id="findings" class="section section--center reveal" data-section="findings">
         <div class="container">
-          <p class="section-kicker">05 · Main Conclusions</p>
+          <p class="section-kicker">06 · Main Conclusions</p>
           <h2 class="section-title">Replay quality ≠ memory quality.</h2>
           <p class="section-lead">
             Replay metrics and return probes do not always agree — a model can look sharp on reconstruction
@@ -350,7 +406,7 @@
 
       <section id="updates" class="section reveal" data-section="updates">
         <div class="container">
-          <p class="section-kicker">06 · News &amp; Roadmap</p>
+          <p class="section-kicker">07 · News &amp; Roadmap</p>
           <h2 class="section-title">Release notes and next steps.</h2>
 
           <div class="updates-grid">
@@ -433,7 +489,7 @@
 
       <section id="bibtex" class="section reveal" data-section="bibtex">
         <div class="container">
-          <p class="section-kicker">07 · Citation</p>
+          <p class="section-kicker">08 · Citation</p>
           <h2 class="section-title">BibTeX</h2>
           <p class="section-lead">
             Echo-Memory: A Controlled Study of Memory in Action World Models (June 2026).

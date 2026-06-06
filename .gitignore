@@ -13,6 +13,10 @@ logs/
 outputs/
 wandb/
 .hf-upload/
+.hf-model-card-README.md
+scripts/upload_hf_checkpoints.sh
+scripts/hf_checkpoints_manifest.json
+scripts/hf_model_card_README.md
 checkpoints/
 ckpt/
 data/

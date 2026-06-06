@@ -220,30 +220,32 @@ export PYTHONPATH=$PWD:${PYTHONPATH:-}
 
 ## Checkpoints
 
-Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**) are hosted on Hugging Face:
+Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 
-**[https://huggingface.co/Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory)**
+**[Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory)** · full table & usage → [doc/checkpoints.md](doc/checkpoints.md)
 
-| Family | Paper row | HF weight | Steps | Train recipe |
-| --- | --- | --- | ---: | --- |
-| Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 | `train/context_learning/run_pre_qkv_ctx1.sh` |
-| Raw context | Context K=20 | [`context_k20/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k20) | 30,000 | `train/context_learning/run_pre_qkv_ctx20.sh` |
-| Spatial | Spatial Memory | [`spatial_mem/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_mem) | 30,000 | `train/memory_baselines_basic/run_spatial_memory_baseline.sh` |
-| State-space | Block-wise SSM | [`block_wise_ssm_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/block_wise_ssm_two_chunk) | 30,000 | `train/memory_baselines_basic/run_ablation_block_wise_ssm_two_chunk.sh` |
-| State-space | Legacy Hybrid | [`videossm_hybrid/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/videossm_hybrid) | 30,000 | `train/memory_baselines_basic/run_videossm_hybrid_baseline.sh` |
-| Spatial | concat text (abl.) | [`spatial_concat_text_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_concat_text_two_chunk) | 30,000 | `run_ablation_spatial_concat_text_two_chunk.sh` |
-| Spatial | inject none (abl.) | [`spatial_inject_none_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_inject_none_two_chunk) | 30,000 | `run_ablation_spatial_inject_none_two_chunk.sh` |
-| Spatial | cross-attn t32 (abl.) | [`spatial_cross_attn_readout_t32_g4_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_cross_attn_readout_t32_g4_two_chunk) | 30,000 | `run_ablation_spatial_cross_attn_readout_two_chunk.sh` |
-| State-space | SSM ctx1/e4/h21 (abl.) | [`ssm_ablation_ctx1_every4_hint21/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx1_every4_hint21) | 30,000 | SSM ablation |
-| State-space | SSM ctx5/e1/h21 (abl.) | [`ssm_ablation_ctx5_every1_hint21/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx5_every1_hint21) | 30,000 | SSM ablation |
-| State-space | SSM ctx5/e4/h81 (abl.) | [`ssm_ablation_ctx5_every4_hint81/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx5_every4_hint81) | 30,000 | SSM ablation |
+| Family | Paper row | HF path | Steps |
+| --- | --- | --- | ---: |
+| Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 |
+| Raw context | Context K=20 | [`context_k20/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k20) | 30,000 |
+| Spatial | Spatial Memory | [`spatial_mem/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_mem) | 30,000 |
+| State-space | Block-wise SSM | [`block_wise_ssm_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/block_wise_ssm_two_chunk) | 30,000 |
+| State-space | Legacy Hybrid | [`videossm_hybrid/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/videossm_hybrid) | 30,000 |
+
+Extended spatial / SSM ablation rows (+6) are listed in [doc/checkpoints.md](doc/checkpoints.md).
+
+**Download & eval:**
 
 ```bash
-huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
-export CKPT=./ckpts/context_k1/epoch-0.safetensors
+huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
+export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
+export PYTHONPATH=$PWD:${PYTHONPATH:-}
+export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+bash eval/v2/run_static_consistency_loop_and_revisit.sh
 ```
 
-Full index: [doc/checkpoints.md](doc/checkpoints.md). Context K=5 and FramePack compression rows are not yet released as `epoch-0` weights.
+Keep the row folder name in `CKPT` so `env/memory_baseline_runtime.py` can recover the matching memory profile.
 
 ## Training
 
@@ -326,7 +328,7 @@ In-domain replay and revisit eval use the **static in-domain pool** (`DATASET_BA
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-export CKPT=/path/to/epoch-0.safetensors
+export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 bash eval/v2/run_basic_replay_gt.sh
 ```
