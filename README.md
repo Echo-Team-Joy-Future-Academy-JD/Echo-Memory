@@ -10,8 +10,6 @@
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
-<a href="https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset"><img src="https://img.shields.io/badge/Dataset-Context--as--Memory-yellow" alt="Context-as-Memory Dataset"></a>
-<a href="https://huggingface.co/datasets/SpatialVID/SpatialVID"><img src="https://img.shields.io/badge/Dataset-SpatialVID-orange" alt="SpatialVID Dataset"></a>
 </div>
 
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
@@ -41,7 +39,7 @@
 **Models**
 - [x] **Wan 2.1 1.3B** backbone and public training recipes
 - [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
-- [x] **Dynamic training set** — SpatialVID → CamCL-ready export ([doc](doc/dynamic_dataset_preprocessing.md))
+- [x] **Dynamic training data** — SpatialVID subset export & settings ([doc](doc/dynamic_dataset_preprocessing.md))
 - [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
 
 **Eval**
@@ -250,9 +248,9 @@ Download, merge split zip parts, verify `frames/` / `jsons/` / `overlap_labels/`
 
 **→ [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)**
 
-### Dynamic training set
+### Dynamic training data
 
-Built from [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) via the CAM-CL / DynMemBench-V2 export pipeline (`camcl_ready/` layout, L1/L2/L3 levels).
+Simplified **SpatialVID** subset, exported to the same layout as static training.
 
 **→ [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)**
 

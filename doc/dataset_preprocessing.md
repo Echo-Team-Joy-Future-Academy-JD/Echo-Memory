@@ -158,6 +158,5 @@ You do **not** need to rebuild open-domain anchors for the released revisit suit
 
 ## Reference
 
-- SpatialVID dataset: [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) · [arXiv:2509.09676](https://arxiv.org/abs/2509.09676)
-- DynMemBench-V2 design: CAM-CL `DATASET.md`
-- Static (in-domain) dataset: [dataset_preprocessing.md](dataset_preprocessing.md)
+- Static in-domain pool: [dataset_preprocessing.md](dataset_preprocessing.md)
+- Dynamic training data: [dynamic_dataset_preprocessing.md](dynamic_dataset_preprocessing.md)
