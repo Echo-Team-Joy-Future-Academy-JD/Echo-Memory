@@ -12,6 +12,7 @@ __pycache__/
 logs/
 outputs/
 wandb/
+.hf-upload/
 checkpoints/
 ckpt/
 data/

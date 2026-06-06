@@ -9,6 +9,7 @@
 <a href="https://arxiv.org/abs/TBD"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
+<a href="https://huggingface.co/Echo-Team/Echo-Memory"><img src="https://img.shields.io/badge/🤗%20Checkpoints-Echo--Team%2FEcho--Memory-yellow" alt="Hugging Face checkpoints"></a>
 <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
 </div>
 
@@ -30,6 +31,8 @@
 
 ## News
 
+**[2026/06]** Paper baseline checkpoints on Hugging Face: [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (Wan 2.1 1.3B, epoch-0, 30k steps). See [doc/checkpoints.md](doc/checkpoints.md).
+
 **[2026/06]** Report on [ResearchGate](https://doi.org/10.13140/RG.2.2.19906.34248) (CC BY 4.0) and [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/) released.
 
 **[2026/06]** Public code: **Wan 2.1 1.3B** memory ablations, replay/revisit eval, `eval/v2/revisit_suite/`, and `assets/opendomain_revisit/`.
@@ -40,6 +43,7 @@
 - [x] **Wan 2.1 1.3B** backbone and public training recipes
 - [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
 - [x] **Dynamic training pool** — SpatialVID subset export & settings ([doc](doc/dynamic_dataset_preprocessing.md))
+- [x] **Paper checkpoints** — [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) on Hugging Face ([doc](doc/checkpoints.md))
 - [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
 
 **Eval**
@@ -213,6 +217,33 @@ export PYTHONPATH=$PWD:${PYTHONPATH:-}
 - **Dynamic training pool** — e.g. `data/dynamic-memory-dataset`; [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)
 
 `WAN_BASE_MODEL` should contain `diffusion_pytorch_model.safetensors`, `models_t5_umt5-xxl-enc-bf16.pth`, and `Wan2.1_VAE.pth`.
+
+## Checkpoints
+
+Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**) are hosted on Hugging Face:
+
+**[https://huggingface.co/Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory)**
+
+| Family | Paper row | HF weight | Steps | Train recipe |
+| --- | --- | --- | ---: | --- |
+| Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 | `train/context_learning/run_pre_qkv_ctx1.sh` |
+| Raw context | Context K=20 | [`context_k20/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k20) | 30,000 | `train/context_learning/run_pre_qkv_ctx20.sh` |
+| Spatial | Spatial Memory | [`spatial_mem/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_mem) | 30,000 | `train/memory_baselines_basic/run_spatial_memory_baseline.sh` |
+| State-space | Block-wise SSM | [`block_wise_ssm_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/block_wise_ssm_two_chunk) | 30,000 | `train/memory_baselines_basic/run_ablation_block_wise_ssm_two_chunk.sh` |
+| State-space | Legacy Hybrid | [`videossm_hybrid/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/videossm_hybrid) | 30,000 | `train/memory_baselines_basic/run_videossm_hybrid_baseline.sh` |
+| Spatial | concat text (abl.) | [`spatial_concat_text_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_concat_text_two_chunk) | 30,000 | `run_ablation_spatial_concat_text_two_chunk.sh` |
+| Spatial | inject none (abl.) | [`spatial_inject_none_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_inject_none_two_chunk) | 30,000 | `run_ablation_spatial_inject_none_two_chunk.sh` |
+| Spatial | cross-attn t32 (abl.) | [`spatial_cross_attn_readout_t32_g4_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_cross_attn_readout_t32_g4_two_chunk) | 30,000 | `run_ablation_spatial_cross_attn_readout_two_chunk.sh` |
+| State-space | SSM ctx1/e4/h21 (abl.) | [`ssm_ablation_ctx1_every4_hint21/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx1_every4_hint21) | 30,000 | SSM ablation |
+| State-space | SSM ctx5/e1/h21 (abl.) | [`ssm_ablation_ctx5_every1_hint21/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx5_every1_hint21) | 30,000 | SSM ablation |
+| State-space | SSM ctx5/e4/h81 (abl.) | [`ssm_ablation_ctx5_every4_hint81/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/ssm_ablation_ctx5_every4_hint81) | 30,000 | SSM ablation |
+
+```bash
+huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
+```
+
+Full index: [doc/checkpoints.md](doc/checkpoints.md). Context K=5 and FramePack compression rows are not yet released as `epoch-0` weights.
 
 ## Training
 
