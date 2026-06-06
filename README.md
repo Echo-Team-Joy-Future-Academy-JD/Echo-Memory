@@ -32,7 +32,7 @@
 
 ## News
 
-**[2026/06]** Project page **EN / 中文** toggle + [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) ([doc/DEVELOPER.md](doc/DEVELOPER.md)).
+**[2026/06]** [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) — bilingual dev workflows + Cursor vibe coding ([doc/DEVELOPER.md](doc/DEVELOPER.md)). Project page **EN / 中文** toggle.
 
 **[2026/06]** Paper baseline checkpoints on Hugging Face: [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (Wan 2.1 1.3B, epoch-0, 30k steps). See [doc/checkpoints.md](doc/checkpoints.md).
 
@@ -360,7 +360,7 @@ Dynamic evaluation is not part of this release.
 
 Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
 
-Maintainers: [Developer Guide (EN/中文)](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md)
+Maintainers: [Developer Guide (EN/中文)](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) — dev workflows & Cursor tips
 
 <div align="center">
 <img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="1166" height="1640" style="width:240px;height:auto;max-width:100%;">
