@@ -1077,9 +1077,104 @@ img {
 .updates-grid {
   margin-top: 1.5rem;
   display: grid;
-  grid-template-columns: 0.95fr 1.05fr;
+  grid-template-columns: 1fr 1fr minmax(220px, 0.85fr);
   gap: 1.25rem;
   align-items: start;
+}
+
+.community-panel .wechat-qr {
+  margin: 0.75rem 0 0;
+  text-align: center;
+}
+
+.wechat-qr img {
+  margin: 0 auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.wechat-qr figcaption {
+  margin-top: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+.lang-toggle {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lang-toggle:hover {
+  background: var(--surface-2);
+  border-color: var(--brand-2);
+}
+
+.action-btn--ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.action-btn--ghost:hover {
+  background: var(--surface-2);
+}
+
+.page-shell--doc {
+  min-height: 100vh;
+}
+
+.top-nav--doc {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 252, 253, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.dev-main {
+  padding: 2rem 1rem 3rem;
+  max-width: 52rem;
+}
+
+.dev-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+}
+
+.dev-section {
+  margin-top: 1rem;
+  padding: 1.15rem 1.25rem;
+}
+
+.dev-section h2 {
+  margin: 0 0 0.65rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.dev-section p,
+.dev-section li {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.dev-repo-link {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--text-soft);
 }
 
 .updates-panel {
@@ -1408,6 +1503,17 @@ img {
 }
 
 /* Responsive */
+@media (max-width: 1180px) {
+  .nav-links .nav-link {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.78rem;
+  }
+
+  .action-btn--ghost {
+    display: none;
+  }
+}
+
 @media (max-width: 1024px) {
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1442,6 +1548,17 @@ img {
     flex-wrap: wrap;
     padding: 0.65rem 0;
     min-height: auto;
+    gap: 0.5rem;
+  }
+
+  .nav-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .lang-toggle {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.55rem;
   }
 
   .metrics-grid,

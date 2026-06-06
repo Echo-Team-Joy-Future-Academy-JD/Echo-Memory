@@ -290,8 +290,8 @@
         preload.src = nextSrc;
 
         if (caption) {
-          caption.innerHTML =
-            nextCaption + ' <span class="zoom-hint">Click to expand</span>';
+          var hint = (window.EchoI18n && window.EchoI18n.t("zoom.hint")) || "Click to expand";
+          caption.innerHTML = nextCaption + ' <span class="zoom-hint">' + hint + "</span>";
         }
       });
     });
@@ -330,15 +330,18 @@
       if (!target) return;
       navigator.clipboard.writeText(target.textContent).then(
         function () {
-          btn.textContent = "Copied";
+          var copied = window.EchoI18n && window.EchoI18n.t("bibtex.copied");
+          var failed = window.EchoI18n && window.EchoI18n.t("bibtex.failed");
+          var copyLabel = window.EchoI18n && window.EchoI18n.t("bibtex.copy");
+          btn.textContent = copied || "Copied";
           btn.classList.add("is-copied");
           setTimeout(function () {
-            btn.textContent = "Copy";
+            btn.textContent = copyLabel || "Copy";
             btn.classList.remove("is-copied");
           }, 2000);
         },
         function () {
-          btn.textContent = "Failed";
+          btn.textContent = (window.EchoI18n && window.EchoI18n.t("bibtex.failed")) || "Failed";
         }
       );
     });

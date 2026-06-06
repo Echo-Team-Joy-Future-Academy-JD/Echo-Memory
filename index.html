@@ -14,7 +14,7 @@
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet"
   />
-  <link rel="stylesheet" href="style.css?v=checkpoints-v1" />
+  <link rel="stylesheet" href="style.css?v=lang-v2" />
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
@@ -45,11 +45,16 @@
           <a class="nav-link" href="#bibtex" data-nav="bibtex">BibTeX</a>
         </nav>
         <div class="nav-actions">
+          <a class="action-btn action-btn--ghost" href="developer.html" data-i18n="nav.developer">Developer Guide</a>
+          <button type="button" class="lang-toggle" id="lang-toggle" aria-label="Switch language">
+            <span data-lang-current>EN</span> / <span data-i18n="lang.toggle">中文</span>
+          </button>
           <a
             class="action-btn"
             href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
             target="_blank"
             rel="noopener noreferrer"
+            data-i18n="nav.github"
           >GitHub</a>
           <button
             type="button"
@@ -72,6 +77,7 @@
         <a class="nav-link" href="#evidence" data-nav="evidence">Evidence</a>
         <a class="nav-link" href="#findings" data-nav="findings">Results</a>
         <a class="nav-link" href="#updates" data-nav="updates">Updates</a>
+        <a class="nav-link" href="developer.html" data-i18n="nav.developer">Developer Guide</a>
         <a class="nav-link" href="#bibtex" data-nav="bibtex">BibTeX</a>
       </div>
     </header>
@@ -88,14 +94,14 @@
       <button type="button" data-slide="bibtex" data-label="BibTeX" aria-label="BibTeX"></button>
     </aside>
 
-    <button type="button" class="back-top" id="back-top" aria-label="Back to top" hidden>
+    <button type="button" class="back-top" id="back-top" data-i18n-attr="aria-label:backtop" aria-label="Back to top" hidden>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
 
-    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Expanded figure">
-      <button type="button" class="lightbox__close" aria-label="Close">&times;</button>
+    <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" data-i18n-attr="aria-label:lightbox.label" aria-label="Expanded figure">
+      <button type="button" class="lightbox__close" data-i18n-attr="aria-label:lightbox.close" aria-label="Close">&times;</button>
       <figure class="lightbox__inner">
         <img src="" alt="" id="lightbox-img" />
         <figcaption id="lightbox-caption"></figcaption>
@@ -106,13 +112,13 @@
       <section id="hero" class="section section--compact reveal" data-section="hero">
         <div class="container hero hero--single">
           <div>
-            <div class="hero-badge">Echo Team · Joy Future Academy, JD · June 2026 · CC BY 4.0</div>
+            <div class="hero-badge" data-i18n="hero.badge">Echo Team · Joy Future Academy, JD · June 2026 · CC BY 4.0</div>
             <h1 class="hero-title">
               <span class="hero-highlight">Echo-Memory</span>
               <br />
-              A Controlled Study of Memory in Action World Models
+              <span data-i18n="hero.title.line2">A Controlled Study of Memory in Action World Models</span>
             </h1>
-            <p class="hero-subtitle">
+            <p class="hero-subtitle" data-i18n-html="hero.subtitle">
               When the camera leaves and returns, which memory keeps the <strong>same world</strong>
               instead of a plausible but different scene?
             </p>
@@ -128,12 +134,14 @@
                 href="https://huggingface.co/Echo-Team/Echo-Memory"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-i18n="hero.cta.ckpt"
               >Checkpoints</a>
               <a
                 class="cta cta--secondary"
                 href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-i18n="hero.cta.code"
               >Code</a>
             </div>
 
@@ -145,7 +153,7 @@
                 rel="noopener noreferrer"
                 data-badge-url="https://img.shields.io/github/stars/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
               >
-                <span class="metric-label">GitHub Stars</span>
+                <span class="metric-label" data-i18n="hero.metric.stars">GitHub Stars</span>
                 <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
               </a>
               <a
@@ -155,24 +163,24 @@
                 rel="noopener noreferrer"
                 data-badge-url="https://img.shields.io/github/forks/Echo-Team-Joy-Future-Academy-JD/Echo-Memory.json"
               >
-                <span class="metric-label">Forks</span>
+                <span class="metric-label" data-i18n="hero.metric.forks">Forks</span>
                 <strong class="metric-value" data-metric-value data-fallback="—">—</strong>
               </a>
             </div>
 
-            <p class="hero-note">
+            <p class="hero-note" data-i18n-html="hero.note">
               Controlled memory ablations on a shared <strong>Wan</strong> action-to-video stack —
               reproducible rows, evaluation scripts, and qualitative revisit panels.
             </p>
 
             <details class="authors-fold">
-              <summary>Authors &amp; affiliations</summary>
+              <summary data-i18n="hero.authors.summary">Authors &amp; affiliations</summary>
               <p class="authors">
                 Wayne King, Zeyue Xue, Yuxuan Bian, Jie Huang, Haoran Li, Yaowei Li,
                 Yaofeng Su, Yuming Li, Haoyu Wang, Shiyi Zhang, Songchun Zhang,
                 Yuwei Niu, Sihan Xu, Junhao Zhuang, Haoyang Huang, Nan Duan
               </p>
-              <p class="affiliations">
+              <p class="affiliations" data-i18n="hero.affiliations">
                 HKU · Joy Future Academy, JD · CUHK · PKU · Fudan · Tsinghua · HKUST · UMich
               </p>
             </details>
@@ -182,31 +190,31 @@
 
       <section id="overview" class="section reveal" data-section="overview">
         <div class="container">
-          <p class="section-kicker">01 · Overview</p>
-          <h2 class="section-title">One backbone, one protocol — only memory changes.</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="overview.kicker">01 · Overview</p>
+          <h2 class="section-title" data-i18n="overview.title">One backbone, one protocol — only memory changes.</h2>
+          <p class="section-lead" data-i18n-html="overview.lead">
             Echo-Memory holds the video backbone, training recipe, and data protocol fixed, and
             swaps only the memory module. The goal is to separate <strong>replay fidelity</strong>
             from <strong>return memory</strong> when the camera leaves and comes back to the same place.
           </p>
           <ul class="bullet-list">
-            <li><strong>Shared stack</strong> — chunk-wise action-conditioned world generation on Wan.</li>
-            <li><strong>Controlled variable</strong> — Context, Compression, Spatial, or State-Space memory.</li>
-            <li><strong>Three probes</strong> — replay metrics, in-domain 180° loop, open-domain edited return.</li>
-            <li><strong>Release</strong> — ablation scripts, GT replay, revisit assets, and paper-aligned figures.</li>
+            <li data-i18n-html="overview.b1"><strong>Shared stack</strong> — chunk-wise action-conditioned world generation on Wan.</li>
+            <li data-i18n-html="overview.b2"><strong>Controlled variable</strong> — Context, Compression, Spatial, or State-Space memory.</li>
+            <li data-i18n-html="overview.b3"><strong>Three probes</strong> — replay metrics, in-domain 180° loop, open-domain edited return.</li>
+            <li data-i18n-html="overview.b4"><strong>Release</strong> — ablation scripts, GT replay, revisit assets, and paper-aligned figures.</li>
           </ul>
           <figure class="section-figure" data-zoomable>
-            <img src="assets/figure_1_abs_framework.png?v=fig1-crop" alt="Echo-Memory framework overview" />
-            <figcaption>Controlled memory study over chunk-wise action-world generation. <span class="zoom-hint">Click to expand</span></figcaption>
+            <img src="assets/figure_1_abs_framework.png?v=fig1-crop" data-i18n-attr="alt:overview.fig.alt" alt="Echo-Memory framework overview" />
+            <figcaption data-i18n-html="overview.fig.cap">Controlled memory study over chunk-wise action-world generation. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
       <section id="design" class="section reveal" data-section="design">
         <div class="container">
-          <p class="section-kicker">02 · Memory Design</p>
-          <h2 class="section-title">Context · Compression · Spatial · State-Space</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="design.kicker">02 · Memory Design</p>
+          <h2 class="section-title" data-i18n="design.title">Context · Compression · Spatial · State-Space</h2>
+          <p class="section-lead" data-i18n="design.lead">
             All variants plug into the same write–read interface; we only change what is stored and how
             history is retrieved. A no-memory I2V floor re-generates from the first frame as a lower bound.
           </p>
@@ -215,43 +223,43 @@
               <div class="card-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M7 9h10M7 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
               </div>
-              <h3>Context</h3>
-              <p>Raw recent frames at K = 1, 5, or 20 chunks — tests whether longer windows alone stop drift.</p>
+              <h3 data-i18n="design.context.title">Context</h3>
+              <p data-i18n="design.context.body">Raw recent frames at K = 1, 5, or 20 chunks — tests whether longer windows alone stop drift.</p>
             </article>
             <article class="card card--accent" data-accent="compression">
               <div class="card-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.6"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5" stroke="currentColor" stroke-width="1.6"/></svg>
               </div>
-              <h3>Compression</h3>
-              <p>Learned compact tokens at ratio r = 4 — history without growing raw-frame storage.</p>
+              <h3 data-i18n="design.compression.title">Compression</h3>
+              <p data-i18n="design.compression.body">Learned compact tokens at ratio r = 4 — history without growing raw-frame storage.</p>
             </article>
             <article class="card card--accent" data-accent="spatial">
               <div class="card-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M4 8l8-4 8 4v8l-8 4-8-4V8z" stroke="currentColor" stroke-width="1.6"/><path d="M12 4v16M4 8l8 4 8-4" stroke="currentColor" stroke-width="1.6"/></svg>
               </div>
-              <h3>Spatial</h3>
-              <p>Explicit spatial read/write state — targets layout, object pose, and viewpoint carry.</p>
+              <h3 data-i18n="design.spatial.title">Spatial</h3>
+              <p data-i18n="design.spatial.body">Explicit spatial read/write state — targets layout, object pose, and viewpoint carry.</p>
             </article>
             <article class="card card--accent" data-accent="ssm">
               <div class="card-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none"><path d="M5 12a7 7 0 0114 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M8 12h8M16 9l2 3-2 3M8 9l-2 3 2 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </div>
-              <h3>State-Space</h3>
-              <p>Block-wise SSM updates — recurrent carry beyond short context windows on revisit.</p>
+              <h3 data-i18n="design.ssm.title">State-Space</h3>
+              <p data-i18n="design.ssm.body">Block-wise SSM updates — recurrent carry beyond short context windows on revisit.</p>
             </article>
           </div>
           <figure class="section-figure" data-zoomable>
-            <img src="assets/figure_2_mem_overview.png" alt="Memory design matrix" />
-            <figcaption>Four memory families under a shared write–read interface. <span class="zoom-hint">Click to expand</span></figcaption>
+            <img src="assets/figure_2_mem_overview.png" data-i18n-attr="alt:design.fig.alt" alt="Memory design matrix" />
+            <figcaption data-i18n-html="design.fig.cap">Four memory families under a shared write–read interface. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
       <section id="checkpoints" class="section reveal" data-section="checkpoints">
         <div class="container">
-          <p class="section-kicker">03 · Checkpoints</p>
-          <h2 class="section-title">Paper baselines on Hugging Face</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="ckpt.kicker">03 · Checkpoints</p>
+          <h2 class="section-title" data-i18n="ckpt.title">Paper baselines on Hugging Face</h2>
+          <p class="section-lead" data-i18n-html="ckpt.lead">
             Wan 2.1 1.3B memory rows — <strong>epoch-0</strong>, <strong>30,000 steps</strong>, static in-domain pool.
             All weights:
             <a href="https://huggingface.co/Echo-Team/Echo-Memory" target="_blank" rel="noopener noreferrer"><strong>Echo-Team/Echo-Memory</strong></a>
@@ -260,10 +268,10 @@
             <table class="ckpt-table">
               <thead>
                 <tr>
-                  <th>Family</th>
-                  <th>Paper row</th>
-                  <th>HF path</th>
-                  <th>Steps</th>
+                  <th data-i18n="ckpt.th.family">Family</th>
+                  <th data-i18n="ckpt.th.row">Paper row</th>
+                  <th data-i18n="ckpt.th.path">HF path</th>
+                  <th data-i18n="ckpt.th.steps">Steps</th>
                 </tr>
               </thead>
               <tbody>
@@ -282,17 +290,17 @@
             </table>
           </div>
           <div class="code-block-wrap">
-            <p class="code-block-label">Download</p>
+            <p class="code-block-label" data-i18n="ckpt.label.download">Download</p>
             <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts</code></pre>
           </div>
           <div class="code-block-wrap">
-            <p class="code-block-label">In-domain eval (Echo-Memory repo)</p>
+            <p class="code-block-label" data-i18n="ckpt.label.eval">In-domain eval (Echo-Memory repo)</p>
             <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
           </div>
-          <p class="section-note">
+          <p class="section-note" data-i18n-html="ckpt.note">
             Keep the row folder in <code>CKPT</code> — <code>env/memory_baseline_runtime.py</code> infers memory flags from the path.
             Full index:
             <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/checkpoints.md" target="_blank" rel="noopener noreferrer">doc/checkpoints.md</a>.
@@ -302,38 +310,38 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
 
       <section id="evaluation" class="section section--center reveal" data-section="evaluation">
         <div class="container">
-          <p class="section-kicker">04 · Evaluation</p>
-          <h2 class="section-title">Replay · In-domain revisit · Open-domain return</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="eval.kicker">04 · Evaluation</p>
+          <h2 class="section-title" data-i18n="eval.title">Replay · In-domain revisit · Open-domain return</h2>
+          <p class="section-lead" data-i18n-html="eval.lead">
             Each branch asks a different question: Can the model reconstruct the past? Can it close a loop
             in-domain? After an edited first frame, does it return to the <strong>same world</strong>?
           </p>
           <div class="feature-grid feature-grid--three">
             <article class="card">
-              <h3>Replay</h3>
-              <p>PSNR, SSIM, LPIPS on chunk-wise reconstruction — measures short-horizon pixel fidelity.</p>
+              <h3 data-i18n="eval.replay.title">Replay</h3>
+              <p data-i18n="eval.replay.body">PSNR, SSIM, LPIPS on chunk-wise reconstruction — measures short-horizon pixel fidelity.</p>
             </article>
             <article class="card">
-              <h3>In-domain</h3>
-              <p>180° trajectory loop closure with VLM-assisted scoring on held layouts.</p>
+              <h3 data-i18n="eval.indomain.title">In-domain</h3>
+              <p data-i18n="eval.indomain.body">180° trajectory loop closure with VLM-assisted scoring on held layouts.</p>
             </article>
             <article class="card">
-              <h3>Open-domain</h3>
-              <p>Edited first frames and 45° return probes — stresses object identity and scene persistence.</p>
+              <h3 data-i18n="eval.opendomain.title">Open-domain</h3>
+              <p data-i18n="eval.opendomain.body">Edited first frames and 45° return probes — stresses object identity and scene persistence.</p>
             </article>
           </div>
           <figure class="section-figure" data-zoomable>
-            <img src="assets/figure_3_mem_eval.png" alt="Three-branch evaluation summary" />
-            <figcaption>Replay health vs. return memory under the same stack. <span class="zoom-hint">Click to expand</span></figcaption>
+            <img src="assets/figure_3_mem_eval.png" data-i18n-attr="alt:eval.fig.alt" alt="Three-branch evaluation summary" />
+            <figcaption data-i18n-html="eval.fig.cap">Replay health vs. return memory under the same stack. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
       <section id="evidence" class="section section--center reveal" data-section="evidence">
         <div class="container">
-          <p class="section-kicker">05 · Qualitative Evidence</p>
-          <h2 class="section-title">Return probes expose identity drift.</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="evidence.kicker">05 · Qualitative Evidence</p>
+          <h2 class="section-title" data-i18n="evidence.title">Return probes expose identity drift.</h2>
+          <p class="section-lead" data-i18n-html="evidence.lead">
             Qualitative panels follow a simple diagnostic: <strong>first frame → leave the view → revisit tail</strong>.
             We compare whether memory restores the same object, pose, background, and camera geometry —
             not merely a plausible new scene.
@@ -348,7 +356,7 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                   alt="Representative memory comparisons"
                 />
               </div>
-              <figcaption data-qual-caption>Representative memory comparisons across variants. <span class="zoom-hint">Click to expand</span></figcaption>
+              <figcaption data-qual-caption data-i18n-html="evidence.cap1">Representative memory comparisons across variants. <span class="zoom-hint">Click to expand</span></figcaption>
             </figure>
             <div class="qual-chips" role="tablist" aria-label="Evidence panels">
               <button
@@ -358,6 +366,7 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 aria-selected="true"
                 data-src="assets/representative_memory_results.png"
                 data-alt="Representative memory comparisons"
+                data-caption-key="evidence.cap1"
                 data-caption="Representative memory comparisons across variants."
               >Memory Results</button>
               <button
@@ -385,37 +394,41 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
 
       <section id="findings" class="section section--center reveal" data-section="findings">
         <div class="container">
-          <p class="section-kicker">06 · Main Conclusions</p>
-          <h2 class="section-title">Replay quality ≠ memory quality.</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="findings.kicker">06 · Main Conclusions</p>
+          <h2 class="section-title" data-i18n="findings.title">Replay quality ≠ memory quality.</h2>
+          <p class="section-lead" data-i18n="findings.lead">
             Replay metrics and return probes do not always agree — a model can look sharp on reconstruction
             yet fail when the camera returns. Rankings reorder once identity under revisit is measured.
           </p>
           <ul class="bullet-list bullet-list--center">
-            <li><strong>Raw context</strong> — more history helps open-domain return more than replay alone.</li>
-            <li><strong>Compression</strong> — compact tokens can preserve replay while losing identity on return.</li>
-            <li><strong>Spatial vs. SSM</strong> — explicit state and block-wise SSM trade off layout carry and long-horizon stability.</li>
-            <li><strong>Takeaway</strong> — treat replay as a health check, not the final memory benchmark.</li>
+            <li data-i18n-html="findings.b1"><strong>Raw context</strong> — more history helps open-domain return more than replay alone.</li>
+            <li data-i18n-html="findings.b2"><strong>Compression</strong> — compact tokens can preserve replay while losing identity on return.</li>
+            <li data-i18n-html="findings.b3"><strong>Spatial vs. SSM</strong> — explicit state and block-wise SSM trade off layout carry and long-horizon stability.</li>
+            <li data-i18n-html="findings.b4"><strong>Takeaway</strong> — treat replay as a health check, not the final memory benchmark.</li>
           </ul>
           <figure class="section-figure" data-zoomable>
             <img src="assets/replay_revisit_metric_alignment.png" alt="Replay vs revisit metrics" />
-            <figcaption>Rank shift from replay to return — replay is not the final memory score. <span class="zoom-hint">Click to expand</span></figcaption>
+            <figcaption data-i18n-html="findings.fig.cap">Rank shift from replay to return — replay is not the final memory score. <span class="zoom-hint">Click to expand</span></figcaption>
           </figure>
         </div>
       </section>
 
       <section id="updates" class="section reveal" data-section="updates">
         <div class="container">
-          <p class="section-kicker">07 · News &amp; Roadmap</p>
-          <h2 class="section-title">Release notes and next steps.</h2>
+          <p class="section-kicker" data-i18n="updates.kicker">07 · News &amp; Roadmap</p>
+          <h2 class="section-title" data-i18n="updates.title">Release notes and next steps.</h2>
 
           <div class="updates-grid">
             <div class="updates-panel">
-              <h3 class="updates-heading">News</h3>
+              <h3 class="updates-heading" data-i18n="updates.news">News</h3>
               <ul class="news-feed">
                 <li class="news-item">
+                  <time datetime="2026-06-06">Jun 2026</time>
+                  <p data-i18n-html="updates.news0">Bilingual project page (<strong>EN / 中文</strong>) and <a href="developer.html">Developer Guide</a> released.</p>
+                </li>
+                <li class="news-item">
                   <time datetime="2026-06-05">Jun 2026</time>
-                  <p>
+                  <p data-i18n-html="updates.news1">
                     Report on
                     <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
                     (CC BY 4.0) and project page released.
@@ -423,7 +436,7 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 </li>
                 <li class="news-item">
                   <time datetime="2026-06-06">Jun 2026</time>
-                  <p>
+                  <p data-i18n-html="updates.news2">
                     Paper baseline checkpoints released on Hugging Face —
                     <a href="https://huggingface.co/Echo-Team/Echo-Memory" target="_blank" rel="noopener noreferrer"><strong>Echo-Team/Echo-Memory</strong></a>
                     (Wan 2.1 1.3B, epoch-0, 30k steps).
@@ -431,7 +444,7 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 </li>
                 <li class="news-item">
                   <time datetime="2026-06-04">Jun 2026</time>
-                  <p>
+                  <p data-i18n-html="updates.news3">
                     Code release: <strong>Wan 2.1 1.3B</strong> memory ablations, replay/revisit eval,
                     <code>eval/v2/revisit_suite/</code>, and <code>assets/opendomain_revisit/</code>.
                   </p>
@@ -440,48 +453,56 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
             </div>
 
             <div class="updates-panel">
-              <h3 class="updates-heading">Roadmap</h3>
+              <h3 class="updates-heading" data-i18n="updates.roadmap">Roadmap</h3>
               <div class="todo-groups">
                 <article class="todo-group">
-                  <h4>Models</h4>
+                  <h4 data-i18n="updates.models">Models</h4>
                   <ul class="todo-list">
                     <li class="is-done">
                       <span class="todo-check is-done" aria-hidden="true"></span>
-                      <strong>Wan 2.1 1.3B</strong> backbone and training recipes
+                      <span data-i18n-html="updates.rm1"><strong>Wan 2.1 1.3B</strong> backbone and training recipes</span>
                     </li>
                     <li class="is-done">
                       <span class="todo-check is-done" aria-hidden="true"></span>
-                      Four memory families — Context, Compression, Spatial, State-Space
+                      <span data-i18n="updates.rm2">Four memory families — Context, Compression, Spatial, State-Space</span>
                     </li>
                     <li class="is-done">
                       <span class="todo-check is-done" aria-hidden="true"></span>
-                      <strong>Dynamic training pool</strong> — SpatialVID subset export &amp; settings
+                      <span data-i18n-html="updates.rm3"><strong>Dynamic training pool</strong> — SpatialVID subset export &amp; settings</span>
                     </li>
                     <li class="is-done">
                       <span class="todo-check is-done" aria-hidden="true"></span>
-                      <strong>Paper checkpoints</strong> —
-                      <a href="https://huggingface.co/Echo-Team/Echo-Memory" target="_blank" rel="noopener noreferrer">Echo-Team/Echo-Memory</a>
+                      <span data-i18n-html="updates.rm4"><strong>Paper checkpoints</strong> — <a href="https://huggingface.co/Echo-Team/Echo-Memory" target="_blank" rel="noopener noreferrer">Echo-Team/Echo-Memory</a></span>
                     </li>
                     <li>
                       <span class="todo-check" aria-hidden="true"></span>
-                      <strong>Wan 2.2</strong> + multi-scale <strong>5B / 14B</strong>
+                      <span data-i18n-html="updates.rm5"><strong>Wan 2.2</strong> + multi-scale <strong>5B / 14B</strong></span>
                     </li>
                   </ul>
                 </article>
                 <article class="todo-group">
-                  <h4>Eval</h4>
+                  <h4 data-i18n="updates.eval">Eval</h4>
                   <ul class="todo-list">
                     <li>
                       <span class="todo-check" aria-hidden="true"></span>
-                      <strong>Dynamic eval</strong> beyond static replay/revisit
+                      <span data-i18n-html="updates.re1"><strong>Dynamic eval</strong> beyond static replay/revisit</span>
                     </li>
                     <li>
                       <span class="todo-check" aria-hidden="true"></span>
-                      More revisit probes and scoring presets
+                      <span data-i18n="updates.re2">More revisit probes and scoring presets</span>
                     </li>
                   </ul>
                 </article>
               </div>
+            </div>
+
+            <div class="updates-panel community-panel">
+              <h3 class="updates-heading" data-i18n="community.title">Community</h3>
+              <p data-i18n="community.lead">Join the Echo-Memory WeChat group for release updates, checkpoint questions, and maintainer coordination.</p>
+              <figure class="wechat-qr">
+                <img src="assets/wechat_group_qrcode.jpg" width="220" height="220" data-i18n-attr="alt:community.qr.alt" alt="Echo-Memory WeChat group QR code" />
+                <figcaption data-i18n="community.qr.caption">Echo-Memory 交流群 · scan to join (QR refreshes periodically)</figcaption>
+              </figure>
             </div>
           </div>
         </div>
@@ -489,9 +510,9 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
 
       <section id="bibtex" class="section reveal" data-section="bibtex">
         <div class="container">
-          <p class="section-kicker">08 · Citation</p>
-          <h2 class="section-title">BibTeX</h2>
-          <p class="section-lead">
+          <p class="section-kicker" data-i18n="bibtex.kicker">08 · Citation</p>
+          <h2 class="section-title" data-i18n="bibtex.title">BibTeX</h2>
+          <p class="section-lead" data-i18n-html="bibtex.lead">
             Echo-Memory: A Controlled Study of Memory in Action World Models (June 2026).
             Licensed under
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.
@@ -505,6 +526,7 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 role="tab"
                 aria-selected="true"
                 data-cite="researchgate"
+                data-i18n="bibtex.rg"
               >ResearchGate</button>
               <button
                 class="cite-chip"
@@ -512,30 +534,31 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 role="tab"
                 aria-selected="false"
                 data-cite="arxiv"
+                data-i18n="bibtex.arxiv"
               >arXiv (TBD)</button>
             </div>
 
             <div class="cite-panel is-active" data-cite-panel="researchgate">
               <dl class="pub-meta">
                 <div class="pub-meta__row">
-                  <dt>Source</dt>
+                  <dt data-i18n="bibtex.source">Source</dt>
                   <dd>
                     <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
                   </dd>
                 </div>
                 <div class="pub-meta__row">
-                  <dt>DOI</dt>
+                  <dt data-i18n="bibtex.doi">DOI</dt>
                   <dd>
                     <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">10.13140/RG.2.2.19906.34248</a>
                   </dd>
                 </div>
                 <div class="pub-meta__row">
-                  <dt>License</dt>
+                  <dt data-i18n="bibtex.license">License</dt>
                   <dd>CC BY 4.0</dd>
                 </div>
               </dl>
               <div class="bibtex-wrap">
-                <button type="button" class="copy-btn" data-copy-target="bibtex-rg-block">Copy</button>
+                <button type="button" class="copy-btn" data-copy-target="bibtex-rg-block" data-i18n="bibtex.copy">Copy</button>
                 <pre class="bibtex" id="bibtex-rg-block"><code>@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
@@ -553,22 +576,22 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
             <div class="cite-panel" data-cite-panel="arxiv" hidden>
               <dl class="pub-meta">
                 <div class="pub-meta__row">
-                  <dt>Source</dt>
+                  <dt data-i18n="bibtex.source">Source</dt>
                   <dd>
                     <a href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
                   </dd>
                 </div>
                 <div class="pub-meta__row">
-                  <dt>arXiv ID</dt>
+                  <dt data-i18n="bibtex.arxivid">arXiv ID</dt>
                   <dd>xxxx.xxxxx (pending)</dd>
                 </div>
                 <div class="pub-meta__row">
-                  <dt>License</dt>
+                  <dt data-i18n="bibtex.license">License</dt>
                   <dd>CC BY 4.0</dd>
                 </div>
               </dl>
               <div class="bibtex-wrap">
-                <button type="button" class="copy-btn" data-copy-target="bibtex-arxiv-block">Copy</button>
+                <button type="button" class="copy-btn" data-copy-target="bibtex-arxiv-block" data-i18n="bibtex.copy">Copy</button>
                 <pre class="bibtex" id="bibtex-arxiv-block"><code>@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
@@ -591,19 +614,22 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
     <footer class="footer">
       <div class="container footer-row">
         <div>
-          <p class="footer-copy">© Echo Team · Joy Future Academy, JD</p>
+          <p class="footer-copy" data-i18n="footer.copy">© Echo Team · Joy Future Academy, JD</p>
         </div>
         <div class="footer-links">
           <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
           <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
           <a href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
-          <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/">Project Page</a>
+          <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/" data-i18n="footer.pp">Project Page</a>
+          <a href="developer.html" data-i18n="nav.developer">Developer Guide</a>
         </div>
-        <p class="build-id" hidden aria-hidden="true">site-build-3e10557</p>
+        <p class="build-id" hidden aria-hidden="true">site-build-c062f47</p>
       </div>
     </footer>
   </div>
 
-  <script src="site.js?v=updates-v1" defer></script>
+  <script src="i18n.js?v=lang-v1"></script>
+  <script src="i18n-runtime.js?v=lang-v1"></script>
+  <script src="site.js?v=lang-v1" defer></script>
 </body>
 </html>
