@@ -39,7 +39,7 @@
 **Models**
 - [x] **Wan 2.1 1.3B** backbone and public training recipes
 - [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
-- [x] **Dynamic training data** — SpatialVID subset export & settings ([doc](doc/dynamic_dataset_preprocessing.md))
+- [x] **Dynamic training pool** — SpatialVID subset export & settings ([doc](doc/dynamic_dataset_preprocessing.md))
 - [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
 
 **Eval**
@@ -165,7 +165,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 ## Layout
 
 ```text
-doc/                        Dataset download & preprocessing guides
+doc/                        Data pool download & preprocessing guides
 diffsynth/                  Core model, pipeline, trainer utilities
 src/model_training/         Main training code and memory/context helpers
 src/model_inference/        Stage-2 inference entrypoints
@@ -203,11 +203,14 @@ Most scripts are path-portable and use environment variables:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset   # static in-domain pool (default)
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
 
-`DATASET_BASE_PATH` should point to an extracted [Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) root (see [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)).
+`DATASET_BASE_PATH` points at whichever training pool you use (see [Data](#data)):
+
+- **Static in-domain pool** — default `data/Context-as-Memory-Dataset` if unset; [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)
+- **Dynamic training pool** — e.g. `data/dynamic-memory-dataset`; [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)
 
 `WAN_BASE_MODEL` should contain `diffusion_pytorch_model.safetensors`, `models_t5_umt5-xxl-enc-bf16.pth`, and `Wan2.1_VAE.pth`.
 
@@ -240,30 +243,40 @@ bash train/context_learning/run_pre_qkv_ctx20.sh
 
 Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`.
 
-## Dataset
+## Data
 
-Training and in-domain evaluation use **[Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset)** on Hugging Face (~340 GB).
+Echo-Memory training and in-domain evaluation use two pools that share the same on-disk layout. Set `DATASET_BASE_PATH` to the root of the pool you are using.
 
-Download, merge split zip parts, verify `frames/` / `jsons/` / `overlap_labels/`, and preprocessing:
+```text
+{DATASET_BASE_PATH}/
+├── frames/
+├── jsons/
+├── overlap_labels/      # recommended
+├── metadata_full.csv
+└── latents/             # optional
+```
 
-**→ [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)**
+| | Static in-domain pool | Dynamic training pool |
+| --- | --- | --- |
+| **HF source** | [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) | [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) (simplified subset) |
+| **Local root** | `data/Context-as-Memory-Dataset` | `data/dynamic-memory-dataset` |
+| **Guide** | [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) | [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) |
+| **Metadata** | `scripts/run_generate_metadata.sh` (required) | written at export; do not re-run unless regenerating from raw frames |
+| **Latents** | `scripts/run_precompute_ctx_target_latents.sh` (optional) | same script if needed |
 
-### Dynamic training data
+### Static in-domain pool
 
-Simplified **SpatialVID** subset, exported to the same layout as static training.
+- **Source:** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) (~340 GB)
+- **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, merge zip parts, verify layout
 
-**→ [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)**
-
-## Data Construction
-
-See [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) §4–5. Generate metadata for a context-based memory dataset:
+**Metadata (required):**
 
 ```bash
 export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
 bash scripts/run_generate_metadata.sh
 ```
 
-Precompute context and target latents:
+**Latents (optional):**
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
@@ -271,9 +284,19 @@ export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
 NUM_PROCESSES=8 bash scripts/run_precompute_ctx_target_latents.sh
 ```
 
+### Dynamic training pool
+
+- **Source:** simplified [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) subset
+- **Guide:** [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) — download subset, export to Echo layout, training settings
+- **Note:** `metadata_full.csv` is produced during export; latent precompute uses the same script as the static pool if needed
+
+### Open-domain assets
+
+Held-out first frames for the open-domain revisit suite are already in `assets/opendomain_revisit/`; no download or construction step is required.
+
 ## Evaluation
 
-Run the paper evaluation bundle for a checkpoint:
+In-domain replay and revisit eval use the **static in-domain pool** (`DATASET_BASE_PATH`). Run the paper evaluation bundle for a checkpoint:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B

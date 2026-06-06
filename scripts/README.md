@@ -1,8 +1,8 @@
-# Data Construction
+# Data scripts
 
-See **[doc/dataset_preprocessing.md](../doc/dataset_preprocessing.md)** for Hugging Face download, zip merge/extract, and layout verification before running these scripts.
+Scripts for the **static in-domain pool**. Complete download and layout verification first — see **[doc/dataset_preprocessing.md](../doc/dataset_preprocessing.md)**.
 
-Scripts assume a context-based memory dataset with `frames/`, `jsons/`, and a metadata CSV. Set `DATASET_BASE_PATH` before running them.
+Both training pools share the Echo-Memory layout (`frames/`, `jsons/`, `overlap_labels/`, `metadata_full.csv`). Set `DATASET_BASE_PATH` to the pool root before running these scripts.
 
 ## Metadata CSV
 
@@ -17,7 +17,7 @@ Optional variables:
 - `SEGMENT_LENGTH`: frames per segment, default `81`.
 - `CONTEXT_FRAMES`: context frames in metadata construction, default `5`.
 
-## Latent Precompute
+## Latent precompute
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B

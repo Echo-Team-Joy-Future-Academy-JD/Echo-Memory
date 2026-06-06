@@ -1,6 +1,6 @@
-# Dynamic training data — SpatialVID subset
+# Dynamic training pool — SpatialVID subset
 
-Echo-Memory’s **dynamic training pool** uses a **simplified subset** of [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID): ego-centric clips with camera poses and captions, exported into the **same on-disk layout** as static training (`frames/`, `jsons/`, `overlap_labels/`, `metadata_full.csv`).
+Echo-Memory’s **dynamic training pool** uses a **simplified subset** of [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID): ego-centric clips with camera poses and captions, exported into the **same on-disk layout** as the static in-domain pool (`frames/`, `jsons/`, `overlap_labels/`, `metadata_full.csv`).
 
 This guide covers **download → export → training settings** only. It does not describe a public benchmark or level splits.
 
@@ -79,6 +79,8 @@ dynamic-memory-dataset/
 
 ## 3. Training settings
 
+Same env vars and on-disk layout as the static in-domain pool — set `DATASET_BASE_PATH` to the dynamic export root.
+
 Point Echo-Memory at the exported root:
 
 ```bash
@@ -126,3 +128,4 @@ Ensure `dataset_base_path` / `dataset_metadata_path` in the script resolve to `$
 
 - SpatialVID: [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) · [arXiv:2509.09676](https://arxiv.org/abs/2509.09676)
 - Static in-domain pool: [dataset_preprocessing.md](dataset_preprocessing.md)
+- Dynamic training pool: [dynamic_dataset_preprocessing.md](dynamic_dataset_preprocessing.md)

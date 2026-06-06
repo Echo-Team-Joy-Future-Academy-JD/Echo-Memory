@@ -1,10 +1,6 @@
-# Context-as-Memory dataset — download & preprocessing
+# Static in-domain pool — download & preprocessing
 
-Echo-Memory training and evaluation expect the public **Context-as-Memory** dataset from Kling Team (SIGGRAPH Asia 2025; [arXiv:2506.03141](https://arxiv.org/abs/2506.03141)).
-
-**Hugging Face (recommended):** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset)
-
-Total size is about **340 GB**. Plan disk space before downloading.
+Echo-Memory’s **static in-domain pool** is sourced from [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) on Hugging Face (Kling Team, SIGGRAPH Asia 2025; [arXiv:2506.03141](https://arxiv.org/abs/2506.03141)). Total size is about **340 GB** — plan disk space before downloading.
 
 ---
 
@@ -137,7 +133,7 @@ Latents are written under `${DATASET_BASE_PATH}/latents/`. The script can use `o
 
 | Asset | Location | Purpose |
 | --- | --- | --- |
-| Context-as-Memory (full) | `DATASET_BASE_PATH` | Training, in-domain replay/revisit, metadata |
+| Static in-domain pool | `DATASET_BASE_PATH` | Training, in-domain replay/revisit, metadata |
 | Open-domain first frames | `assets/opendomain_revisit/` | Held-out OOD revisit probes (already in repo) |
 
 You do **not** need to rebuild open-domain anchors for the released revisit suite.
@@ -159,4 +155,4 @@ You do **not** need to rebuild open-domain anchors for the released revisit suit
 ## Reference
 
 - Static in-domain pool: [dataset_preprocessing.md](dataset_preprocessing.md)
-- Dynamic training data: [dynamic_dataset_preprocessing.md](dynamic_dataset_preprocessing.md)
+- Dynamic training pool: [dynamic_dataset_preprocessing.md](dynamic_dataset_preprocessing.md)
