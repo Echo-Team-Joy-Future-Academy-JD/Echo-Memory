@@ -1570,6 +1570,9 @@ def launch_training_task(
                 scheduler.step()
 
                 if max_train_steps and step >= max_train_steps:
+                    if progress_total_steps:
+                        progress_bar.n = min(step, progress_bar.total) if progress_bar.total is not None else step
+                        progress_bar.refresh()
                     if accelerator.is_main_process:
                         logger.info(f"[SMOKE] Reached max_train_steps={max_train_steps}; stopping without epoch checkpoint.")
                     accelerator.wait_for_everyone()
