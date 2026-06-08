@@ -12,20 +12,20 @@ from the checkpoint path (--memory_type auto).
 Examples:
 
     # Auto-detect memory type from checkpoint path
-    python src/model_inference/unified_inference.py \
+    python inference/unified_inference.py \
         --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
         --prompt "A toy bear on a table, the camera rotates around it" \
         --output_path output.mp4
 
     # Explicit memory type
-    python src/model_inference/unified_inference.py \
+    python inference/unified_inference.py \
         --ckpt ./ckpts/my_checkpoint.safetensors \
         --memory_type spatial_mem \
         --prompt "A scene" \
         --output_path output.mp4
 
     # With context image (first frame conditioning)
-    python src/model_inference/unified_inference.py \
+    python inference/unified_inference.py \
         --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
         --context_image assets/opendomain_revisit/1774363417.png \
         --action_path env/action_rotation_left_45.json \
@@ -40,7 +40,7 @@ import sys
 
 # Ensure repo root is in sys.path
 _script_dir = os.path.dirname(os.path.abspath(__file__))
-_repo_root = os.path.abspath(os.path.join(_script_dir, "..", ".."))
+_repo_root = os.path.abspath(os.path.join(_script_dir, ".."))
 if _repo_root not in sys.path:
     sys.path.insert(0, _repo_root)
 
@@ -49,7 +49,6 @@ from env.memory_baseline_runtime import (
     MemoryProfile,
     MEMORY_PROFILE_REGISTRY,
     infer_memory_profile_spec,
-    apply_memory_baseline_pipe,
 )
 
 
@@ -263,10 +262,7 @@ def main():
     )
 
     # ── Apply memory flags ──────────────────────────────────────────────
-    if args.memory_type == "auto":
-        apply_memory_baseline_pipe(pipe, args.ckpt)
-    else:
-        apply_profile_to_pipe(pipe, profile)
+    apply_profile_to_pipe(pipe, profile)
 
     # ── Encode context image (if provided) ──────────────────────────────
     context_latents = None

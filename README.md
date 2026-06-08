@@ -178,6 +178,7 @@ src/model_training/         Main training code and memory/context helpers
 src/model_inference/        Stage-2 inference entrypoints
 src/data/                   Dataset metadata construction utilities
 train/                      Public training recipes
+inference/                  Public inference recipes (shell wrappers)
 eval/v2/                    Static consistency and basic GT replay eval
 eval/metrics/               Visual/basic capability metrics
 scripts/                    Data construction and latent precompute scripts
@@ -284,7 +285,7 @@ Use the unified inference script for single-chunk generation with any memory fam
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 
-python src/model_inference/unified_inference.py \
+python inference/unified_inference.py \
     --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
     --prompt "A toy bear on a table, the camera rotates around it" \
     --output_path output.mp4
@@ -299,14 +300,18 @@ Switch memory type via `--memory_type` (default: `auto` — detects from checkpo
 | `context_k1` / `context_k5` / `context_k20` | Raw context | 1 / 5 / 20 context frames |
 | `framepack_weight` | Compression | FramePack temporal decay reweighting |
 | `framepack_len_r2` / `framepack_len_r4` | Compression | FramePack length compression ratio 2 / 4 |
+| `framepack_hybrid_r2` / `framepack_hybrid_r4` | Compression | Hybrid: length compression + token weighting |
 | `spatial_mem` | Spatial | Spatial grid memory (64 tokens) |
+| `spatial_concat_text` | Spatial | Spatial memory via text KV concatenation |
+| `spatial_inject_none` | Spatial | Spatial memory with withheld read-out |
+| `spatial_cross_attn_readout` | Spatial | Spatial memory via cross-attention |
 | `videossm_hybrid` | State-space | Legacy hybrid SSM |
 | `block_wise_ssm` | State-space | Block-wise recurrent SSM |
 
 Add `--context_image` for first-frame conditioning and `--action_path` for camera trajectory control:
 
 ```bash
-python src/model_inference/unified_inference.py \
+python inference/unified_inference.py \
     --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
     --memory_type spatial_mem \
     --context_image assets/opendomain_revisit/1774363417.png \
@@ -315,7 +320,7 @@ python src/model_inference/unified_inference.py \
     --output_path output.mp4
 ```
 
-Full argument reference: `python src/model_inference/unified_inference.py --help`. Additional scripts and details in [`src/model_inference/README.md`](src/model_inference/README.md).
+Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`src/model_inference/README.md`](src/model_inference/README.md).
 
 ## Training
 

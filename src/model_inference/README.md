@@ -9,20 +9,20 @@ export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 
 # Auto-detect memory type from checkpoint path
-python src/model_inference/unified_inference.py \
+python inference/unified_inference.py \
     --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
     --prompt "A toy bear on a table, the camera rotates around it" \
     --output_path output.mp4
 
 # Explicit memory type
-python src/model_inference/unified_inference.py \
+python inference/unified_inference.py \
     --ckpt ./ckpts/my_checkpoint.safetensors \
     --memory_type spatial_mem \
     --prompt "A scene" \
     --output_path output.mp4
 
 # With context image + action control
-python src/model_inference/unified_inference.py \
+python inference/unified_inference.py \
     --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
     --context_image assets/opendomain_revisit/1774363417.png \
     --action_path env/action_rotation_left_45.json \
@@ -49,7 +49,7 @@ python src/model_inference/unified_inference.py \
 | `videossm_hybrid` | State-space | Legacy hybrid SSM |
 | `block_wise_ssm` | State-space | Block-wise recurrent SSM |
 
-Run `python src/model_inference/unified_inference.py --help` for full argument reference.
+Run `python inference/unified_inference.py --help` for full argument reference.
 
 ## Legacy Scripts
 
