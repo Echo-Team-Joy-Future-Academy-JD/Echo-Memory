@@ -204,6 +204,32 @@ Configure `accelerate` for your machine before multi-GPU training:
 accelerate config
 ```
 
+## Quick Start
+
+Evaluate a released checkpoint end-to-end in three steps:
+
+```bash
+# 1. Download the Wan 2.1 base model
+huggingface-cli download Wan-AI/Wan2.1-T2V-1.3B --local-dir ./Wan2.1-T2V-1.3B
+
+# 2. Download the static in-domain eval pool (~340 GB)
+huggingface-cli download KlingTeam/Context-as-Memory-Dataset --repo-type dataset --local-dir ./data/Context-as-Memory-Dataset
+export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
+bash scripts/run_generate_metadata.sh
+
+# 3. Download a checkpoint and run evaluation
+huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
+
+export WAN_BASE_MODEL=./Wan2.1-T2V-1.3B
+export PYTHONPATH=$PWD:${PYTHONPATH:-}
+export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+
+bash eval/v2/run_basic_replay_gt.sh                        # single-video smoke test (~5 min)
+bash eval/v2/run_static_consistency_loop_and_revisit.sh     # full paper eval bundle
+```
+
+Outputs are saved under `${CKPT_DIR}/evals_v2/`. See [Evaluation](#evaluation) for interpreting results.
+
 ## Required Paths
 
 Most scripts are path-portable and use environment variables:
@@ -250,6 +276,47 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh
 
 Keep the row folder name in `CKPT` so `env/memory_baseline_runtime.py` can recover the matching memory profile.
 
+## Inference
+
+Use the unified inference script for single-chunk generation with any memory family:
+
+```bash
+export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+export PYTHONPATH=$PWD:${PYTHONPATH:-}
+
+python src/model_inference/unified_inference.py \
+    --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
+    --prompt "A toy bear on a table, the camera rotates around it" \
+    --output_path output.mp4
+```
+
+Switch memory type via `--memory_type` (default: `auto` — detects from checkpoint path):
+
+| `--memory_type` | Family | Description |
+|---|---|---|
+| `auto` | (detected) | Auto-detect from checkpoint path |
+| `no_memory` | Floor | No memory, I2V baseline |
+| `context_k1` / `context_k5` / `context_k20` | Raw context | 1 / 5 / 20 context frames |
+| `framepack_weight` | Compression | FramePack temporal decay reweighting |
+| `framepack_len_r2` / `framepack_len_r4` | Compression | FramePack length compression ratio 2 / 4 |
+| `spatial_mem` | Spatial | Spatial grid memory (64 tokens) |
+| `videossm_hybrid` | State-space | Legacy hybrid SSM |
+| `block_wise_ssm` | State-space | Block-wise recurrent SSM |
+
+Add `--context_image` for first-frame conditioning and `--action_path` for camera trajectory control:
+
+```bash
+python src/model_inference/unified_inference.py \
+    --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
+    --memory_type spatial_mem \
+    --context_image assets/opendomain_revisit/1774363417.png \
+    --action_path env/action_rotation_left_45.json \
+    --prompt "A toy bear on a table" \
+    --output_path output.mp4
+```
+
+Full argument reference: `python src/model_inference/unified_inference.py --help`. Additional scripts and details in [`src/model_inference/README.md`](src/model_inference/README.md).
+
 ## Training
 
 Memory baseline recipes live in `train/memory_baselines_basic/`. These map to the paper matrix:
@@ -278,6 +345,50 @@ bash train/context_learning/run_pre_qkv_ctx20.sh
 ```
 
 Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`.
+
+### Two-Chunk Training Paradigm
+
+All memory baselines are trained in a **two-chunk** setup that simulates the revisit scenario:
+
+- **Chunk 1 (context):** A clean reference segment encoded by the VAE. Context frames are sampled from the same video preceding the target segment and concatenated with the target latents at the suffix position.
+- **Chunk 2 (target):** The noisy segment that the model learns to denoise. The memory mechanism operates on context latents to retain historical information across chunks.
+- **Training-time monitoring:** The `--sampling_atomic_left_right` flag generates a left-45-degree then right-45-degree rotation pair during training for visual quality checks, using the same loop-closure probe used in evaluation.
+
+This two-chunk structure forces the model to rely on memory when generating chunk 2, directly training the memory pathway that evaluation later tests.
+
+### Hyperparameters
+
+All memory baselines share a common training configuration:
+
+| Parameter | Value | Notes |
+|---|---:|---|
+| Learning rate | 5e-5 | All memory rows |
+| Batch size | 1 | Per device |
+| Gradient accumulation | 1 | |
+| Training epochs | 1 | ~30,000 steps on static pool |
+| Resolution | 640 x 352 | Width x Height |
+| Frames per chunk | 81 | ~5.4 s at 15 fps |
+| Timestep shift | 15 | Memory baselines; context learning uses 5 |
+| Optimizer | AdamW | Via `accelerate` |
+| Backbone | Wan 2.1 T2V 1.3B | Full DiT trainable (`--trainable_models dit --save_full_model`) |
+| T2V / I2V conditioning ratio | 0.10 / 0.10 | Classifier-free guidance target-only (`--cfg_target_only`) |
+
+### Memory-Specific Parameters
+
+Each memory family introduces its own flags on top of the shared configuration:
+
+| Family | Key parameter | Values | Training flag |
+|---|---|---|---|
+| Raw context | `context_memory_frames` | 1 / 5 / 20 | `--context_memory_frames {1,5,20}` |
+| FramePack weight | `context_temporal_decay` | 0.9 | `--use_framepack_memory --context_temporal_decay 0.9` |
+| FramePack length | `framepack_ratio` | 2 or 4 | `--use_framepack_length_compress --framepack_ratio {2,4}` |
+| FramePack hybrid | decay + ratio | 0.95 + 2 or 4 | Both `--use_framepack_memory` and `--use_framepack_length_compress` |
+| Spatial memory | `spatial_memory_tokens` | 64 | `--use_spatial_memory --spatial_memory_tokens 64` |
+| Spatial inject mode | `inject_mode` | concat_text / cross_attn_readout / none | `--spatial_memory_inject_mode {mode}` |
+| SSM (block-wise) | block-wise recurrent | — | `--use_block_wise_ssm` |
+| SSM (legacy hybrid) | legacy recurrent | — | `--use_videossm_hybrid` |
+
+All training scripts share `train/_shared/common_env_memory.sh` for path resolution, environment setup, and common defaults.
 
 ## Data
 
@@ -346,6 +457,35 @@ PHASE=stage1 OOD_DIR=assets/opendomain_revisit \
 ```
 
 If an OpenAI-compatible VLM endpoint is available, add `PHASE=vlm` or run the default `PHASE=all` with `VLM_API_BASE` and `VLM_MODEL`.
+
+### Evaluation Types
+
+The evaluation suite has three complementary tiers, from fast smoke test to full generalization check:
+
+| Eval type | Script | What it tests | When to use |
+|---|---|---|---|
+| **Basic replay** | `run_basic_replay_gt.sh` | Single-video GT trajectory fidelity. Per-frame comparison against ground-truth. | Smoke test: does the model follow the ground-truth camera path? |
+| **Static consistency** | `run_static_consistency_loop_and_revisit.sh` | Multi-chunk loop closure (leave and return to the same pose) and action-combo revisit. | Paper-level evaluation: memory mechanism comparison on revisit consistency. |
+| **Open-domain revisit** | `revisit_suite/run_one_click_revisit_eval.sh` | Held-out first frames not in training data. Tests whether memory generalizes to unseen scenes. | Generalization check: does memory help on new images? |
+
+Basic replay validates action control; static consistency isolates memory quality; open-domain revisit tests generalization.
+
+### Metrics
+
+| Metric | Full name | Measures | Range | Better |
+|---|---|---|---|---|
+| **MSE** | Mean Squared Error | Per-pixel difference between generated and GT frames | 0 -- inf | Lower |
+| **PSNR** | Peak Signal-to-Noise Ratio | Signal reconstruction quality (log-scale of MSE) | 0 -- ~50 dB | Higher |
+| **SSIM** | Structural Similarity Index | Structural similarity in luminance, contrast, and structure | -1 -- 1 | Higher |
+| **LPIPS** | Learned Perceptual Image Patch Similarity | Perceptual distance using deep feature representations | 0 -- 1 | Lower |
+| **FID** | Frechet Inception Distance | Distribution-level realism of generated images | 0 -- inf | Lower |
+| **FVD** | Frechet Video Distance | Distribution-level temporal quality of generated video | 0 -- inf | Lower |
+
+### Interpreting Results
+
+- **Basic replay** outputs `replay_gt_metrics.json` with per-frame and aggregate MSE, PSNR, SSIM. PSNR above ~25 dB and SSIM above ~0.7 indicate reasonable single-chunk fidelity.
+- **Static consistency** outputs per-sample revisit metrics under `evals_v2/static_consistency/`. Compare first-frame-vs-revisit-tail MSE across memory rows: lower MSE means the model better preserved the original scene on return.
+- **Open-domain revisit** outputs frame pairs and optional VLM scores. Compare across memory families to assess which mechanism generalizes best to unseen scenes.
 
 ## Capability Metrics
 
