@@ -661,6 +661,8 @@ def launch_training_task(
     use_camera_encoder: bool = False,  # exp1_4_3: use CameraEncoder (action_mlp unused -> need find_unused_parameters)
     num_workers: int = 0,  # DataLoader workers: 0=main process, >0=parallel preload (recommend 4 for video)
     context_source: str = "fov",
+    max_train_steps: int = 0,
+    progress_total_steps: int = 0,
 ):
     prev_chunk_frames = int(prev_chunk_frames or 81)
     # num_workers>0: 子进程预加载数据，与 GPU 计算并行，减少等待
@@ -801,7 +803,20 @@ def launch_training_task(
         consecutive_none_count = 0
         max_consecutive_none = 100  # If we get 100 consecutive None values, something is wrong
         
-        for data_idx, data in enumerate(tqdm(dataloader)):
+        progress_total = int(progress_total_steps or 0)
+        if progress_total <= 0:
+            try:
+                progress_total = len(dataloader)
+            except TypeError:
+                progress_total = None
+        progress_bar = tqdm(
+            dataloader,
+            total=progress_total,
+            initial=resume_step_count if progress_total_steps else 0,
+            desc="Training steps",
+            unit="step",
+        )
+        for data_idx, data in enumerate(progress_bar):
             # Handle None data (can happen if all files in batch fail to load)
             if data is None:
                 consecutive_none_count += 1
@@ -1553,6 +1568,12 @@ def launch_training_task(
                 optimizer.step()
                 model_logger.on_step_end(loss, accelerator, model, current_batch=samples[0] if samples else None)
                 scheduler.step()
+
+                if max_train_steps and step >= max_train_steps:
+                    if accelerator.is_main_process:
+                        logger.info(f"[SMOKE] Reached max_train_steps={max_train_steps}; stopping without epoch checkpoint.")
+                    accelerator.wait_for_everyone()
+                    return
             
             # Memory Bank: add current sample to memory bank after successful training step
             # When batch_size > 1, original_data is a list; use first sample for memory add
@@ -2791,6 +2812,8 @@ if __name__ == "__main__":
     parser.add_argument("--no_camera_encoder_zero_init", action="store_true", help="Disable 0-init scale for CameraEncoder (ablation: scale init 1 instead of 0)")
     parser.add_argument("--camera_encoder_full_zero_init", action="store_true", help="GF-style: zero-init entire Linear layer (weight+bias) for merged shallow MLP")
     parser.add_argument("--num_workers", type=int, default=0, help="DataLoader workers for preloading (0=main process). 4 recommended for video I/O to parallelize with GPU.")
+    parser.add_argument("--max_train_steps", type=int, default=0, help="Stop after N successful optimizer steps (0 = disabled). Useful for smoke tests.")
+    parser.add_argument("--progress_total_steps", type=int, default=0, help="Display this many total steps in tqdm (0 = dataloader length). Useful when smoke tests stop early but should show full training target.")
     parser.add_argument("--resume_from_checkpoint", type=str, default=None, help="Resume training from checkpoint (optional)")
     # Context memory (Context-as-Memory: clean latents as context)
     parser.add_argument("--enable_context_memory", action="store_true", help="Enable Context Memory mode: use clean VAE latents as context, protect context from noise")
@@ -2808,6 +2831,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_anchor_frame", action="store_true", help="Anchor-frame memory: treat context as mandatory anchors (related: MoC mandatory anchors, key-frame persistence)")
     parser.add_argument("--context_attention_weight", type=float, default=1.0, help="Scale context token attention (e.g. <1 compress distant context, >1 emphasize; related: FAR/FramePack-style compression)")
     parser.add_argument("--context_temporal_decay", type=float, default=1.0, help="FAR/FramePack-style: per-frame decay for context (weight_i = decay^distance, 1.0=no decay)")
+    parser.add_argument("--spike_threshold", type=float, default=5.0, help="Skip optimizer step when loss/traj_loss exceeds this ratio after warmup.")
     parser.add_argument("--use_spatial_memory", action="store_true", help="Spatial Memory: append context-derived tokens to cross-attn (default: learnable SpatialGridMemory unless --use_spatial_memory_legacy)")
     parser.add_argument("--use_spatial_memory_legacy", action="store_true", help="Non-learnable adaptive pool over context tokens (old baseline; no SpatialGridMemory)")
     parser.add_argument("--spatial_memory_tokens", type=int, default=64, help="Number of spatial memory tokens M (grid output is mixed to M)")
@@ -3255,6 +3279,8 @@ if __name__ == "__main__":
         use_camera_encoder=_arg('use_camera_encoder', False),  # exp1_4_3: DDP find_unused_parameters
         num_workers=_arg('num_workers', 0),
         context_source=_arg('context_source', 'fov'),
+        max_train_steps=int(_arg('max_train_steps', 0) or 0),
+        progress_total_steps=int(_arg('progress_total_steps', 0) or 0),
     )
 
     if model_logger.wandb_logger is not None:
