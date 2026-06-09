@@ -5,8 +5,8 @@
 </div>
 
 <div align="center">
-<a href="https://doi.org/10.13140/RG.2.2.19906.34248"><img src="https://img.shields.io/badge/ResearchGate-DOI-00CCBB.svg" alt="ResearchGate DOI"></a>
-<a href="https://arxiv.org/abs/TBD"><img src="https://img.shields.io/badge/arXiv-TBD-b31b1b.svg" alt="arXiv: TBD"></a>
+<a href="https://arxiv.org/abs/2606.09803"><img src="https://img.shields.io/badge/arXiv-2606.09803-b31b1b.svg" alt="arXiv: 2606.09803"></a>
+<a href="https://arxiv.org/pdf/2606.09803"><img src="https://img.shields.io/badge/PDF-arXiv-red.svg" alt="PDF"></a>
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html"><img src="https://img.shields.io/badge/Developer%20Guide-EN%2F中文-blue" alt="Developer Guide"></a>
@@ -36,7 +36,7 @@
 
 **[2026/06]** Paper baseline checkpoints on Hugging Face: [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (Wan 2.1 1.3B, epoch-0, 30k steps). See [doc/checkpoints.md](doc/checkpoints.md).
 
-**[2026/06]** Report on [ResearchGate](https://doi.org/10.13140/RG.2.2.19906.34248) (CC BY 4.0) and [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/) released.
+**[2026/06]** Paper on [arXiv](https://arxiv.org/abs/2606.09803) ([PDF](https://arxiv.org/pdf/2606.09803)) and [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/) released.
 
 **[2026/06]** Public code: **Wan 2.1 1.3B** memory ablations, replay/revisit eval, `eval/v2/revisit_suite/`, and `assets/opendomain_revisit/`.
 
@@ -514,25 +514,23 @@ Maintainers: [Developer Guide](https://echo-team-joy-future-academy-jd.github.io
 
 ## Citation
 
-If you use this repository or the Echo-Memory report, please cite:
+If you use this repository or the Echo-Memory paper, please cite:
 
-**ResearchGate (June 2026)** · DOI [10.13140/RG.2.2.19906.34248](https://doi.org/10.13140/RG.2.2.19906.34248) · Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+**arXiv:2606.09803 (June 2026)** · [Paper](https://arxiv.org/abs/2606.09803) · [PDF](https://arxiv.org/pdf/2606.09803) · Licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ```bibtex
 @article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
-  journal={Echo-Memory technical report},
-  publisher={ResearchGate},
+  journal={arXiv preprint arXiv:2606.09803},
   year={2026},
   month={jun},
-  doi={10.13140/RG.2.2.19906.34248},
-  url={https://doi.org/10.13140/RG.2.2.19906.34248},
-  note={Licensed under CC BY 4.0}
+  eprint={2606.09803},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2606.09803}
 }
 ```
-
-arXiv preprint forthcoming — use the BibTeX above until posted.
 
 ## Star History
 

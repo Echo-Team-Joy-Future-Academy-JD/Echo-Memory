@@ -18,8 +18,7 @@
 </head>
 <body>
   <div class="scroll-progress" aria-hidden="true"><span class="scroll-progress__bar"></span></div>
-  <!-- arXiv: replace TBD with real ID when posted -->
-  <!-- Report: https://doi.org/10.13140/RG.2.2.19906.34248 (ResearchGate, CC BY 4.0) -->
+  <!-- arXiv: https://arxiv.org/abs/2606.09803 -->
   <div class="page-shell">
     <div class="ambient-bg" aria-hidden="true">
       <div class="ambient-orb ambient-orb--rose"></div>
@@ -125,10 +124,18 @@
             <div class="hero-cta-group">
               <a
                 class="cta cta--primary"
-                href="https://doi.org/10.13140/RG.2.2.19906.34248"
+                href="https://arxiv.org/abs/2606.09803"
                 target="_blank"
                 rel="noopener noreferrer"
-              >ResearchGate</a>
+                data-i18n="hero.cta.paper"
+              >Paper</a>
+              <a
+                class="cta cta--secondary"
+                href="https://arxiv.org/pdf/2606.09803"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="hero.cta.pdf"
+              >PDF</a>
               <a
                 class="cta cta--secondary"
                 href="https://huggingface.co/Echo-Team/Echo-Memory"
@@ -429,9 +436,9 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 <li class="news-item">
                   <time datetime="2026-06-05">Jun 2026</time>
                   <p data-i18n-html="updates.news1">
-                    Report on
-                    <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
-                    (CC BY 4.0) and project page released.
+                    Paper on
+                    <a href="https://arxiv.org/abs/2606.09803" target="_blank" rel="noopener noreferrer">arXiv</a>
+                    (<a href="https://arxiv.org/pdf/2606.09803" target="_blank" rel="noopener noreferrer">PDF</a>) and project page released.
                   </p>
                 </li>
                 <li class="news-item">
@@ -523,74 +530,26 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
             Echo-Memory: A Controlled Study of Memory in Action World Models (June 2026).
             Licensed under
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>.
-            Switch between ResearchGate and arXiv BibTeX below.
+            Cite the arXiv preprint below.
           </p>
-          <div class="cite-switcher" data-cite-switcher>
-            <div class="cite-chips" role="tablist" aria-label="Citation source">
-              <button
-                class="cite-chip is-active"
-                type="button"
-                role="tab"
-                aria-selected="true"
-                data-cite="researchgate"
-                data-i18n="bibtex.rg"
-              >ResearchGate</button>
-              <button
-                class="cite-chip"
-                type="button"
-                role="tab"
-                aria-selected="false"
-                data-cite="arxiv"
-                data-i18n="bibtex.arxiv"
-              >arXiv (TBD)</button>
-            </div>
-
-            <div class="cite-panel is-active" data-cite-panel="researchgate">
+          <div class="cite-switcher">
+            <div class="cite-panel is-active">
               <dl class="pub-meta">
                 <div class="pub-meta__row">
                   <dt data-i18n="bibtex.source">Source</dt>
                   <dd>
-                    <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
-                  </dd>
-                </div>
-                <div class="pub-meta__row">
-                  <dt data-i18n="bibtex.doi">DOI</dt>
-                  <dd>
-                    <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">10.13140/RG.2.2.19906.34248</a>
-                  </dd>
-                </div>
-                <div class="pub-meta__row">
-                  <dt data-i18n="bibtex.license">License</dt>
-                  <dd>CC BY 4.0</dd>
-                </div>
-              </dl>
-              <div class="bibtex-wrap">
-                <button type="button" class="copy-btn" data-copy-target="bibtex-rg-block" data-i18n="bibtex.copy">Copy</button>
-                <pre class="bibtex" id="bibtex-rg-block"><code>@article{king2026echomemory,
-  title={Echo-Memory: A Controlled Study of Memory in Action World Models},
-  author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
-  journal={Echo-Memory technical report},
-  publisher={ResearchGate},
-  year={2026},
-  month={jun},
-  doi={10.13140/RG.2.2.19906.34248},
-  url={https://doi.org/10.13140/RG.2.2.19906.34248},
-  note={Licensed under CC BY 4.0}
-}</code></pre>
-              </div>
-            </div>
-
-            <div class="cite-panel" data-cite-panel="arxiv" hidden>
-              <dl class="pub-meta">
-                <div class="pub-meta__row">
-                  <dt data-i18n="bibtex.source">Source</dt>
-                  <dd>
-                    <a href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
+                    <a href="https://arxiv.org/abs/2606.09803" target="_blank" rel="noopener noreferrer">arXiv</a>
                   </dd>
                 </div>
                 <div class="pub-meta__row">
                   <dt data-i18n="bibtex.arxivid">arXiv ID</dt>
-                  <dd>xxxx.xxxxx (pending)</dd>
+                  <dd>2606.09803</dd>
+                </div>
+                <div class="pub-meta__row">
+                  <dt data-i18n="bibtex.pdf">PDF</dt>
+                  <dd>
+                    <a href="https://arxiv.org/pdf/2606.09803" target="_blank" rel="noopener noreferrer">arxiv.org/pdf/2606.09803</a>
+                  </dd>
                 </div>
                 <div class="pub-meta__row">
                   <dt data-i18n="bibtex.license">License</dt>
@@ -602,14 +561,13 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
                 <pre class="bibtex" id="bibtex-arxiv-block"><code>@article{king2026echomemory,
   title={Echo-Memory: A Controlled Study of Memory in Action World Models},
   author={King, Wayne and Xue, Zeyue and Bian, Yuxuan and Huang, Jie and Li, Haoran and Li, Yaowei and Su, Yaofeng and Li, Yuming and Wang, Haoyu and Zhang, Shiyi and Zhang, Songchun and Niu, Yuwei and Xu, Sihan and Zhuang, Junhao and Huang, Haoyang and Duan, Nan},
-  journal={arXiv preprint arXiv:xxxx.xxxxx},
+  journal={arXiv preprint arXiv:2606.09803},
   year={2026},
   month={jun},
-  eprint={xxxx.xxxxx},
+  eprint={2606.09803},
   archivePrefix={arXiv},
   primaryClass={cs.CV},
-  url={https://arxiv.org/abs/TBD},
-  note={Licensed under CC BY 4.0. Replace xxxx.xxxxx when posted.}
+  url={https://arxiv.org/abs/2606.09803}
 }</code></pre>
               </div>
             </div>
@@ -625,8 +583,8 @@ bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
         </div>
         <div class="footer-links">
           <a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory">GitHub</a>
-          <a href="https://doi.org/10.13140/RG.2.2.19906.34248" target="_blank" rel="noopener noreferrer">ResearchGate</a>
-          <a href="https://arxiv.org/abs/TBD" title="arXiv ID pending">arXiv (TBD)</a>
+          <a href="https://arxiv.org/abs/2606.09803" target="_blank" rel="noopener noreferrer">arXiv</a>
+          <a href="https://arxiv.org/pdf/2606.09803" target="_blank" rel="noopener noreferrer">PDF</a>
           <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/" data-i18n="footer.pp">Project Page</a>
           <a href="developer.html" data-i18n="nav.developer">Developer Guide</a>
         </div>
