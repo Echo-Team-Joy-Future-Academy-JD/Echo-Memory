@@ -489,8 +489,8 @@ Basic replay validates action control; static consistency isolates memory qualit
 | **PSNR**  | Peak Signal-to-Noise Ratio | Signal reconstruction quality (log-scale of MSE) | 0 ~ 50 dB | Higher |
 | **SSIM**  | Structural Similarity Index | Structural similarity in luminance, contrast, and structure | −1 ~ 1 | Higher |
 | **LPIPS** | Learned Perceptual Image Patch Similarity | Perceptual distance using deep feature representations | 0 ~ 1 | Lower  |
-| **FID**   | Frechet Inception Distance | Distribution-level realism of generated images | 0 ~ inf | Lower  |
-| **FVD**   | Frechet Video Distance | Distribution-level temporal quality of generated video | 0 ~ inf | Lower  |
+| **FID**   | Fréchet Inception Distance | Distribution-level realism of generated images | 0 ~ inf | Lower  |
+| **FVD**   | Fréchet Video Distance | Distribution-level temporal quality of generated video | 0 ~ inf | Lower  |
 
 ### Interpreting Results
 
