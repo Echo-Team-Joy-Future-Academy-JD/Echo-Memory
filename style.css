@@ -60,7 +60,7 @@ img {
 .page-shell {
   position: relative;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   isolation: isolate;
 }
 
@@ -386,9 +386,9 @@ img {
 
 .top-nav__inner {
   min-height: var(--nav-h);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.65rem;
 }
 
@@ -425,8 +425,9 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  flex-wrap: nowrap;
+  gap: 0.8rem;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
   min-width: 0;
 }
 
@@ -456,6 +457,9 @@ img {
 }
 
 .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   background: var(--surface-2);
   color: var(--text);
@@ -464,7 +468,10 @@ img {
   padding: 0.35rem 0.7rem;
   font-size: 0.82rem;
   font-weight: 600;
+  line-height: 1;
   text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
@@ -1127,13 +1134,20 @@ img {
 }
 
 .lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--accent);
   border-radius: 999px;
+  min-height: 2.2rem;
   padding: 0.35rem 0.75rem;
   font-size: 0.78rem;
   font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.2s ease, border-color 0.2s ease;
