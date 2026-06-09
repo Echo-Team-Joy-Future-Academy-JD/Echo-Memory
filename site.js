@@ -198,13 +198,18 @@
   });
 
   function animateMetricValue(el, target) {
-    if (REDUCED_MOTION || !target || target === "—") {
-      el.textContent = target;
+    var targetText = String(target || "").trim();
+    if (REDUCED_MOTION || !targetText || targetText === "—") {
+      el.textContent = targetText || "—";
       return;
     }
-    var numeric = parseInt(String(target).replace(/,/g, ""), 10);
+    if (!/^\d[\d,]*$/.test(targetText)) {
+      el.textContent = targetText;
+      return;
+    }
+    var numeric = parseInt(targetText.replace(/,/g, ""), 10);
     if (isNaN(numeric)) {
-      el.textContent = target;
+      el.textContent = targetText;
       return;
     }
     var start = 0;
@@ -220,23 +225,87 @@
     requestAnimationFrame(step);
   }
 
-  function hydrateMetric(card) {
+  function fetchShield(url, params) {
+    try {
+      var shieldUrl = new URL(url);
+      if (params) {
+        Object.keys(params).forEach(function (key) {
+          if (params[key]) shieldUrl.searchParams.set(key, params[key]);
+        });
+      }
+
+      return fetch(shieldUrl.toString(), {
+        cache: "no-store",
+        referrerPolicy: "no-referrer",
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error("Request failed");
+          return res.json();
+        })
+        .catch(function () {
+          return null;
+        });
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  }
+
+  function normalizeBadgeValue(value, fallback) {
+    var text = String(value || "").trim();
+    if (!text) return fallback || "";
+
+    var lowered = text.toLowerCase();
+    if (["invalid", "unknown", "inaccessible", "not found", "error"].indexOf(lowered) !== -1) {
+      return fallback || "";
+    }
+
+    return text;
+  }
+
+  function formatGithubCount(value) {
+    var parsed = Number(String(value || "").replace(/,/g, "").trim());
+    if (!Number.isFinite(parsed)) return "";
+
+    return Intl.NumberFormat("en-us", {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    }).format(parsed);
+  }
+
+  function getBadgeText(data) {
+    return data && (data.message || data.value) ? data.message || data.value : "";
+  }
+
+  async function hydrateMetric(card) {
     var valueEl = card.querySelector("[data-metric-value]");
     var badgeUrl = card.getAttribute("data-badge-url");
     if (!valueEl || !badgeUrl) return;
 
-    fetch(badgeUrl, { cache: "no-store" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("Request failed");
-        return res.json();
-      })
-      .then(function (data) {
-        var val = data.value || data.message || valueEl.dataset.fallback || "—";
-        animateMetricValue(valueEl, val);
-      })
-      .catch(function () {
-        valueEl.textContent = valueEl.dataset.fallback || "—";
-      });
+    var sourceUrl = card.getAttribute("data-badge-source-url");
+    var badgeQuery = card.getAttribute("data-badge-query");
+    var badgeLabel = card.getAttribute("data-badge-label");
+    var fallbackBadgeUrl = card.getAttribute("data-fallback-badge-url");
+    var valueFormat = card.getAttribute("data-value-format");
+
+    var primaryData =
+      sourceUrl && badgeQuery
+        ? await fetchShield(badgeUrl, {
+            url: sourceUrl,
+            query: badgeQuery,
+            label: badgeLabel,
+          })
+        : await fetchShield(badgeUrl);
+
+    var primaryText = normalizeBadgeValue(getBadgeText(primaryData));
+    var formattedPrimary = valueFormat === "compact-number" ? formatGithubCount(primaryText) : "";
+    if (formattedPrimary || primaryText) {
+      animateMetricValue(valueEl, formattedPrimary || primaryText);
+      return;
+    }
+
+    var fallbackData = fallbackBadgeUrl ? await fetchShield(fallbackBadgeUrl) : null;
+    var fallbackText = normalizeBadgeValue(getBadgeText(fallbackData));
+    animateMetricValue(valueEl, fallbackText || valueEl.dataset.fallback || "—");
   }
 
   document.querySelectorAll("[data-badge-url]").forEach(function (card) {
