@@ -6,8 +6,18 @@ Both training pools share the Echo-Memory layout (`frames/`, `jsons/`, `overlap_
 
 ## Metadata CSV
 
+Download released metadata:
+
 ```bash
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
+huggingface-cli download Echo-Team/Echo-Memory-Data metadata_full.csv \
+  --repo-type dataset \
+  --local-dir "${DATASET_BASE_PATH}"
+```
+
+Or regenerate it locally after changing the pool:
+
+```bash
 bash scripts/run_generate_metadata.sh
 ```
 

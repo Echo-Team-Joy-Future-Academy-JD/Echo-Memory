@@ -411,6 +411,7 @@ Echo-Memory training and in-domain evaluation use two **training pools** that sh
 ### Static in-domain pool
 
 - **Source:** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) (~340 GB)
+- **Metadata:** [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data) (`metadata_full.csv`)
 - **Local root:** `data/Context-as-Memory-Dataset` (code default when `DATASET_BASE_PATH` is unset)
 - **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, merge zip parts, verify layout
 
@@ -418,7 +419,12 @@ Echo-Memory training and in-domain evaluation use two **training pools** that sh
 
 ```bash
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-bash scripts/run_generate_metadata.sh
+huggingface-cli download Echo-Team/Echo-Memory-Data metadata_full.csv \
+  --repo-type dataset \
+  --local-dir "${DATASET_BASE_PATH}"
+
+# Optional fallback: regenerate from frames/ + captions.txt
+# bash scripts/run_generate_metadata.sh
 ```
 
 **Latents (optional):**

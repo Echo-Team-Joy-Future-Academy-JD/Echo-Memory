@@ -86,14 +86,22 @@ Training scripts also accept `data/Context-as-Memory-Dataset` under the repo roo
 
 ---
 
-## 4. Generate training metadata (required)
+## 4. Download or generate training metadata (required)
 
-Build `metadata_full.csv` — segment list with context/target frame indices and camera RT fields used by Echo-Memory loaders:
+`metadata_full.csv` is the segment list with context/target frame indices and camera RT fields used by Echo-Memory loaders. The released static-pool metadata is hosted at [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data):
 
 ```bash
 cd /path/to/Echo-Memory
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 
+huggingface-cli download Echo-Team/Echo-Memory-Data metadata_full.csv \
+  --repo-type dataset \
+  --local-dir "${DATASET_BASE_PATH}"
+```
+
+If you modify the pool or need to rebuild metadata locally, regenerate it from `frames/` and `captions.txt`:
+
+```bash
 bash scripts/run_generate_metadata.sh
 ```
 
