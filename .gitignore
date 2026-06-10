@@ -28,6 +28,8 @@ models/
 !diffsynth/data/**/*.py
 !diffsynth/models/
 !diffsynth/models/**/*.py
+!src/data/
+!src/data/**/*.py
 
 *.log
 *.out
