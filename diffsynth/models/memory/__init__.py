@@ -11,3 +11,4 @@ from .spatial_grid_memory import (
 )
 from .videossm_hybrid import HybridStateSpaceMemory
 
+from .block_wise_ssm import BlockWiseStateSpaceMemory

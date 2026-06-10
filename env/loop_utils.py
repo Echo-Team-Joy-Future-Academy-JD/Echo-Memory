@@ -22,6 +22,8 @@ import torch.nn as nn
 from safetensors.torch import load_file as safe_load_file
 from diffsynth.pipelines.wan_video_new import WanVideoPipeline, ModelConfig
 from diffsynth.models.wan_video_dit import SelfAttention, CrossAttention, GateModule, modulate
+from diffsynth.models.memory.block_wise_ssm import BlockWiseStateSpaceMemory
+from diffsynth.models.memory.videossm_hybrid import HybridStateSpaceMemory
 
 DEFAULT_NEGATIVE_PROMPT = "oversaturated colors, overexposed, static, blurry details"
 
@@ -41,7 +43,8 @@ class MLP_CamPose(nn.Module):
 class DiTBlock_w_Action(nn.Module):
     def __init__(self, has_image_input, dim, num_heads, ffn_dim, eps=1e-6,
                  add_action_attn=False, action_use_temporal_attention=True,
-                 use_cam_pose=False):
+                 use_cam_pose=False, use_block_wise_ssm=False, use_videossm_hybrid=False,
+                 videossm_kernel_size=3, videossm_expand=2):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -63,6 +66,14 @@ class DiTBlock_w_Action(nn.Module):
         self.modulation = nn.Parameter(torch.randn(1, 6, dim) / dim**0.5)
         self.gate = GateModule()
         self.action_use_temporal_attention = action_use_temporal_attention
+        self.use_block_wise_ssm = bool(use_block_wise_ssm)
+        self.use_videossm_hybrid = bool(use_videossm_hybrid)
+        if use_block_wise_ssm:
+            self.block_wise_ssm = BlockWiseStateSpaceMemory(dim)
+        if use_videossm_hybrid:
+            self.videossm_hybrid = HybridStateSpaceMemory(
+                dim, kernel_size=videossm_kernel_size, expand=videossm_expand
+            )
 
     def forward(self, x, context, t_mod, freqs, actions=None):
         has_seq = len(t_mod.shape) == 4
@@ -74,6 +85,7 @@ class DiTBlock_w_Action(nn.Module):
                 shift_msa.squeeze(2), scale_msa.squeeze(2), gate_msa.squeeze(2),
                 shift_mlp.squeeze(2), scale_mlp.squeeze(2), gate_mlp.squeeze(2),
             )
+        num_frames = None
         if actions is not None:
             original_x = x
             actions = self.action_mlp(actions.to(x.dtype)).to(x.dtype)
@@ -95,6 +107,12 @@ class DiTBlock_w_Action(nn.Module):
                 x = x.reshape(bs, -1, dim)
         input_x = modulate(self.norm1(x), shift_msa, scale_msa)
         x = self.gate(x, gate_msa, self.self_attn(input_x, freqs))
+        if num_frames is not None:
+            if hasattr(self, "block_wise_ssm"):
+                x = self.block_wise_ssm(x, f=num_frames)
+            if hasattr(self, "videossm_hybrid"):
+                spatial = x.shape[1] // int(num_frames) if int(num_frames) > 0 else 0
+                x = self.videossm_hybrid(x, f=num_frames, h=1, w=spatial)
         x = x + self.cross_attn(self.norm3(x), context)
         input_x = modulate(self.norm2(x), shift_mlp, scale_mlp)
         x = self.gate(x, gate_mlp, self.ffn(input_x))
@@ -181,7 +199,13 @@ def sample_trajectory_samples_from_dataset(dataset_base, num_samples=4, num_fram
 
 # ── Pipeline loading (VWM-style) ──────────────────────────────────────────
 
-def _build_action_blocks(pipe, add_action_attn=False, action_use_temporal_attention=True):
+def _build_action_blocks(
+    pipe,
+    add_action_attn=False,
+    action_use_temporal_attention=True,
+    block_wise_block_ids=None,
+    videossm_block_ids=None,
+):
     """Replace DiT blocks with DiTBlock_w_Action (VWM cam_infer.py style)."""
     dit = pipe.dit
     old_blocks = dit.blocks
@@ -194,14 +218,19 @@ def _build_action_blocks(pipe, add_action_attn=False, action_use_temporal_attent
     block_dtype = next(old_blocks[0].parameters()).dtype
     block_device = next(old_blocks[0].parameters()).device
 
+    block_wise_block_ids = set(block_wise_block_ids or [])
+    videossm_block_ids = set(videossm_block_ids or [])
+
     new_blocks = torch.nn.ModuleList()
-    for old_block in old_blocks:
+    for block_id, old_block in enumerate(old_blocks):
         new_block = DiTBlock_w_Action(
             has_image_input=has_image_input,
             dim=dim, num_heads=num_heads, ffn_dim=ffn_dim, eps=eps,
             add_action_attn=add_action_attn,
             action_use_temporal_attention=action_use_temporal_attention,
             use_cam_pose=True,
+            use_block_wise_ssm=block_id in block_wise_block_ids,
+            use_videossm_hybrid=block_id in videossm_block_ids,
         )
         new_block = new_block.to(dtype=block_dtype, device=block_device)
         for attr in ("self_attn", "cross_attn", "norm1", "norm2", "norm3", "ffn"):
@@ -214,6 +243,10 @@ def _build_action_blocks(pipe, add_action_attn=False, action_use_temporal_attent
 
     dit.blocks = new_blocks
     print(f"[loop_utils] Replaced {len(new_blocks)} blocks with DiTBlock_w_Action (MLP_CamPose)")
+    if block_wise_block_ids:
+        print(f"[loop_utils] Loaded Block-wise SSM slots on blocks: {sorted(block_wise_block_ids)[:8]}{'...' if len(block_wise_block_ids) > 8 else ''}")
+    if videossm_block_ids:
+        print(f"[loop_utils] Loaded VideoSSM hybrid slots on blocks: {sorted(videossm_block_ids)[:8]}{'...' if len(videossm_block_ids) > 8 else ''}")
 
 
 def load_pipeline_and_ckpt(
@@ -244,15 +277,34 @@ def load_pipeline_and_ckpt(
         model_configs=model_configs,
     )
 
-    # Replace blocks with DiTBlock_w_Action
-    _build_action_blocks(pipe, add_action_attn=add_action_attn,
-                         action_use_temporal_attention=action_use_temporal_attention)
+    ckpt = None
+    block_wise_block_ids = set()
+    videossm_block_ids = set()
+    if ckpt_path and os.path.isfile(ckpt_path):
+        ckpt = safe_load_file(ckpt_path)
+        for key in ckpt.keys():
+            m = re.match(r"blocks\.(\d+)\.block_wise_ssm\.", key)
+            if m:
+                block_wise_block_ids.add(int(m.group(1)))
+            m = re.match(r"blocks\.(\d+)\.videossm_hybrid\.", key)
+            if m:
+                videossm_block_ids.add(int(m.group(1)))
+
+    # Replace blocks with DiTBlock_w_Action, including memory slots implied by ckpt keys.
+    _build_action_blocks(
+        pipe,
+        add_action_attn=add_action_attn,
+        action_use_temporal_attention=action_use_temporal_attention,
+        block_wise_block_ids=block_wise_block_ids,
+        videossm_block_ids=videossm_block_ids,
+    )
 
     # Load ckpt (strict=False: base model keys match, action_mlp keys are extra)
     if ckpt_path and not os.path.isfile(ckpt_path):
         print(f"[loop_utils] WARNING: ckpt not found: {ckpt_path} — running with base model weights only!")
     if ckpt_path and os.path.isfile(ckpt_path):
-        ckpt = safe_load_file(ckpt_path)
+        if ckpt is None:
+            ckpt = safe_load_file(ckpt_path)
         missing, unexpected = pipe.dit.load_state_dict(ckpt, strict=False)
         action_keys = [k for k in ckpt if "action_mlp" in k]
         if not missing and not unexpected:

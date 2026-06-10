@@ -1,29 +1,31 @@
 # Static in-domain pool — download & preprocessing
 
-Echo-Memory’s **static in-domain pool** is sourced from [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) on Hugging Face (Kling Team, SIGGRAPH Asia 2025; [arXiv:2506.03141](https://arxiv.org/abs/2506.03141)). Total size is about **340 GB** — plan disk space before downloading.
+Echo-Memory’s **static in-domain pool** is released through [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data) as tar parts under `static_pool_tar_parts/`. The underlying pool is sourced from [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) on Hugging Face (Kling Team, SIGGRAPH Asia 2025; [arXiv:2506.03141](https://arxiv.org/abs/2506.03141)). Total size is about **340 GB** — plan disk space before downloading and unpacking.
 
 ---
 
 ## 1. Download
 
-### Option A — Hugging Face CLI
+### Option A — Echo-Team packaged release
 
 ```bash
 pip install -U "huggingface_hub[cli]"
 
-# login if the repo requires authentication
-# huggingface-cli login
+mkdir -p data
 
-huggingface-cli download KlingTeam/Context-as-Memory-Dataset \
+huggingface-cli download Echo-Team/Echo-Memory-Data \
   --repo-type dataset \
-  --local-dir ./data/Context-as-Memory-Dataset-hf
+  --include "static_pool_tar_parts/*" \
+  --local-dir ./data/echo-memory-data-release
+
+cat ./data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.part-* | tar -xf - -C ./data
 ```
 
-If the dataset is shipped as split zip parts on Hugging Face, merge them first (see Option B), then extract into a single root folder.
+You should end up with `data/Context-as-Memory-Dataset/`.
 
-### Option B — merge split zip parts (official layout)
+### Option B — original KlingTeam source
 
-From the [dataset card](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset):
+If you prefer the upstream release, download or merge the original parts from the [KlingTeam dataset card](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset):
 
 ```bash
 mkdir -p data
@@ -57,7 +59,8 @@ data/Context-as-Memory-Dataset/
 │   │   ├── 0.json
 │   │   └── ...
 │   └── ...
-└── captions.txt         # segment captions (optional for some workflows)
+├── captions.txt         # segment captions (optional for some workflows)
+└── metadata_full.csv    # released Echo-Memory segment metadata
 ```
 
 Quick sanity check:
@@ -86,9 +89,9 @@ Training scripts also accept `data/Context-as-Memory-Dataset` under the repo roo
 
 ---
 
-## 4. Download or generate training metadata (required)
+## 4. Metadata (required)
 
-`metadata_full.csv` is the segment list with context/target frame indices and camera RT fields used by Echo-Memory loaders. The released static-pool metadata is hosted at [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data):
+`metadata_full.csv` is included in the Echo-Team packaged release. If you downloaded the upstream KlingTeam source instead, fetch the released metadata into the pool root:
 
 ```bash
 cd /path/to/Echo-Memory

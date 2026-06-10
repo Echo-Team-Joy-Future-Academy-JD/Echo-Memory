@@ -46,10 +46,10 @@ python inference/unified_inference.py \
 | `spatial_concat_text` | Spatial | Spatial memory via text KV concatenation |
 | `spatial_inject_none` | Spatial | Spatial memory with withheld read-out |
 | `spatial_cross_attn_readout` | Spatial | Spatial memory via cross-attention |
-| `videossm_hybrid` | State-space | Legacy hybrid SSM |
-| `block_wise_ssm` | State-space | Block-wise recurrent SSM |
+| `videossm_hybrid` | State-space | Legacy VideoSSM hybrid (temporal-conv baseline) |
+| `block_wise_ssm` | State-space | Block-wise recurrent SSM (paper-aligned) |
 
-Run `python inference/unified_inference.py --help` for full argument reference.
+Run `python inference/unified_inference.py --help` for full argument reference. See [`doc/memory_mechanisms.md`](../../doc/memory_mechanisms.md) for paper-row naming and implementation paths.
 
 ## Legacy Scripts
 

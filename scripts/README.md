@@ -6,7 +6,7 @@ Both training pools share the Echo-Memory layout (`frames/`, `jsons/`, `overlap_
 
 ## Metadata CSV
 
-Download released metadata:
+The Echo-Team packaged static pool already includes `metadata_full.csv`. If you downloaded the upstream pool without metadata, fetch the released metadata:
 
 ```bash
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset

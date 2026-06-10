@@ -2,7 +2,7 @@
 
 **Repo:** [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory)
 
-Fine-tuned DiT weights on top of [Wan-AI/Wan2.1-T2V-1.3B](https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B). Each row is saved as `{row_id}/epoch-0.safetensors` after **1 epoch / 30,000 steps** on the static in-domain pool (640×352, 81-frame chunks).
+Fine-tuned DiT weights on top of [Wan-AI/Wan2.1-T2V-1.3B](https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B). Each row is saved as `{row_id}/epoch-0.safetensors` after **1 epoch / 30,000 steps** on the static in-domain pool (640×352, 81-frame chunks). Mechanism names follow [memory_mechanisms.md](memory_mechanisms.md).
 
 ## Checkpoint index
 

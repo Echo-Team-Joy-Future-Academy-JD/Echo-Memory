@@ -43,6 +43,8 @@ class MemoryProfile:
     use_spatial_memory_legacy: bool = False  # True = old adaptive pool only (no SpatialGridMemory in ckpt)
     spatial_memory_tokens: int = 64
     spatial_memory_inject_mode: Optional[str] = None
+    use_block_wise_ssm: bool = False
+    use_videossm_hybrid: bool = False
     # Training uses context_memory_frames=5 for memory_baselines_basic
     context_override: Optional[int] = None
 
@@ -299,18 +301,18 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
         ),
         paper_tag="legacy_hybrid",
         train_flags=("--use_videossm_hybrid", "--context_memory_frames 5"),
-        infer_flags=("load_pipeline_and_ckpt auto-infers VideoSSM from ckpt keys",),
+        infer_flags=("load_pipeline_and_ckpt auto-infers VideoSSM hybrid from videossm_hybrid.* ckpt keys",),
         eval_flags=("--context_frames 5",),
-        profile=MemoryProfile(context_override=5),
+        profile=MemoryProfile(use_videossm_hybrid=True, context_override=5),
     ),
     MemoryProfileSpec(
         profile_id="block_wise_ssm_two_chunk",
         ckpt_substrings=("memory_baselines_basic_abl_block_wise_ssm_two_chunk",),
         paper_tag="block_wise_recurrence",
         train_flags=("--use_block_wise_ssm", "--context_memory_frames 5"),
-        infer_flags=("load_pipeline_and_ckpt auto-infers block-wise SSM from ckpt keys",),
+        infer_flags=("load_pipeline_and_ckpt auto-infers Block-wise SSM from block_wise_ssm.* ckpt keys",),
         eval_flags=("--context_frames 5",),
-        profile=MemoryProfile(context_override=5),
+        profile=MemoryProfile(use_block_wise_ssm=True, context_override=5),
     ),
     MemoryProfileSpec(
         profile_id="no_memory_extra_two_chunk",
@@ -388,6 +390,10 @@ def profile_to_argv(p: MemoryProfile) -> List[str]:
             out.extend(["--spatial_memory_inject_mode", str(p.spatial_memory_inject_mode)])
         if p.use_spatial_memory_legacy:
             out.append("--use_spatial_memory_legacy")
+    if p.use_block_wise_ssm:
+        out.append("--use_block_wise_ssm")
+    if p.use_videossm_hybrid:
+        out.append("--use_videossm_hybrid")
     return out
 
 
@@ -418,6 +424,8 @@ def apply_memory_baseline_pipe(pipe, ckpt: str) -> None:
     if getattr(p, "spatial_memory_inject_mode", None):
         pipe.spatial_memory_inject_mode = str(p.spatial_memory_inject_mode)
     pipe.use_spatial_memory_legacy = bool(p.use_spatial_memory_legacy)
+    pipe.use_block_wise_ssm = bool(p.use_block_wise_ssm)
+    pipe.use_videossm_hybrid = bool(p.use_videossm_hybrid)
     # 与 run_replay_loop_two_chunk 一致：宣称 SpatialGridMemory 但 ckpt 未载入模块时，避免 silent 与训练不一致
     if (
         pipe.use_spatial_memory

@@ -112,7 +112,7 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 </div>
 
 <p align="center">
-<b>Memory design matrix.</b> The paper groups concrete variants by what is stored and how it is read back: raw context, compressed history, spatial state, or recurrent state-space memory.
+<b>Memory design matrix.</b> The paper groups concrete variants by what is stored and how it is read back: raw context, compressed history, spatial state, or recurrent state-space memory. See [`doc/memory_mechanisms.md`](doc/memory_mechanisms.md) for the paper-row to implementation mapping.
 </p>
 
 <div align="center">
@@ -213,10 +213,13 @@ Evaluate a released checkpoint end-to-end in three steps:
 # 1. Download the Wan 2.1 base model
 huggingface-cli download Wan-AI/Wan2.1-T2V-1.3B --local-dir ./Wan2.1-T2V-1.3B
 
-# 2. Download the static in-domain eval pool (~340 GB)
-huggingface-cli download KlingTeam/Context-as-Memory-Dataset --repo-type dataset --local-dir ./data/Context-as-Memory-Dataset
+# 2. Download and unpack the static in-domain eval pool (~340 GB)
+huggingface-cli download Echo-Team/Echo-Memory-Data \
+  --repo-type dataset \
+  --include "static_pool_tar_parts/*" \
+  --local-dir ./data/echo-memory-data-release
+cat ./data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.part-* | tar -xf - -C ./data
 export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
-bash scripts/run_generate_metadata.sh
 
 # 3. Download a checkpoint and run evaluation
 huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
@@ -305,8 +308,8 @@ Switch memory type via `--memory_type` (default: `auto` — detects from checkpo
 | `spatial_concat_text` | Spatial | Spatial memory via text KV concatenation |
 | `spatial_inject_none` | Spatial | Spatial memory with withheld read-out |
 | `spatial_cross_attn_readout` | Spatial | Spatial memory via cross-attention |
-| `videossm_hybrid` | State-space | Legacy hybrid SSM |
-| `block_wise_ssm` | State-space | Block-wise recurrent SSM |
+| `videossm_hybrid` | State-space | Legacy VideoSSM hybrid (temporal-conv baseline) |
+| `block_wise_ssm` | State-space | Block-wise recurrent SSM (paper-aligned) |
 
 Add `--context_image` for first-frame conditioning and `--action_path` for camera trajectory control:
 
@@ -390,8 +393,8 @@ Each memory family introduces its own flags on top of the shared configuration:
 | FramePack hybrid | decay + ratio | 0.95 + 2 or 4 | Both `--use_framepack_memory` and `--use_framepack_length_compress` |
 | Spatial memory | `spatial_memory_tokens` | 64 | `--use_spatial_memory --spatial_memory_tokens 64` |
 | Spatial inject mode | `inject_mode` | concat_text / cross_attn_readout / none | `--spatial_memory_inject_mode {mode}` |
-| SSM (block-wise) | block-wise recurrent | — | `--use_block_wise_ssm` |
-| SSM (legacy hybrid) | legacy recurrent | — | `--use_videossm_hybrid` |
+| SSM (block-wise) | block-wise recurrent | `diffsynth/models/memory/block_wise_ssm.py` | `--use_block_wise_ssm` |
+| SSM (legacy hybrid) | temporal-conv hybrid | `diffsynth/models/memory/videossm_hybrid.py` | `--use_videossm_hybrid` |
 
 All training scripts share `train/_shared/common_env_memory.sh` for path resolution, environment setup, and common defaults.
 
@@ -410,21 +413,20 @@ Echo-Memory training and in-domain evaluation use two **training pools** that sh
 
 ### Static in-domain pool
 
-- **Source:** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) (~340 GB)
-- **Metadata:** [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data) (`metadata_full.csv`)
+- **Release:** [Echo-Team/Echo-Memory-Data](https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data) (`static_pool_tar_parts/`, includes `metadata_full.csv`)
+- **Original source:** [KlingTeam/Context-as-Memory-Dataset](https://huggingface.co/datasets/KlingTeam/Context-as-Memory-Dataset) (~340 GB)
 - **Local root:** `data/Context-as-Memory-Dataset` (code default when `DATASET_BASE_PATH` is unset)
-- **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, merge zip parts, verify layout
+- **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, unpack tar parts, verify layout
 
-**Metadata (required):**
+**Download released pool:**
 
 ```bash
-export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-huggingface-cli download Echo-Team/Echo-Memory-Data metadata_full.csv \
+huggingface-cli download Echo-Team/Echo-Memory-Data \
   --repo-type dataset \
-  --local-dir "${DATASET_BASE_PATH}"
-
-# Optional fallback: regenerate from frames/ + captions.txt
-# bash scripts/run_generate_metadata.sh
+  --include "static_pool_tar_parts/*" \
+  --local-dir data/echo-memory-data-release
+cat data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.part-* | tar -xf - -C data
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 ```
 
 **Latents (optional):**

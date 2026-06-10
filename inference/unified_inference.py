@@ -135,6 +135,8 @@ def apply_profile_to_pipe(pipe, profile: MemoryProfile) -> None:
     if profile.spatial_memory_inject_mode:
         pipe.spatial_memory_inject_mode = str(profile.spatial_memory_inject_mode)
     pipe.use_spatial_memory_legacy = bool(profile.use_spatial_memory_legacy)
+    pipe.use_block_wise_ssm = bool(getattr(profile, "use_block_wise_ssm", False))
+    pipe.use_videossm_hybrid = bool(getattr(profile, "use_videossm_hybrid", False))
     # Warn if spatial memory requested but module not loaded from checkpoint
     if (
         pipe.use_spatial_memory
@@ -166,8 +168,8 @@ Memory types:
   spatial_concat_text   Spatial memory via text KV concatenation
   spatial_inject_none   Spatial memory with withheld read-out
   spatial_cross_attn_readout  Spatial memory via cross-attention
-  videossm_hybrid       Legacy hybrid SSM
-  block_wise_ssm        Block-wise recurrent SSM
+  videossm_hybrid       Legacy VideoSSM hybrid (temporal-conv baseline)
+  block_wise_ssm        Block-wise recurrent SSM (paper-aligned)
 """,
     )
 

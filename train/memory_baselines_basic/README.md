@@ -1,6 +1,6 @@
 # Memory Baselines Basic: FramePack, Spatial, and State-Space
 
-This folder contains the public training recipes for the paper's controlled memory-design matrix. The scripts vary only the memory/context profile while keeping the backbone, optimizer, action conditioning, and evaluation interface aligned.
+This folder contains the public training recipes for the paper's controlled memory-design matrix. See `../../doc/memory_mechanisms.md` for the concise paper-row to implementation map. The scripts vary only the memory/context profile while keeping the backbone, optimizer, action conditioning, and evaluation interface aligned.
 
 ## Paper Rows and Code Mapping
 
@@ -10,8 +10,8 @@ This folder contains the public training recipes for the paper's controlled memo
 | FramePack-Length | Temporal mean pooling over context latents with matched RT-action padding and pooling. | `diffsynth/models/memory/framepack_length.py` |
 | Hybrid FramePack | Length compression plus token weighting. | `wan_video_new.py` memory path plus FramePack helpers |
 | Spatial Memory | Time-mean context summary to spatial grid tokens, injected by a selected read-out path. | `diffsynth/models/memory/spatial_grid_memory.py` |
-| Block-wise SSM | Paper-aligned recurrent state inside DiT blocks. | `--use_block_wise_ssm` |
-| VideoSSM hybrid | Legacy lightweight temporal-convolution state-space baseline. | `diffsynth/models/memory/videossm_hybrid.py` |
+| Block-wise SSM | Paper-aligned recurrent state inside selected DiT blocks. | `diffsynth/models/memory/block_wise_ssm.py` + `--use_block_wise_ssm` |
+| VideoSSM hybrid | Legacy lightweight temporal-convolution state-space baseline; kept separate from Block-wise SSM. | `diffsynth/models/memory/videossm_hybrid.py` + `--use_videossm_hybrid` |
 
 ## Two-Chunk Ablation Scripts
 

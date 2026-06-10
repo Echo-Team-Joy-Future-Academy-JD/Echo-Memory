@@ -50,6 +50,7 @@ modules_to_clear = [
     'diffsynth.models.memory.framepack_weight',
     'diffsynth.models.memory.spatial_grid_memory',
     'diffsynth.models.memory.videossm_hybrid',
+    'diffsynth.models.memory.block_wise_ssm',
     'diffsynth.models.memory',
     'diffsynth.pipelines.wan_video_new',
     'diffsynth.trainers.utils',
@@ -75,6 +76,7 @@ from diffsynth.pipelines.wan_video_new import WanVideoPipeline, ModelConfig
 from diffsynth.trainers.utils import DiffusionTrainingModule, ModelLogger as BaseModelLogger, VideoDataset, CamVideoDataset, wan_parser
 from diffsynth.models.wan_video_dit import SelfAttention, CrossAttention, GateModule, modulate
 from diffsynth.models.memory.videossm_hybrid import HybridStateSpaceMemory
+from diffsynth.models.memory.block_wise_ssm import BlockWiseStateSpaceMemory
 
 # Verify we're using local code (simple check, no blocking operations)
 try:
@@ -164,7 +166,9 @@ class MLP_CamPose(nn.Module):
 class DiTBlock_w_Action(nn.Module):
     def __init__(self, has_image_input: bool, dim: int, num_heads: int, ffn_dim: int,
                  eps: float = 1e-6, add_action_attn=False,
-                 action_use_temporal_attention: bool = True, use_cam_pose: bool = False):
+                 action_use_temporal_attention: bool = True, use_cam_pose: bool = False,
+                 use_block_wise_ssm: bool = False, use_videossm_hybrid: bool = False,
+                 videossm_kernel_size: int = 3, videossm_expand: int = 2):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -188,6 +192,14 @@ class DiTBlock_w_Action(nn.Module):
         self.modulation = nn.Parameter(torch.randn(1, 6, dim) / dim**0.5)
         self.gate = GateModule()
         self.action_use_temporal_attention = action_use_temporal_attention
+        self.use_block_wise_ssm = bool(use_block_wise_ssm)
+        self.use_videossm_hybrid = bool(use_videossm_hybrid)
+        if use_block_wise_ssm:
+            self.block_wise_ssm = BlockWiseStateSpaceMemory(dim)
+        if use_videossm_hybrid:
+            self.videossm_hybrid = HybridStateSpaceMemory(
+                dim, kernel_size=videossm_kernel_size, expand=videossm_expand
+            )
 
     def forward(self, x, context, t_mod, freqs, actions=None):
         has_seq = len(t_mod.shape) == 4
@@ -200,6 +212,7 @@ class DiTBlock_w_Action(nn.Module):
                 shift_mlp.squeeze(2), scale_mlp.squeeze(2), gate_mlp.squeeze(2),
             )
 
+        num_frames = None
         if actions is not None:
             original_x = x
             actions = self.action_mlp(actions.to(x.dtype)).to(x.dtype)
@@ -222,6 +235,12 @@ class DiTBlock_w_Action(nn.Module):
 
         input_x = modulate(self.norm1(x), shift_msa, scale_msa)
         x = self.gate(x, gate_msa, self.self_attn(input_x, freqs))
+        if num_frames is not None:
+            if hasattr(self, "block_wise_ssm"):
+                x = self.block_wise_ssm(x, f=num_frames)
+            if hasattr(self, "videossm_hybrid"):
+                spatial = x.shape[1] // int(num_frames) if int(num_frames) > 0 else 0
+                x = self.videossm_hybrid(x, f=num_frames, h=1, w=spatial)
         x = x + self.cross_attn(self.norm3(x), context)
         input_x = modulate(self.norm2(x), shift_mlp, scale_mlp)
         x = self.gate(x, gate_mlp, self.ffn(input_x))
@@ -3150,14 +3169,25 @@ if __name__ == "__main__":
         if block_dtype is None:
             block_dtype = torch.float32
 
+        use_block_wise_ssm = bool(_arg('use_block_wise_ssm', False))
+        use_videossm_hybrid = bool(_arg('use_videossm_hybrid', False))
+        ssm_every_n = max(int(_arg('ssm_every_n_blocks', 4) or 4), 1)
+        videossm_every_n = max(int(_arg('videossm_every_n_blocks', 4) or 4), 1)
+
         new_blocks = nn.ModuleList()
-        for old_block in old_blocks:
+        for block_id, old_block in enumerate(old_blocks):
+            attach_block_ssm = use_block_wise_ssm and (block_id % ssm_every_n == 0)
+            attach_videossm = use_videossm_hybrid and (block_id % videossm_every_n == 0)
             new_block = DiTBlock_w_Action(
                 has_image_input=has_image_input,
                 dim=dim, num_heads=num_heads, ffn_dim=ffn_dim, eps=eps,
                 add_action_attn=_arg('add_action_attn', False),
                 action_use_temporal_attention=_arg('action_use_temporal_attention', False),
                 use_cam_pose=_use_cam_pose,
+                use_block_wise_ssm=attach_block_ssm,
+                use_videossm_hybrid=attach_videossm,
+                videossm_kernel_size=int(_arg('videossm_kernel_size', 3) or 3),
+                videossm_expand=int(_arg('videossm_expand', 2) or 2),
             )
             new_block = new_block.to(dtype=block_dtype, device=next(old_block.parameters()).device)
             for attr in ("self_attn", "cross_attn", "norm1", "norm2", "norm3", "ffn"):
@@ -3171,6 +3201,10 @@ if __name__ == "__main__":
         dit.blocks = new_blocks
         _mlp_type = "MLP_CamPose" if _use_cam_pose else "MLP_Action"
         logger.info(f"[VWM-style] Replaced {len(new_blocks)} DiT blocks with DiTBlock_w_Action ({_mlp_type}, zero-init)")
+        if use_block_wise_ssm:
+            logger.info(f"[Block-wise SSM] attached to every {ssm_every_n} DiT block(s)")
+        if use_videossm_hybrid:
+            logger.info(f"[VideoSSM hybrid] attached to every {videossm_every_n} DiT block(s)")
 
         device = next(dit.parameters()).device
         _ckpt_path = _arg('ckpt_path', None) or _arg('resume_from_checkpoint', None)
@@ -3184,21 +3218,21 @@ if __name__ == "__main__":
             if _arg('add_action_attn', False):
                 for block in dit.blocks:
                     for name, param in block.named_parameters():
-                        if ("action_mlp" in name) or ("self_attn_with_action" in name):
+                        if ("action_mlp" in name) or ("self_attn_with_action" in name) or ("block_wise_ssm" in name) or ("videossm_hybrid" in name):
                             param.requires_grad = True
                         else:
                             param.requires_grad = False
             else:
                 for block in dit.blocks:
                     for name, param in block.named_parameters():
-                        if "action_mlp" in name or "self_attn" in name:
+                        if "action_mlp" in name or "self_attn" in name or "block_wise_ssm" in name or "videossm_hybrid" in name:
                             param.requires_grad = True
                         else:
                             param.requires_grad = False
         else:
             for block in dit.blocks:
                 for name, param in block.named_parameters():
-                    if "action_mlp" in name or "self_attn_with_action" in name:
+                    if "action_mlp" in name or "self_attn_with_action" in name or "block_wise_ssm" in name or "videossm_hybrid" in name:
                         param.requires_grad = True
                     else:
                         param.requires_grad = False

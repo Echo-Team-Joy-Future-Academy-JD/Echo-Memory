@@ -193,6 +193,8 @@ def inspect_ckpt_keys(ckpt: str) -> dict[str, Any]:
         "action_mlp": "action_mlp",
         "self_attn_with_action": "self_attn_with_action",
         "spatial_memory_module": "spatial_memory_module",
+        "block_wise_ssm": "block_wise_ssm",
+        "videossm_hybrid": "videossm_hybrid",
         "ssm": "ssm",
     }
     counts = {name: 0 for name in tokens}
@@ -211,6 +213,8 @@ def inspect_ckpt_keys(ckpt: str) -> dict[str, Any]:
         "has_action_mlp_keys": counts["action_mlp"] > 0,
         "has_action_attention_keys": counts["self_attn_with_action"] > 0,
         "has_spatial_memory_module_keys": counts["spatial_memory_module"] > 0,
+        "has_block_wise_ssm_keys": counts["block_wise_ssm"] > 0,
+        "has_videossm_hybrid_keys": counts["videossm_hybrid"] > 0,
         "has_ssm_keys": counts["ssm"] > 0,
     }
 

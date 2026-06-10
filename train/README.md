@@ -12,7 +12,7 @@ export OUTPUT_BASE_ROOT=$PWD/outputs
 
 ## Memory Baselines
 
-`train/memory_baselines_basic/` contains the public memory baseline recipes:
+`train/memory_baselines_basic/` contains the public memory baseline recipes (mechanism mapping: [`../doc/memory_mechanisms.md`](../doc/memory_mechanisms.md)):
 
 - `run_ablation_no_memory_baseline_two_chunk.sh`: anchor/no-extra-memory reference.
 - `run_ablation_framepack_weight_two_chunk.sh`: token weighting without length reduction.
@@ -24,9 +24,9 @@ export OUTPUT_BASE_ROOT=$PWD/outputs
 - `run_ablation_spatial_inject_none_two_chunk.sh`: spatial storage with withheld read-out.
 - `run_ablation_spatial_concat_text_two_chunk.sh`: spatial memory read through text KV concatenation.
 - `run_ablation_spatial_cross_attn_readout_two_chunk.sh`: spatial memory read through dedicated cross-attention.
-- `run_videossm_hybrid_baseline.sh`: legacy VideoSSM hybrid memory.
+- `run_videossm_hybrid_baseline.sh`: legacy VideoSSM hybrid memory (`videossm_hybrid.*` checkpoint keys).
 - `run_ablation_videossm_hybrid_two_chunk.sh`: legacy VideoSSM with the paper two-chunk monitor.
-- `run_ablation_block_wise_ssm_two_chunk.sh`: paper-aligned block-wise SSM recipe.
+- `run_ablation_block_wise_ssm_two_chunk.sh`: paper-aligned block-wise SSM recipe (`block_wise_ssm.*` checkpoint keys).
 - `run_all_ablations_two_chunk.sh`: convenience launcher for the full ablation set.
 
 The two-chunk scripts share `common_sampling_two_chunk.sh` and expose `CKPT_INTERVAL`, `TIMESTEP_SHIFT`, `SAMPLING_INTERVAL_STEPS`, `SAMPLING_NUM_INFERENCE_STEPS`, `SAMPLING_HEIGHT`, `SAMPLING_WIDTH`, and `SAMPLING_NUM_FRAMES` as environment overrides.

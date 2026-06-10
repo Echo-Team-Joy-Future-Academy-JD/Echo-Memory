@@ -171,6 +171,8 @@ def flat_row(metrics_path: Path, eval_root: Path) -> dict[str, Any]:
         "spatial_memory_inject_mode": align.get("spatial_memory_inject_mode"),
         "ckpt_has_camera_encoder_keys": key_ev.get("has_camera_encoder_keys"),
         "ckpt_has_spatial_memory_module_keys": key_ev.get("has_spatial_memory_module_keys"),
+        "ckpt_has_block_wise_ssm_keys": key_ev.get("has_block_wise_ssm_keys"),
+        "ckpt_has_videossm_hybrid_keys": key_ev.get("has_videossm_hybrid_keys"),
         "ckpt_has_ssm_keys": key_ev.get("has_ssm_keys"),
         "initial_context_source": init_ctx.get("training_memory_source"),
         "initial_context_detail": init_ctx.get("context_source_detail"),
