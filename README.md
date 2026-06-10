@@ -213,11 +213,14 @@ Evaluate a released checkpoint end-to-end in three steps:
 # 1. Download the Wan 2.1 base model
 huggingface-cli download Wan-AI/Wan2.1-T2V-1.3B --local-dir ./Wan2.1-T2V-1.3B
 
-# 2. Download and unpack the static in-domain eval pool (~340 GB)
+# 2. Download, verify, and unpack the static in-domain eval pool (~340 GB)
+mkdir -p ./data
 huggingface-cli download Echo-Team/Echo-Memory-Data \
   --repo-type dataset \
   --include "static_pool_tar_parts/*" \
   --local-dir ./data/echo-memory-data-release
+
+sha256sum -c ./data/echo-memory-data-release/static_pool_tar_parts/SHA256SUMS
 cat ./data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.part-* | tar -xf - -C ./data
 export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
 
@@ -327,7 +330,7 @@ Full argument reference: `python inference/unified_inference.py --help`. Additio
 
 ## Training
 
-Memory baseline recipes live in `train/memory_baselines_basic/`. These map to the paper matrix:
+Memory baseline recipes live in `train/memory_baselines_basic/`. The modeling view and paper-row mapping are documented in [`doc/memory_mechanisms.md`](doc/memory_mechanisms.md). These scripts map to the paper matrix:
 
 ```bash
 bash train/memory_baselines_basic/run_ablation_no_memory_baseline_two_chunk.sh
@@ -418,16 +421,37 @@ Echo-Memory training and in-domain evaluation use two **training pools** that sh
 - **Local root:** `data/Context-as-Memory-Dataset` (code default when `DATASET_BASE_PATH` is unset)
 - **Guide:** [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md) — download, unpack tar parts, verify layout
 
-**Download released pool:**
+**One-shot download, verify, and unpack:**
 
 ```bash
+mkdir -p data
 huggingface-cli download Echo-Team/Echo-Memory-Data \
   --repo-type dataset \
   --include "static_pool_tar_parts/*" \
   --local-dir data/echo-memory-data-release
+
+sha256sum -c data/echo-memory-data-release/static_pool_tar_parts/SHA256SUMS
 cat data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.part-* | tar -xf - -C data
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 ```
+
+After unpacking, `DATASET_BASE_PATH` is ready for training, inference, and in-domain evaluation. The tar archive already contains `metadata_full.csv`, so no metadata regeneration is required for the released pool.
+
+If you modify the pool or want a smaller custom training index, regenerate metadata locally:
+
+```bash
+export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
+
+# Full metadata rebuild.
+bash scripts/run_generate_metadata.sh
+
+# Optional small/custom metadata for smoke tests or reduced-size training.
+OUTPUT_CSV="${DATASET_BASE_PATH}/metadata_1000.csv" \
+METADATA_MAX_ROWS=1000 \
+bash scripts/run_generate_metadata.sh
+```
+
+Use the custom CSV by passing `--dataset_metadata_path "${DATASET_BASE_PATH}/metadata_1000.csv"` in training/eval commands.
 
 **Latents (optional):**
 

@@ -1,6 +1,18 @@
 # Memory Mechanisms
 
-This note keeps repository names aligned with the paper tables. It is intentionally short; use the training scripts for exact hyperparameters.
+This note maps the paper's memory rows to the repository implementation and explains the modeling role of each family. Echo-Memory treats memory as a controlled intervention on what information from chunk 1 is stored and how chunk 2 reads it back during denoising.
+
+## Modeling View
+
+All rows use the same action-conditioned Wan DiT backbone and the same two-chunk training/evaluation setup:
+
+1. **Context chunk:** clean history frames are encoded into latent/context tokens, optionally with matched camera RT actions.
+2. **Target chunk:** noisy target latents are denoised while the selected memory mechanism exposes information from the context chunk.
+3. **Read-out:** memory is injected through raw context concatenation, compressed context tokens, spatial memory tokens, or recurrent state-space modules attached to DiT blocks.
+
+The ablations are designed to change only the memory pathway while keeping the backbone, action conditioning, resolution, chunk length, and training schedule aligned.
+
+## Paper Rows
 
 | Paper family | Paper row / repo name | What is stored or read | Main code path | Training entry |
 | --- | --- | --- | --- | --- |

@@ -21,11 +21,22 @@ Or regenerate it locally after changing the pool:
 bash scripts/run_generate_metadata.sh
 ```
 
+For a smaller custom metadata file, set an output path and row limit:
+
+```bash
+OUTPUT_CSV="${DATASET_BASE_PATH}/metadata_1000.csv" \
+METADATA_MAX_ROWS=1000 \
+bash scripts/run_generate_metadata.sh
+```
+
+Use that file with `--dataset_metadata_path "${DATASET_BASE_PATH}/metadata_1000.csv"`.
+
 Optional variables:
 
 - `OUTPUT_CSV`: output CSV path, defaults to `${DATASET_BASE_PATH}/metadata_full.csv`.
 - `SEGMENT_LENGTH`: frames per segment, default `81`.
 - `CONTEXT_FRAMES`: context frames in metadata construction, default `5`.
+- `METADATA_MAX_ROWS` / `DATASET_SIZE_ROWS`: optional row cap for custom-size metadata; `0` keeps the full CSV.
 
 ## Latent precompute
 

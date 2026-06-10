@@ -108,6 +108,16 @@ If you modify the pool or need to rebuild metadata locally, regenerate it from `
 bash scripts/run_generate_metadata.sh
 ```
 
+You can also generate a smaller custom index for smoke tests, ablations, or reduced-size training:
+
+```bash
+OUTPUT_CSV="${DATASET_BASE_PATH}/metadata_1000.csv" \
+METADATA_MAX_ROWS=1000 \
+bash scripts/run_generate_metadata.sh
+```
+
+Pass the custom CSV to training/evaluation with `--dataset_metadata_path "${DATASET_BASE_PATH}/metadata_1000.csv"`.
+
 Defaults (override via env vars):
 
 | Variable | Default | Meaning |
@@ -116,6 +126,7 @@ Defaults (override via env vars):
 | `SEGMENT_LENGTH` | `81` | Frames per training segment |
 | `CONTEXT_FRAMES` | `5` | Context window used when building metadata |
 | `NUM_WORKERS` | CPU count − 2 | Parallel workers |
+| `METADATA_MAX_ROWS` / `DATASET_SIZE_ROWS` | `0` | Keep only the first N metadata rows after generation; `0` keeps the full CSV |
 
 Verify:
 
