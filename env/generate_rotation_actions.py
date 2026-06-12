@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate action JSON files for 90°/180°/270°/360° rotation camera control（与 sh 同目录，便于 test 直接使用）.
-RT format: [t_x, t_y, t_z, R_11, R_12, R_13, R_21, R_22, R_23, R_31, R_32, R_33]
-仅用标准库，无需 numpy。
-"""
+"""Generate the action JSON files used by training and inference recipes."""
 
 import json
 import math
@@ -37,15 +33,8 @@ def generate_action_json(total_frames=81, total_rotation_degrees=180, output_pat
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    for deg in [90, 180, 270, 360]:
-        out = os.path.join(script_dir, f"action_rotation_{deg}.json")
-        generate_action_json(total_frames=81, total_rotation_degrees=deg, output_path=out)
-    # 顺时针 180°（0→-180°），用于训练采样平衡（ACTION_FOLLOWING_DEBUG_PLAN）
-    out_cw = os.path.join(script_dir, "action_rotation_cw_180.json")
-    generate_action_json(total_frames=81, total_rotation_degrees=-180, output_path=out_cw)
-    # 旋转原子操作：单 chunk 左转 45° / 右转 45°（训练采样 step N 左转、step N+1 右转）
     out_left_45 = os.path.join(script_dir, "action_rotation_left_45.json")
     out_right_45 = os.path.join(script_dir, "action_rotation_right_45.json")
     generate_action_json(total_frames=81, total_rotation_degrees=45, output_path=out_left_45)
     generate_action_json(total_frames=81, total_rotation_degrees=-45, output_path=out_right_45)
-    print("\n✓ Action JSON files generated: 90°, 180°, 270°, 360°, cw_180, left_45, right_45")
+    print("\nGenerated action JSON files: left_45, right_45")
