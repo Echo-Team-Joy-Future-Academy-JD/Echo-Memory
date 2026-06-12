@@ -175,10 +175,9 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 doc/                        Data pool download & preprocessing guides
 diffsynth/                  Core model, pipeline, trainer utilities
 src/model_training/         Main training code and memory/context helpers
-src/model_inference/        Stage-2 inference entrypoints
 src/data/                   Dataset metadata construction utilities
 train/                      Public training recipes
-inference/                  Public inference recipes (shell wrappers)
+inference/                  Unified inference entrypoint and public recipes
 eval/v2/                    Static consistency and basic GT replay eval
 eval/metrics/               Visual/basic capability metrics
 scripts/                    Data construction and latent precompute scripts
@@ -326,7 +325,7 @@ python inference/unified_inference.py \
     --output_path output.mp4
 ```
 
-Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`src/model_inference/README.md`](src/model_inference/README.md).
+Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`inference/README.md`](inference/README.md).
 
 ## Training
 
