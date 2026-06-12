@@ -49,6 +49,8 @@ def pad_actions_for_condition(actions, condition_length, condition_actions=None)
         actions = actions.tolist()
     else:
         actions = list(actions)
+    if actions and isinstance(actions[0], (list, tuple)) and actions[0] and isinstance(actions[0][0], (list, tuple)):
+        actions = actions[0]
     if len(actions) == 0:
         return actions
 
@@ -60,6 +62,13 @@ def pad_actions_for_condition(actions, condition_length, condition_actions=None)
             condition_actions = condition_actions.tolist()
         else:
             condition_actions = list(condition_actions)
+        if (
+            condition_actions
+            and isinstance(condition_actions[0], (list, tuple))
+            and condition_actions[0]
+            and isinstance(condition_actions[0][0], (list, tuple))
+        ):
+            condition_actions = condition_actions[0]
         appended_actions = [list(action) for action in condition_actions[:condition_length]]
 
     zero_action = [0.0] * len(actions[0])
