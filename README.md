@@ -230,7 +230,7 @@ export WAN_BASE_MODEL=./Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 
-bash eval/v2/run_basic_replay_gt.sh                        # single-video smoke test (~5 min)
+bash eval/v2/run_basic_replay_gt.sh                        # single-video quick check (~5 min)
 bash eval/v2/run_static_consistency_loop_and_revisit.sh     # full paper eval bundle
 ```
 
@@ -444,7 +444,7 @@ export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 # Full metadata rebuild.
 bash scripts/run_generate_metadata.sh
 
-# Optional small/custom metadata for smoke tests or reduced-size training.
+# Optional small/custom metadata for ablations or reduced-size training.
 OUTPUT_CSV="${DATASET_BASE_PATH}/metadata_1000.csv" \
 METADATA_MAX_ROWS=1000 \
 bash scripts/run_generate_metadata.sh
@@ -496,11 +496,11 @@ If an OpenAI-compatible VLM endpoint is available, add `PHASE=vlm` or run the de
 
 ### Evaluation Types
 
-The evaluation suite has three complementary tiers, from fast smoke test to full generalization check:
+The evaluation suite has three complementary tiers, from fast basic replay to full generalization check:
 
 | Eval type | Script | What it tests | When to use |
 |---|---|---|---|
-| **Basic replay** | `run_basic_replay_gt.sh` | Single-video GT trajectory fidelity. Per-frame comparison against ground-truth. | Smoke test: does the model follow the ground-truth camera path? |
+| **Basic replay** | `run_basic_replay_gt.sh` | Single-video GT trajectory fidelity. Per-frame comparison against ground-truth. | Quick check: does the model follow the ground-truth camera path? |
 | **Static consistency** | `run_static_consistency_loop_and_revisit.sh` | Multi-chunk loop closure (leave and return to the same pose) and action-combo revisit. | Paper-level evaluation: memory mechanism comparison on revisit consistency. |
 | **Open-domain revisit** | `revisit_suite/run_one_click_revisit_eval.sh` | Held-out first frames not in training data. Tests whether memory generalizes to unseen scenes. | Generalization check: does memory help on new images? |
 

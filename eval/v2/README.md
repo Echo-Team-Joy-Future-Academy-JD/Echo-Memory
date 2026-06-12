@@ -26,7 +26,7 @@ The script writes in-domain outputs under `${EVALS_ROOT}/in_domain` and open-dom
 
 ## Basic Capability
 
-Run a single-video GT trajectory replay smoke test:
+Run a single-video GT trajectory replay check:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B

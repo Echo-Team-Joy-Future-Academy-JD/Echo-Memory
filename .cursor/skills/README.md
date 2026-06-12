@@ -9,6 +9,6 @@ Project skills for Agent-assisted development. Cursor loads skills from `.cursor
 | [echo-memory-eval](echo-memory-eval/SKILL.md) | Replay / revisit eval & HF checkpoints |
 | [echo-memory-release](echo-memory-release/SKILL.md) | gh-pages, i18n, HF doc alignment |
 
-**Usage:** In Cursor Agent chat, reference a skill by name, e.g. *follow echo-memory-eval to add a smoke test*.
+**Usage:** In Cursor Agent chat, reference a skill by name, e.g. *follow echo-memory-eval to add a replay check*.
 
 See also: [doc/DEVELOPER.md](../../doc/DEVELOPER.md) · [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html)

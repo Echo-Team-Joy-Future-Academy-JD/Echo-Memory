@@ -42,7 +42,7 @@ WeChat QR: `assets/wechat_group_qrcode.jpg` + project page Community section onl
 
 ## Release checklist
 
-- [ ] Smoke eval one HF checkpoint
+- [ ] Quick eval one HF checkpoint
 - [ ] `doc/checkpoints.md` matches HF folder names
 - [ ] `publish_gh_pages.sh` if site changed; verify EN/中文 on live page
 - [ ] News section on project page if user-visible release

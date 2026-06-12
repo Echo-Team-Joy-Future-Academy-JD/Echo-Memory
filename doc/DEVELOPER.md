@@ -16,7 +16,7 @@ Project skills live in **`.cursor/skills/`** — reference them in Agent chat (e
 | --- | --- | --- |
 | `echo-memory-agent` | Scope prompts, rules, skill index | Prompt 范围、Rules、技能索引 |
 | `echo-memory-train` | Memory baselines & context training | Baseline 与 Context 训练 |
-| `echo-memory-eval` | Replay / revisit & HF smoke tests | 回放 / revisit、HF smoke test |
+| `echo-memory-eval` | Replay / revisit & HF checkpoint checks | 回放 / revisit、HF checkpoint check |
 | `echo-memory-release` | gh-pages, i18n, checkpoints doc | gh-pages、i18n、权重文档 |
 
 Index: [.cursor/skills/README.md](../.cursor/skills/README.md)
@@ -72,7 +72,7 @@ bash train/memory_baselines_basic/run_spatial_memory_baseline.sh
 bash train/context_learning/run_pre_qkv_ctx20.sh
 ```
 
-**Smoke eval / smoke 评测**
+**Checkpoint eval / checkpoint 检查**
 
 ```bash
 huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
@@ -110,7 +110,7 @@ Community QR: [project page → Updates](https://echo-team-joy-future-academy-jd
 
 ## 7. Checklist / 检查清单
 
-- [ ] Smoke eval with one HF checkpoint
+- [ ] Quick eval with one HF checkpoint
 - [ ] `doc/checkpoints.md` matches HF folders
 - [ ] Public docs use Echo pool names
 - [ ] Publish gh-pages after site edits; verify EN/中文 toggle

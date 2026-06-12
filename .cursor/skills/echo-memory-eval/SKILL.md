@@ -2,7 +2,7 @@
 name: echo-memory-eval
 description: >-
   Run Echo-Memory replay, in-domain loop/revisit, and open-domain eval v2 scripts.
-  Use when smoke-testing HF checkpoints, editing eval/v2, or tracing CKPT → memory
+  Use when checking HF checkpoints, editing eval/v2, or tracing CKPT → memory
   profile via env/memory_baseline_runtime.py.
 ---
 
@@ -23,7 +23,7 @@ export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 
 | Goal | Script |
 | --- | --- |
-| GT replay smoke (PSNR/SSIM/LPIPS) | `eval/v2/run_basic_replay_gt.sh` |
+| GT replay check (PSNR/SSIM/LPIPS) | `eval/v2/run_basic_replay_gt.sh` |
 | Loop + in-domain + open-domain revisit | `eval/v2/run_static_consistency_loop_and_revisit.sh` |
 | Revisit suite assets | `eval/v2/revisit_suite/` |
 

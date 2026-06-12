@@ -13,10 +13,10 @@ description: >-
 | Skill | Path | When |
 | --- | --- | --- |
 | Training | `.cursor/skills/echo-memory-train/` | Memory baselines, context rows, `train/` |
-| Evaluation | `.cursor/skills/echo-memory-eval/` | `eval/v2`, HF checkpoint smoke tests |
+| Evaluation | `.cursor/skills/echo-memory-eval/` | `eval/v2`, HF checkpoint checks |
 | Release & site | `.cursor/skills/echo-memory-release/` | gh-pages, i18n, checkpoints doc |
 
-Invoke by name in chat: e.g. *use echo-memory-eval to add a context_k1 smoke script*.
+Invoke by name in chat: e.g. *use echo-memory-eval to add a context_k1 replay check*.
 
 ## Prompt template
 

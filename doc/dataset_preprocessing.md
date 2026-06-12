@@ -108,7 +108,7 @@ If you modify the pool or need to rebuild metadata locally, regenerate it from `
 bash scripts/run_generate_metadata.sh
 ```
 
-You can also generate a smaller custom index for smoke tests, ablations, or reduced-size training:
+You can also generate a smaller custom index for ablations or reduced-size training:
 
 ```bash
 OUTPUT_CSV="${DATASET_BASE_PATH}/metadata_1000.csv" \
