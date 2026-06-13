@@ -32,13 +32,9 @@
 
 ## News
 
-**[2026/06]** [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) — bilingual dev workflows + Cursor vibe coding ([doc/DEVELOPER.md](doc/DEVELOPER.md)). Project page **EN / 中文** toggle.
+**[2026/06]** Echo-Memory released: paper on [arXiv](https://arxiv.org/abs/2606.09803) ([PDF](https://arxiv.org/pdf/2606.09803)), [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/), public code, replay/revisit eval assets, and paper baseline checkpoints on [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory).
 
-**[2026/06]** Paper baseline checkpoints on Hugging Face: [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (Wan 2.1 1.3B, epoch-0, 30k steps). See [doc/checkpoints.md](doc/checkpoints.md).
-
-**[2026/06]** Paper on [arXiv](https://arxiv.org/abs/2606.09803) ([PDF](https://arxiv.org/pdf/2606.09803)) and [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/) released.
-
-**[2026/06]** Public code: **Wan 2.1 1.3B** memory ablations, replay/revisit eval, `eval/v2/revisit_suite/`, and `assets/opendomain_revisit/`.
+**[2026/06]** SpatialVID support added: dynamic training/inference recipes, 5-second first-chunk replay previews, and dynamic eval marked as TODO.
 
 ## Roadmap
 
