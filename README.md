@@ -32,9 +32,9 @@
 
 ## News
 
-**[2026/06]** Echo-Memory released: paper on [arXiv](https://arxiv.org/abs/2606.09803) ([PDF](https://arxiv.org/pdf/2606.09803)), [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/), public code, replay/revisit eval assets, and paper baseline checkpoints on [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory).
+**[2026/06/13]** SpatialVID support added: dynamic training/inference recipes, 5-second first-chunk replay previews, and dynamic eval marked as TODO.
 
-**[2026/06]** SpatialVID support added: dynamic training/inference recipes, 5-second first-chunk replay previews, and dynamic eval marked as TODO.
+**[2026/06/13]** Echo-Memory released: paper on [arXiv](https://arxiv.org/abs/2606.09803) ([PDF](https://arxiv.org/pdf/2606.09803)), [project page](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/), public code, replay/revisit eval assets, and paper baseline checkpoints on [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory).
 
 ## Roadmap
 
