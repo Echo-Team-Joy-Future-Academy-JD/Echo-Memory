@@ -107,39 +107,6 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 </table>
 </div>
 
-<p align="center"><b>Dynamic SpatialVID replay demos.</b> One training scene is replayed with the same prompt, first frame, and GT camera trajectory across the six dynamic rows.</p>
-
-<div align="center">
-<table>
-  <tr>
-    <td align="center">
-      <b>Dyn Context K=1</b><br>
-      <img src="assets/readme_previews/dyn_context_k1_replay.gif" width="140">
-    </td>
-    <td align="center">
-      <b>Dyn Context K=5</b><br>
-      <img src="assets/readme_previews/dyn_context_k5_replay.gif" width="140">
-    </td>
-    <td align="center">
-      <b>Dyn Context K=20</b><br>
-      <img src="assets/readme_previews/dyn_context_k20_replay.gif" width="140">
-    </td>
-    <td align="center">
-      <b>Dyn Spatial Memory</b><br>
-      <img src="assets/readme_previews/dyn_spatial_memory_replay.gif" width="140">
-    </td>
-    <td align="center">
-      <b>Dyn Legacy Hybrid</b><br>
-      <img src="assets/readme_previews/dyn_ssm_legacy_replay.gif" width="140">
-    </td>
-    <td align="center">
-      <b>Dyn Block-wise SSM</b><br>
-      <img src="assets/readme_previews/dyn_ssm_blockwise_replay.gif" width="140">
-    </td>
-  </tr>
-</table>
-</div>
-
 <div align="center">
 <img src="assets/paper_cases/figure_2_mem_overview.png" alt="Overview of four memory approaches" width="88%">
 </div>
@@ -170,9 +137,13 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 **Representative replay videos** are shown as compressed README previews. These clips replay ground-truth trajectories with each memory mechanism, making it easier to compare **local fidelity**, **motion smoothness**, and whether the generated chunk stays anchored to earlier visual evidence.
 
 > **GitHub note:** the animated previews below are low-resolution GIFs for direct playback in the README.
+> The SpatialVID row uses the same selected training scene, first frame, prompt, and GT camera trajectory for a 5-second first-chunk replay across all six methods.
 
 <div align="center">
 <table>
+  <tr>
+    <th colspan="6">Static Replay</th>
+  </tr>
   <tr>
     <td align="center">
       <b>Context K=1</b><br>
@@ -197,6 +168,35 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
     <td align="center">
       <b>Block-wise SSM</b><br>
       <img src="assets/readme_previews/ssm_blockwise_replay_gt.gif" width="140">
+    </td>
+  </tr>
+  <tr>
+    <th colspan="6">SpatialVID Replay</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>Context K=1</b><br>
+      <img src="assets/readme_previews/dyn_context_k1_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Context K=5</b><br>
+      <img src="assets/readme_previews/dyn_context_k5_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Context K=20</b><br>
+      <img src="assets/readme_previews/dyn_context_k20_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Spatial Memory</b><br>
+      <img src="assets/readme_previews/dyn_spatial_memory_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Legacy Hybrid</b><br>
+      <img src="assets/readme_previews/dyn_ssm_legacy_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Block-wise SSM</b><br>
+      <img src="assets/readme_previews/dyn_ssm_blockwise_replay.gif" width="140">
     </td>
   </tr>
 </table>
