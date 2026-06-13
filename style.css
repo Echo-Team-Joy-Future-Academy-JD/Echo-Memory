@@ -1016,6 +1016,15 @@ img {
   gap: 0.75rem;
 }
 
+.demo-grid__label {
+  grid-column: 1 / -1;
+  margin: 0.35rem 0 -0.25rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.95rem;
+  color: var(--text);
+  text-align: left;
+}
+
 .demo-grid figure {
   margin: 0;
   padding: 0.55rem;
