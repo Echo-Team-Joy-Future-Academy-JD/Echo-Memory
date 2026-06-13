@@ -190,6 +190,8 @@ Memory types:
     parser.add_argument("--base_model", type=str,
                         default=os.environ.get("WAN_BASE_MODEL", ""),
                         help="Wan2.1 base model directory (default: $WAN_BASE_MODEL)")
+    parser.add_argument("--tokenizer_path", type=str, default=None,
+                        help="Local tokenizer path (default: <base_model>/google/umt5-xxl when present)")
 
     # Context image
     parser.add_argument("--context_image", type=str, default=None,
@@ -237,6 +239,9 @@ def main():
     dit_path = os.path.join(args.base_model, "diffusion_pytorch_model.safetensors")
     text_encoder_path = os.path.join(args.base_model, "models_t5_umt5-xxl-enc-bf16.pth")
     vae_path = os.path.join(args.base_model, "Wan2.1_VAE.pth")
+    tokenizer_path = args.tokenizer_path or os.path.join(args.base_model, "google", "umt5-xxl")
+    if not os.path.isdir(tokenizer_path):
+        tokenizer_path = None
 
     for p in [dit_path, text_encoder_path, vae_path]:
         if not os.path.isfile(p):
@@ -261,6 +266,7 @@ def main():
         device="cuda",
         add_action_attn=False,
         action_use_temporal_attention=True,
+        tokenizer_path=tokenizer_path,
     )
 
     # ── Apply memory flags ──────────────────────────────────────────────

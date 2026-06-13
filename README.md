@@ -26,9 +26,9 @@
 
 **Echo-Memory** is the release code for the paper's controlled memory study. It keeps the shared **Wan video backbone**, memory modules, training recipes, data utilities, open-domain revisit assets, and public replay/static evaluation suites.
 
-**What is included:** reproducible memory rows, paper-aligned ablation scripts, GT replay, in-domain revisit, open-domain revisit, visual evidence frames, and representative videos.
+**What is included:** reproducible memory rows, paper-aligned ablation scripts, GT replay, in-domain revisit, open-domain revisit, dynamic SpatialVID training/inference recipes, visual evidence frames, and representative videos.
 
-**What is intentionally removed:** private dynamic benchmarks, cluster submit files, logs, generated outputs, and machine-local paths.
+**What is intentionally removed:** private benchmark launchers, cluster submit files, logs, generated outputs, and machine-local paths.
 
 ## News
 
@@ -107,6 +107,39 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 </table>
 </div>
 
+<p align="center"><b>Dynamic SpatialVID replay demos.</b> One training scene is replayed with the same prompt, first frame, and GT camera trajectory across the six dynamic rows.</p>
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center">
+      <b>Dyn Context K=1</b><br>
+      <img src="assets/readme_previews/dyn_context_k1_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Dyn Context K=5</b><br>
+      <img src="assets/readme_previews/dyn_context_k5_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Dyn Context K=20</b><br>
+      <img src="assets/readme_previews/dyn_context_k20_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Dyn Spatial Memory</b><br>
+      <img src="assets/readme_previews/dyn_spatial_memory_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Dyn Legacy Hybrid</b><br>
+      <img src="assets/readme_previews/dyn_ssm_legacy_replay.gif" width="140">
+    </td>
+    <td align="center">
+      <b>Dyn Block-wise SSM</b><br>
+      <img src="assets/readme_previews/dyn_ssm_blockwise_replay.gif" width="140">
+    </td>
+  </tr>
+</table>
+</div>
+
 <div align="center">
 <img src="assets/paper_cases/figure_2_mem_overview.png" alt="Overview of four memory approaches" width="88%">
 </div>
@@ -178,7 +211,7 @@ src/model_training/         Main training code and memory/context helpers
 src/data/                   Dataset metadata construction utilities
 train/                      Public training recipes
 inference/                  Unified inference entrypoint and public recipes
-eval/v2/                    Static consistency and basic GT replay eval
+eval/v2/                    Static consistency/basic GT replay eval; dynamic eval TODO
 eval/metrics/               Visual/basic capability metrics
 scripts/                    Data construction and latent precompute scripts
 assets/opendomain_revisit/  Held-out first frames for open-domain revisit
@@ -249,7 +282,7 @@ export PYTHONPATH=$PWD:${PYTHONPATH:-}
 `DATASET_BASE_PATH` points at whichever training pool you use (see [Data](#data)):
 
 - **Static in-domain pool** — default `data/Context-as-Memory-Dataset` if unset; [doc/dataset_preprocessing.md](doc/dataset_preprocessing.md)
-- **Dynamic training pool** — e.g. `data/dynamic-memory-dataset`; [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)
+- **Dynamic training pool** — e.g. `data/dynamic-spatialvid-motion60/mixed`; [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md)
 
 `WAN_BASE_MODEL` should contain `diffusion_pytorch_model.safetensors`, `models_t5_umt5-xxl-enc-bf16.pth`, and `Wan2.1_VAE.pth`.
 
@@ -327,6 +360,14 @@ python inference/unified_inference.py \
 
 Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`inference/README.md`](inference/README.md).
 
+Dynamic SpatialVID inference wrappers mirror the six dynamic rows:
+
+```bash
+export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+export CKPT=./ckpts/dynamic_spatialvid/spatial_mem/epoch-0.safetensors
+bash inference/dynamic_spatialvid/run_infer_dyn_spatial_mem.sh
+```
+
 ## Training
 
 Memory baseline recipes live in `train/memory_baselines_basic/`. The modeling view and paper-row mapping are documented in [`doc/memory_mechanisms.md`](doc/memory_mechanisms.md). These scripts map to the paper matrix:
@@ -355,6 +396,19 @@ bash train/context_learning/run_pre_qkv_ctx20.sh
 ```
 
 Outputs default to `outputs/`. Override with `OUTPUT_BASE_ROOT=/path/to/outputs`.
+
+Dynamic SpatialVID recipes live in `train/dynamic_spatialvid/`:
+
+```bash
+export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
+export DATASET_BASE_PATH=data/dynamic-spatialvid-motion60/mixed
+bash train/dynamic_spatialvid/run_dyn_ctx1.sh
+bash train/dynamic_spatialvid/run_dyn_ctx5.sh
+bash train/dynamic_spatialvid/run_dyn_ctx20.sh
+bash train/dynamic_spatialvid/run_dyn_spatial_mem.sh
+bash train/dynamic_spatialvid/run_dyn_block_wise_ssm.sh
+bash train/dynamic_spatialvid/run_dyn_videossm_hybrid.sh
+```
 
 ### Two-Chunk Training Paradigm
 
@@ -463,9 +517,10 @@ NUM_PROCESSES=8 bash scripts/run_precompute_ctx_target_latents.sh
 ### Dynamic training pool
 
 - **Source:** simplified [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID) subset
-- **Local root:** `data/dynamic-memory-dataset`
-- **Guide:** [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) — download subset, export to Echo layout, training settings
-- **Note:** `metadata_full.csv` is written at export; latent precompute uses the same script as the static pool if needed
+- **Local root:** `data/dynamic-spatialvid-motion60/mixed`
+- **Guide:** [doc/dynamic_dataset_preprocessing.md](doc/dynamic_dataset_preprocessing.md) — motion-filtered export, metadata files, training settings
+- **Train metadata:** `metadata_train.csv` for full training; `metadata_train_sample.csv` or `metadata_train_sample_L1.csv` for quick local checks
+- **Eval status:** dynamic eval protocol is TODO; current public support is training + inference
 
 ### Open-domain assets
 
@@ -530,7 +585,7 @@ python eval/metrics/run_all_metrics.py --help
 python eval/metrics/run_visual_eval.py --help
 ```
 
-Dynamic evaluation is not part of this release.
+Dynamic evaluation is TODO. Current dynamic support covers SpatialVID training/inference wrappers and qualitative replay demos selected by random training-scene replay followed by manual picking.
 
 ## Community
 

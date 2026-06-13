@@ -257,6 +257,7 @@ def load_pipeline_and_ckpt(
     device="cuda",
     add_action_attn=False,
     action_use_temporal_attention=True,
+    tokenizer_path=None,
     # Legacy kwargs accepted but ignored (CameraEncoder removed)
     **kwargs,
 ):
@@ -275,11 +276,13 @@ def load_pipeline_and_ckpt(
         torch_dtype=torch.bfloat16,
         device=device,
         model_configs=model_configs,
+        tokenizer_config=ModelConfig(path=tokenizer_path) if tokenizer_path else None,
     )
 
     ckpt = None
     block_wise_block_ids = set()
     videossm_block_ids = set()
+    action_attn_block_ids = set()
     if ckpt_path and os.path.isfile(ckpt_path):
         ckpt = safe_load_file(ckpt_path)
         for key in ckpt.keys():
@@ -289,6 +292,13 @@ def load_pipeline_and_ckpt(
             m = re.match(r"blocks\.(\d+)\.videossm_hybrid\.", key)
             if m:
                 videossm_block_ids.add(int(m.group(1)))
+            m = re.match(r"blocks\.(\d+)\.self_attn_with_action\.", key)
+            if m:
+                action_attn_block_ids.add(int(m.group(1)))
+
+    if action_attn_block_ids and not add_action_attn:
+        add_action_attn = True
+        print("[loop_utils] Detected action-attention weights in checkpoint; enabling self_attn_with_action")
 
     # Replace blocks with DiTBlock_w_Action, including memory slots implied by ckpt keys.
     _build_action_blocks(

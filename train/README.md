@@ -42,3 +42,16 @@ The two-chunk scripts share `common_sampling_two_chunk.sh` and expose `CKPT_INTE
 - `run_ctx5_no_action_ablation.sh`
 
 The shared environment file is `train/_shared/common_env_memory.sh`. It does not set private paths or credentials; configure Weights & Biases in your shell if you use it.
+
+## Dynamic SpatialVID
+
+`train/dynamic_spatialvid/` contains the six public dynamic training rows. Set `DATASET_BASE_PATH` to a dynamic `mixed/` root:
+
+```bash
+export DATASET_BASE_PATH=data/dynamic-spatialvid-motion60/mixed
+METADATA_NAME=metadata_train.csv bash train/dynamic_spatialvid/run_dyn_spatial_mem.sh
+```
+
+For local step checks, use `METADATA_NAME=metadata_train_sample_L1.csv MAX_TRAIN_STEPS=1 NUM_WORKERS=0`.
+
+Dynamic evaluation is TODO; current dynamic support is training and inference.

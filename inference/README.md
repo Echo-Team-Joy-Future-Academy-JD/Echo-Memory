@@ -19,6 +19,10 @@ CONTEXT_IMAGE=assets/opendomain_revisit/1774363417.png \
 
 # All memory baselines (needs CKPT_DIR with per-row folders)
 CKPT_DIR=./ckpts bash inference/memory_baselines_basic/run_infer_all.sh
+
+# Dynamic SpatialVID row
+CKPT=./ckpts/dynamic_spatialvid/spatial_mem/epoch-0.safetensors \
+  bash inference/dynamic_spatialvid/run_infer_dyn_spatial_mem.sh
 ```
 
 ## Environment Variables
@@ -63,3 +67,7 @@ CKPT_DIR=./ckpts bash inference/memory_baselines_basic/run_infer_all.sh
 | `run_infer_ctx1.sh` | `context_k1` | `run_pre_qkv_ctx1.sh` |
 | `run_infer_ctx5.sh` | `context_k5` | `run_pre_qkv_ctx5.sh` |
 | `run_infer_ctx20.sh` | `context_k20` | `run_pre_qkv_ctx20.sh` |
+
+### Dynamic SpatialVID (`inference/dynamic_spatialvid/`)
+
+Dynamic wrappers mirror the six dynamic training rows in `train/dynamic_spatialvid/`. They are intended for qualitative replay and demo generation; dynamic evaluation scripts are TODO.

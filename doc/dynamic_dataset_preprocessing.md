@@ -1,8 +1,8 @@
 # Dynamic training pool — SpatialVID subset
 
-Echo-Memory’s **dynamic training pool** uses a **simplified subset** of [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID): ego-centric clips with camera poses and captions, exported into the **same on-disk layout** as the static in-domain pool (`frames/`, `jsons/`, `overlap_labels/`, `metadata_full.csv`).
+Echo-Memory’s **dynamic training pool** uses a motion-filtered subset of [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID): ego-centric clips with camera poses and captions, exported into the same sample format used by the static pool.
 
-This guide covers **download → export → training settings** only. It does not describe a public benchmark or level splits.
+This guide covers **download → export → training/inference settings** only. Dynamic eval is TODO; current public support is training and inference.
 
 **License:** SpatialVID is [CC-BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) (non-commercial). Static and dynamic pools may have different licenses — check before mixing runs.
 
@@ -52,15 +52,23 @@ Use `SpatialVID_metadata.csv` to filter clips (e.g. `motion score`, `dynamicRati
 
 ## 2. Export to Echo layout (dynamic training pool)
 
-Use `data/dynamic-memory-dataset/` as the local root and set `DATASET_BASE_PATH` to it:
+Use `data/dynamic-spatialvid-motion60/mixed/` as the public training root and set `DATASET_BASE_PATH` to it:
 
 ```text
-data/dynamic-memory-dataset/
-├── frames/{clip_id}/0000.png … 0080.png   # 81 frames per clip
-├── jsons/{clip_id}.json                   # CineCameraActor poses
-├── overlap_labels/{clip_id}/              # FOV overlap lists (optional but recommended)
-├── captions.txt                           # clip_id<TAB>prompt
-└── metadata_full.csv                      # train index for VideoDataset
+data/dynamic-spatialvid-motion60/
+├── L1/                                    # single-level exports are also valid roots
+├── L2/
+├── L3/
+└── mixed/
+    ├── frames/L{1,2,3}/{clip_id}/0000.png ... 0080.png
+    ├── jsons/L{1,2,3}/{clip_id}.json
+    ├── overlap_labels/L{1,2,3}/{clip_id}/
+    ├── captions.txt
+    ├── metadata_train.csv
+    ├── metadata_train_sample.csv
+    ├── metadata_train_sample_L1.csv
+    ├── metadata_eval.csv
+    └── metadata_eval_2chunk.csv
 ```
 
 **Per-clip steps:**
@@ -71,9 +79,9 @@ data/dynamic-memory-dataset/
 | Pose | Interpolate `poses.npy` + `indexes.txt` → `jsons/{clip_id}.json` (Euler `CineCameraActor` format, same as static data) |
 | Prompt | Short caption from `caption.json` (`SceneSummary` or `SceneDescription`) |
 | Overlap | Build `overlap_labels/` for FOV-based context retrieval |
-| Metadata row | `video`, `prompt`, `video_name`, `start_frame`, `end_frame` |
+| Metadata row | `video`, `prompt`, `video_name`, `start_frame`, `end_frame`, optional `level` |
 
-`metadata_full.csv` is written at export time — **do not** re-run `run_generate_metadata.sh` unless you regenerate from raw frames only.
+`metadata_train.csv` is written at export time. Use `metadata_train_sample.csv` or `metadata_train_sample_L1.csv` for local step checks. Do not re-run `run_generate_metadata.sh` unless you regenerate from raw frames only.
 
 ---
 
@@ -83,7 +91,7 @@ Same env vars and on-disk layout as the static in-domain pool — only `DATASET_
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=data/dynamic-memory-dataset
+export DATASET_BASE_PATH=data/dynamic-spatialvid-motion60/mixed
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ```
 
@@ -98,27 +106,49 @@ Recommended settings for the dynamic training pool (match memory baseline script
 | `--enable_fov_retrieval` | on (when `overlap_labels/` present) |
 | `--enable_context_memory` | on for context / spatial / SSM rows |
 | `--timestep_shift` | **15** |
-| Learning rate | **1e-5** (adjust per row) |
+| Learning rate | **5e-5** (adjust per row) |
 
-Example — run a memory baseline on the dynamic training pool (override paths in the shell or train script):
+Example — run a dynamic row:
 
 ```bash
-bash train/memory_baselines_basic/run_ablation_no_memory_baseline_two_chunk.sh
-bash train/context_learning/run_pre_qkv_ctx5.sh
+METADATA_NAME=metadata_train.csv bash train/dynamic_spatialvid/run_dyn_spatial_mem.sh
 ```
 
-Ensure `dataset_base_path` / `dataset_metadata_path` in the script resolve to `${DATASET_BASE_PATH}` and `${DATASET_BASE_PATH}/metadata_full.csv`.
+For local one-step validation:
+
+```bash
+METADATA_NAME=metadata_train_sample_L1.csv \
+MAX_TRAIN_STEPS=1 \
+PROGRESS_TOTAL_STEPS=30000 \
+NUM_WORKERS=0 \
+bash train/dynamic_spatialvid/run_dyn_block_wise_ssm.sh
+```
+
+Inference wrappers live under `inference/dynamic_spatialvid/`.
 
 ---
 
-## 4. Checklist
+## 4. Demo selection
+
+Dynamic demos are selected from training-scene replay rather than from fixed eval scripts:
+
+1. Randomly sample candidate scenes from `metadata_train.csv` or `metadata_train_sample.csv`.
+2. Use the same prompt, first frame, and GT action trajectory for all six dynamic rows.
+3. Run `inference/unified_inference.py` or `inference/dynamic_spatialvid/*.sh` for each checkpoint.
+4. Manually pick a representative scene where all rows are viewable.
+
+The checked-in README previews are compressed GIFs under `assets/readme_previews/`.
+
+---
+
+## 5. Checklist
 
 - [ ] Hugging Face access approved for [SpatialVID/SpatialVID](https://huggingface.co/datasets/SpatialVID/SpatialVID)
 - [ ] Subset of `group_****` archives downloaded and extracted
 - [ ] Clips filtered (poses + caption present; optional motion / dynamic filters)
-- [ ] `frames/`, `jsons/`, `metadata_full.csv` under one root
+- [ ] `frames/`, `jsons/`, `metadata_train.csv` under one root
 - [ ] (Recommended) `overlap_labels/` for FOV retrieval
-- [ ] `DATASET_BASE_PATH` exported before training
+- [ ] `DATASET_BASE_PATH` exported before training/inference
 
 ---
 

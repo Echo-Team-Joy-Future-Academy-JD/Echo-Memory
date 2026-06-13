@@ -25,7 +25,12 @@ for _f in diffusion_pytorch_model.safetensors models_t5_umt5-xxl-enc-bf16.pth Wa
   [ -f "${WAN_BASE_MODEL}/${_f}" ] || {
     echo "[common_env_infer] ERROR: missing ${WAN_BASE_MODEL}/${_f}" >&2; exit 2; }
 done
+TOKENIZER_PATH="${TOKENIZER_PATH:-}"
+if [ -z "${TOKENIZER_PATH}" ] && [ -d "${WAN_BASE_MODEL}/google/umt5-xxl" ]; then
+  TOKENIZER_PATH="${WAN_BASE_MODEL}/google/umt5-xxl"
+fi
 export WAN_BASE_MODEL
+export TOKENIZER_PATH
 
 # ── Checkpoint ────────────────────────────────────────────────────────
 # CKPT must be set by the caller or the wrapper script.

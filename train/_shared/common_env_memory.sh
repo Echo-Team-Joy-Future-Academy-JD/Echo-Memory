@@ -20,7 +20,10 @@ fi
 
 export NCCL_DEBUG="${NCCL_DEBUG:-INFO}"
 if [ -z "${NCCL_SOCKET_IFNAME:-}" ]; then
-  _default_ifname="$(ip -o -4 route show to default 2>/dev/null | awk '{print $5; exit}')"
+  _default_ifname=""
+  if command -v ip >/dev/null 2>&1; then
+    _default_ifname="$(ip -o -4 route show to default 2>/dev/null | awk '{print $5; exit}' || true)"
+  fi
   export NCCL_SOCKET_IFNAME="${_default_ifname:-eth0}"
 fi
 export CONTEXT_POSITION=suffix
@@ -78,7 +81,7 @@ _require_dir() {
 }
 
 dataset_base_path="${DATASET_BASE_PATH}"
-METADATA_NAME=metadata_full.csv
+METADATA_NAME="${METADATA_NAME:-metadata_full.csv}"
 model_paths="[\"${WAN_BASE_MODEL}/diffusion_pytorch_model.safetensors\",\"${WAN_BASE_MODEL}/models_t5_umt5-xxl-enc-bf16.pth\",\"${WAN_BASE_MODEL}/Wan2.1_VAE.pth\"]"
 remove_prefix_in_ckpt="pipe.dit."
 
