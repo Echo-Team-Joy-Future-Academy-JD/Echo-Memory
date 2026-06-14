@@ -13,7 +13,7 @@ from src.model_training.transformers_compat import patch_transformers_hybrid_cac
 
 patch_transformers_hybrid_cache()
 from diffsynth.trainers.utils import DiffusionTrainingModule
-from src.model_training.rt_utils import flip_yaw_rt_list
+from src.model_training.fov_retrieval import flip_yaw_rt_list
 
 logger = logging.getLogger(__name__)
 

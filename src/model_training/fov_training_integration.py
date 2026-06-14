@@ -29,7 +29,7 @@ from src.model_training.fov_retrieval import (
     load_overlap_frames,
     load_poses_dict,
 )
-from src.model_training.rt_utils import convert_rt_to_relative, pose_to_rt, rt_to_pose
+from src.model_training.fov_retrieval import convert_rt_to_relative, pose_to_rt, rt_to_pose
 
 
 def retrieve_simple_context_frames(
