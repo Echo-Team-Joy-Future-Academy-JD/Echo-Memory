@@ -13,7 +13,7 @@ patch_transformers_hybrid_cache()
 
 from diffsynth.trainers.utils import DiffusionTrainingModule
 from src.model_training.fov_retrieval import FOVMemoryRetriever
-from src.model_training.fov_training_integration import retrieve_context_frames_advanced, retrieve_fov_context_frames
+from src.model_training.fov_retrieval import retrieve_context_frames_advanced, retrieve_fov_context_frames
 from src.model_training.training_modules.model_logger import ModelLogger
 
 logger = logging.getLogger(__name__)

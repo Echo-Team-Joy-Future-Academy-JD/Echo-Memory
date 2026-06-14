@@ -34,7 +34,7 @@ from run_replay_loop_two_chunk import (  # noqa: E402
 )
 
 from src.model_training.fov_retrieval import convert_rt_to_relative, load_camera_poses_batch, pose_to_rt  # noqa: E402
-from src.model_training.fov_training_integration import retrieve_context_frames_advanced  # noqa: E402
+from src.model_training.fov_retrieval import retrieve_context_frames_advanced  # noqa: E402
 from src.model_training.multichunk_sample_utils import (  # noqa: E402
     load_prev_chunk_tail_rt_actions,
     replay_context_actions_from_segment_actions,

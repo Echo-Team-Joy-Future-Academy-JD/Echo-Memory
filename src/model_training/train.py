@@ -40,7 +40,7 @@ import random
 import numpy as np
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from safetensors.torch import load_file as safe_load_file
-from src.model_training.fov_training_integration import setup_fov_retriever_for_training
+from src.model_training.fov_retrieval import setup_fov_retriever_for_training
 from src.model_training.training_modules import DiTBlock_w_Action, WanTrainingModule
 
 

@@ -6,7 +6,7 @@ _repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _repo not in sys.path:
     sys.path.insert(0, _repo)
 
-from src.model_training.context_chunk_utils import (
+from src.model_training.multichunk_sample_utils import (
     context_frames_for_next_chunk,
     replay_context_global_indices,
     replay_context_actions_from_segment_actions,
