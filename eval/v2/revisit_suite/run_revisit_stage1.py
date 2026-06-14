@@ -33,16 +33,12 @@ from run_replay_loop_two_chunk import (  # noqa: E402
     run_one_chunk,
 )
 
-try:  # noqa: E402
-    from src.model_training.context_chunk_utils import load_prev_chunk_tail_rt_actions, replay_context_actions_from_segment_actions
-    from src.model_training.context_retrieval import retrieve_context_frames_advanced
-    from src.model_training.fov_retrieval import load_camera_poses_batch
-    from src.model_training.rt_utils import convert_rt_to_relative, pose_to_rt
-except ImportError:  # noqa: E402
-    from model_training.context_chunk_utils import load_prev_chunk_tail_rt_actions, replay_context_actions_from_segment_actions
-    from model_training.context_retrieval import retrieve_context_frames_advanced
-    from model_training.fov_retrieval import load_camera_poses_batch
-    from model_training.rt_utils import convert_rt_to_relative, pose_to_rt
+from src.model_training.fov_retrieval import convert_rt_to_relative, load_camera_poses_batch, pose_to_rt  # noqa: E402
+from src.model_training.fov_training_integration import retrieve_context_frames_advanced  # noqa: E402
+from src.model_training.multichunk_sample_utils import (  # noqa: E402
+    load_prev_chunk_tail_rt_actions,
+    replay_context_actions_from_segment_actions,
+)
 
 
 def infer_camera_inject_mode_label(ckpt: str, override: str | None = None) -> str:
@@ -311,7 +307,7 @@ def build_initial_context(
                     ctx_indices = [int(x) for x in (ci or [])[: len(ctx_pil)]]
                     ctx_source_detail = detail
             elif source == "prev_chunk_tail":
-                from src.model_training.context_chunk_utils import load_prev_chunk_tail_from_disk
+                from src.model_training.multichunk_sample_utils import load_prev_chunk_tail_from_disk
 
                 cf, ci = load_prev_chunk_tail_from_disk(
                     str(sample["dataset_base"]),

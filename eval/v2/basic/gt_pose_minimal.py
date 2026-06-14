@@ -24,12 +24,7 @@ def _ensure_repo_path() -> None:
 
 def load_pose_rt(json_file: str, frame_idx: int):
     _ensure_repo_path()
-    try:
-        from src.model_training.fov_retrieval import load_camera_pose
-        from src.model_training.rt_utils import pose_to_rt
-    except ImportError:
-        from model_training.fov_retrieval import load_camera_pose
-        from model_training.rt_utils import pose_to_rt
+    from src.model_training.fov_retrieval import load_camera_pose, pose_to_rt
     pose = load_camera_pose(json_file, int(frame_idx))
     if pose is None:
         return None
@@ -38,10 +33,7 @@ def load_pose_rt(json_file: str, frame_idx: int):
 
 def get_relative_rt(rt, ref_rt):
     _ensure_repo_path()
-    try:
-        from src.model_training.rt_utils import convert_rt_to_relative
-    except ImportError:
-        from model_training.rt_utils import convert_rt_to_relative
+    from src.model_training.fov_retrieval import convert_rt_to_relative
     if rt is None or ref_rt is None or len(rt) < 12 or len(ref_rt) < 12:
         return None
     out = convert_rt_to_relative([rt], ref_rt)

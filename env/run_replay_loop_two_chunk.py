@@ -42,21 +42,11 @@ if _script_dir not in sys.path:
 import loop_utils as irc
 from diffsynth import save_video
 
-try:
-    from src.model_training.rt_utils import compute_rotation_list
-except ImportError:
-    from model_training.rt_utils import compute_rotation_list
-
-try:
-    from src.model_training.context_chunk_utils import (
-        context_frames_for_next_chunk,
-        replay_context_from_generated_frames,
-    )
-except ImportError:
-    from model_training.context_chunk_utils import (
-        context_frames_for_next_chunk,
-        replay_context_from_generated_frames,
-    )
+from src.model_training.fov_retrieval import compute_rotation_list
+from src.model_training.multichunk_sample_utils import (
+    context_frames_for_next_chunk,
+    replay_context_from_generated_frames,
+)
 
 
 def encode_context_frames_per_frame(pipe, pil_list, device, dtype=torch.bfloat16):
@@ -172,10 +162,10 @@ def build_action_chunk(deg: float, clockwise: bool, chunk_frames: int = 81):
 
 
 def build_action_translation_only(direction: str, translation_delta: float, chunk_frames: int = 81):
-    """纯平移单 chunk：R=I，沿单轴线性位移。与训练一致：rt_utils.pose_to_rt(..., constrain_to_xy=True) 仅用 XY，tz=0。
+    """纯平移单 chunk：R=I，沿单轴线性位移。与训练一致：fov_retrieval.pose_to_rt(..., constrain_to_xy=True) 仅用 XY，tz=0。
     direction in ('forward','backward','left','right')：forward=+Y, backward=-Y, left=-X, right=+X（XY 平面，无 Z）。
     RT 格式：前 3 维 [tx,ty,tz]，后 9 维 3x3 行优先单位阵；相对本段首帧（与 convert_rt_to_relative(ref=首帧) 一致）。"""
-    # 与训练一致：2D 平面位移，z 恒为 0（见 rt_utils.pose_to_rt constrain_to_xy=True）
+    # 与训练一致：2D 平面位移，z 恒为 0（见 fov_retrieval.pose_to_rt constrain_to_xy=True）
     identity_rot = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
     denom = max(1, chunk_frames - 1)
     actions = {}

@@ -91,15 +91,14 @@ def main() -> int:
         print(f"[check_dataset_gt] sample pose keys: {sample_keys}", file=sys.stderr)
         return 1
 
-    # Optional: same 12-dim path as replay (numpy via rt_utils; no torch)
+    # Optional: same 12-dim path as replay (numpy via fov_retrieval; no torch)
     try:
         _here = os.path.dirname(os.path.abspath(__file__))
         # .../eval/v2/basic -> repo root
         _repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(_here))))
         if _repo not in sys.path:
             sys.path.insert(0, _repo)
-        from src.model_training.fov_retrieval import load_camera_pose
-        from src.model_training.rt_utils import pose_to_rt
+        from src.model_training.fov_retrieval import load_camera_pose, pose_to_rt
 
         for fi in need[: min(3, len(need))]:
             pose = load_camera_pose(jpath, fi)
