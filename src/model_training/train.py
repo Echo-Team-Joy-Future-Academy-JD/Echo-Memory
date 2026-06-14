@@ -2,30 +2,19 @@ import os, json, sys, re
 import torch
 import torch.nn as nn
 from typing import Optional
-import importlib
 import logging
 
 logger = logging.getLogger(__name__)
 
 _rank_env = os.environ.get("RANK") or os.environ.get("LOCAL_RANK") or os.environ.get("ACCELERATE_PROCESS_INDEX") or "0"
-try:
-    _rank = int(str(_rank_env))
-except Exception:
-    _rank = 0
+_rank = int(str(_rank_env))
 _level = logging.INFO if _rank == 0 else logging.WARNING
-try:
-    logging.basicConfig(
-        level=_level,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        force=True,
-    )
-except TypeError:
-    logging.basicConfig(
-        level=_level,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+logging.basicConfig(
+    level=_level,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    force=True,
+)
 logger.setLevel(_level)
 
 current_file_abs = os.path.abspath(__file__)
@@ -34,48 +23,19 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_abs)
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-modules_to_clear = [
-    'diffsynth.models.memory.framepack_length',
-    'diffsynth.models.memory.framepack_weight',
-    'diffsynth.models.memory.spatial_grid_memory',
-    'diffsynth.models.memory.videossm_hybrid',
-    'diffsynth.models.memory.block_wise_ssm',
-    'diffsynth.models.memory',
-    'diffsynth.pipelines.wan_video_new',
-    'diffsynth.trainers.utils',
-    'diffsynth.models.wan_video_dit',
-    'diffsynth.lora.flux_lora',
-    'diffsynth.lora',
-    'diffsynth.configs.model_config',
-    'diffsynth.configs',
-    'diffsynth.pipelines',
-    'diffsynth.trainers',
-    'diffsynth.models',
-    'diffsynth',
-]
-
-for mod in modules_to_clear:
-    if mod in sys.modules:
-        del sys.modules[mod]
-
-importlib.invalidate_caches()
-
 from src.model_training.transformers_compat import patch_transformers_hybrid_cache
 
 patch_transformers_hybrid_cache()
 
 from diffsynth.trainers.utils import DiffusionTrainingModule, ModelLogger as BaseModelLogger, VideoDataset, CamVideoDataset, wan_parser
 
-try:
-    import diffsynth.trainers.utils as utils_module
-    utils_file = utils_module.__file__ if hasattr(utils_module, '__file__') else 'unknown'
-    is_local = 'site-packages' not in utils_file
-    if is_local:
-        logger.info(f"[VERIFIED] Using LOCAL diffsynth code from: {utils_file}")
-    else:
-        logger.warning(f"Using INSTALLED diffsynth package from: {utils_file}")
-except Exception as e:
-    logger.error(f"Failed to verify code location: {e}")
+import diffsynth.trainers.utils as utils_module
+
+utils_file = utils_module.__file__
+if 'site-packages' in utils_file:
+    logger.warning(f"Using INSTALLED diffsynth package from: {utils_file}")
+else:
+    logger.info(f"[VERIFIED] Using LOCAL diffsynth code from: {utils_file}")
 
 from accelerate import Accelerator
 import wandb
@@ -85,22 +45,11 @@ import random
 import numpy as np
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from safetensors.torch import load_file as safe_load_file
-
-try:
-    from .fov_retrieval import FOVMemoryRetriever
-    from .fov_training_integration import retrieve_fov_context_frames, setup_fov_retriever_for_training
-    from .context_retrieval import retrieve_context_frames_advanced
-except ImportError:
-    import os
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    if current_dir not in sys.path:
-        sys.path.insert(0, current_dir)
-    from fov_retrieval import FOVMemoryRetriever
-    from fov_training_integration import retrieve_fov_context_frames, setup_fov_retriever_for_training
-    from context_retrieval import retrieve_context_frames_advanced
-
-
+from src.model_training.fov_retrieval import FOVMemoryRetriever
+from src.model_training.fov_training_integration import retrieve_context_frames_advanced, retrieve_fov_context_frames, setup_fov_retriever_for_training
 from src.model_training.training_modules import DiTBlock_w_Action, WanTrainingModule
+
+
 def set_seed(seed=42):
     """Set random seeds for reproducible training."""
     random.seed(seed)
@@ -168,47 +117,37 @@ class ModelLogger(BaseModelLogger):
         context_memory_frames: int = 1,
         context_source: str = "replay",
         context_per_frame_vae: bool = False,
-        **_unused,
     ):
         super().__init__(output_path, remove_prefix_in_ckpt=remove_prefix_in_ckpt, state_dict_converter=state_dict_converter)
         self.wandb_run_name = wandb_run_name
         self.ckpt_interval = int(ckpt_interval) if ckpt_interval else None
-        self.step_count = int(resume_step_count or 0)
+        self.step_count = int(resume_step_count)
         self.save_full_model = bool(save_full_model)
         self.total_steps = None
-        self.context_drop_prob = float(context_drop_prob or 0.0)
+        self.context_drop_prob = float(context_drop_prob)
         self.enable_video_sampling = bool(enable_video_sampling)
-        self.sampling_interval_steps = int(sampling_interval_steps or 0)
+        self.sampling_interval_steps = int(sampling_interval_steps)
         self.sampling_two_chunk_memory = bool(sampling_two_chunk_memory)
         self.sampling_action_path = sampling_action_path
         self.sampling_two_chunk_action_path = sampling_two_chunk_action_path
         self.sampling_negative_prompt = sampling_negative_prompt
-        self.sampling_height = int(sampling_height or 352)
-        self.sampling_width = int(sampling_width or 640)
-        self.sampling_num_frames = int(sampling_num_frames or 81)
-        self.sampling_num_inference_steps = int(sampling_num_inference_steps or 50)
-        self.context_memory_frames = int(context_memory_frames or 1)
-        self.context_source = (context_source or "replay").strip().lower()
+        self.sampling_height = int(sampling_height)
+        self.sampling_width = int(sampling_width)
+        self.sampling_num_frames = int(sampling_num_frames)
+        self.sampling_num_inference_steps = int(sampling_num_inference_steps)
+        self.context_memory_frames = int(context_memory_frames)
+        self.context_source = context_source.strip().lower()
         self.context_per_frame_vae = bool(context_per_frame_vae)
         self.wandb_logger = None
         if self.wandb_run_name:
-            try:
-                self.wandb_logger = wandb.init(project="wan-cam", name=self.wandb_run_name, reinit=True)
-            except Exception as e:
-                logger.warning(f"[ModelLogger] wandb init failed: {e}")
-                self.wandb_logger = None
+            self.wandb_logger = wandb.init(project="wan-cam", name=self.wandb_run_name, reinit=True)
 
     def _save_step_or_epoch_ckpt(self, accelerator, model, path: str):
         state_dict = None
         unwrapped = accelerator.unwrap_model(model)
         if self.save_full_model:
             # Save full DiT (including action/camera/memory modules), not whole pipeline.
-            try:
-                dit = getattr(getattr(unwrapped, "pipe", None), "dit", None)
-                if dit is not None:
-                    state_dict = accelerator.get_state_dict(dit)
-            except Exception:
-                state_dict = None
+            state_dict = accelerator.get_state_dict(unwrapped.pipe.dit)
         if state_dict is None:
             full_state = accelerator.get_state_dict(model)
             state_dict = unwrapped.export_trainable_state_dict(full_state, remove_prefix=self.remove_prefix_in_ckpt)
@@ -227,70 +166,56 @@ class ModelLogger(BaseModelLogger):
             and current_batch is not None
         ):
             return
-        try:
-            from diffsynth import save_video
-            try:
-                from src.model_training.multichunk_sample_utils import (
-                    run_two_chunk_memory_monitor,
-                    sync_pipe_memory_from_training_module,
-                )
-            except Exception:
-                from multichunk_sample_utils import run_two_chunk_memory_monitor, sync_pipe_memory_from_training_module
+        from diffsynth import save_video
+        from src.model_training.multichunk_sample_utils import (
+            run_two_chunk_memory_monitor,
+            sync_pipe_memory_from_training_module,
+        )
 
-            sample = current_batch[0] if isinstance(current_batch, list) else current_batch
-            first_frame = (sample.get("video") or [None])[0]
-            if first_frame is None:
-                return
-            unwrapped = accelerator.unwrap_model(model)
-            pipe = getattr(unwrapped, "pipe", None)
-            if pipe is None:
-                return
-            sync_pipe_memory_from_training_module(pipe, unwrapped)
-            action0 = self.sampling_two_chunk_action_path or self.sampling_action_path
-            action1 = self.sampling_action_path
-            frames0, frames1, meta = run_two_chunk_memory_monitor(
-                pipe,
-                prompt=sample.get("prompt") or sample.get("description") or "A scene.",
-                negative_prompt=self.sampling_negative_prompt,
-                action_path=self.sampling_action_path,
-                chunk0_action_path=action0,
-                chunk1_action_path=action1,
-                first_frame_pil=first_frame,
-                context_memory_frames=self.context_memory_frames,
-                chunk_frames=self.sampling_num_frames,
-                h=self.sampling_height,
-                w=self.sampling_width,
-                seed=42 + self.step_count + int(getattr(accelerator, "process_index", 0) or 0),
-                sigma_shift=5.0,
-                num_inference_steps=self.sampling_num_inference_steps,
-                cfg_scale=5.0,
-                inference_noise_level=0.0,
-                omit_context_actions=False,
-                context_source=self.context_source,
-                context_position=os.environ.get("CONTEXT_POSITION", "suffix"),
-                context_per_frame_vae=self.context_per_frame_vae,
-                device=pipe.device,
-                log_prefix=f"[paper-sampling][step={self.step_count}]",
-            )
-            out_dir = os.path.join(self.output_path, "paper_process_sampling")
-            os.makedirs(out_dir, exist_ok=True)
-            rank = int(getattr(accelerator, "process_index", 0) or 0)
-            tag = f"step_{self.step_count:07d}_rank{rank}"
-            save_video(list(frames0) + list(frames1), os.path.join(out_dir, f"{tag}_pred.mp4"), fps=15, quality=5)
-            with open(os.path.join(out_dir, f"{tag}_meta.json"), "w", encoding="utf-8") as f:
-                json.dump(meta, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.warning(f"[paper-sampling] skipped at step {self.step_count}: {type(e).__name__}: {e}")
+        sample = current_batch[0] if isinstance(current_batch, list) else current_batch
+        first_frame = sample["video"][0]
+        unwrapped = accelerator.unwrap_model(model)
+        pipe = unwrapped.pipe
+        sync_pipe_memory_from_training_module(pipe, unwrapped)
+        action0 = self.sampling_two_chunk_action_path or self.sampling_action_path
+        action1 = self.sampling_action_path
+        frames0, frames1, meta = run_two_chunk_memory_monitor(
+            pipe,
+            prompt=sample.get("prompt") or sample.get("description") or "A scene.",
+            negative_prompt=self.sampling_negative_prompt,
+            action_path=self.sampling_action_path,
+            chunk0_action_path=action0,
+            chunk1_action_path=action1,
+            first_frame_pil=first_frame,
+            context_memory_frames=self.context_memory_frames,
+            chunk_frames=self.sampling_num_frames,
+            h=self.sampling_height,
+            w=self.sampling_width,
+            seed=42 + self.step_count + accelerator.process_index,
+            sigma_shift=5.0,
+            num_inference_steps=self.sampling_num_inference_steps,
+            cfg_scale=5.0,
+            inference_noise_level=0.0,
+            omit_context_actions=False,
+            context_source=self.context_source,
+            context_position=os.environ.get("CONTEXT_POSITION", "suffix"),
+            context_per_frame_vae=self.context_per_frame_vae,
+            device=pipe.device,
+            log_prefix=f"[paper-sampling][step={self.step_count}]",
+        )
+        out_dir = os.path.join(self.output_path, "paper_process_sampling")
+        os.makedirs(out_dir, exist_ok=True)
+        tag = f"step_{self.step_count:07d}_rank{accelerator.process_index}"
+        save_video(list(frames0) + list(frames1), os.path.join(out_dir, f"{tag}_pred.mp4"), fps=15, quality=5)
+        with open(os.path.join(out_dir, f"{tag}_meta.json"), "w", encoding="utf-8") as f:
+            json.dump(meta, f, ensure_ascii=False, indent=2)
 
     def on_step_end(self, loss, accelerator=None, model=None, current_batch=None):
         self.step_count += 1
         if self.wandb_logger is not None:
-            try:
-                if accelerator is None or accelerator.is_main_process:
-                    loss_v = float(loss.detach().float().item()) if hasattr(loss, "detach") else float(loss)
-                    self.wandb_logger.log({"train/loss": loss_v, "step": self.step_count})
-            except Exception as e:
-                logger.debug(f"[ModelLogger] wandb log failed: {e}")
+            if accelerator is None or accelerator.is_main_process:
+                loss_v = float(loss.detach().float().item())
+                self.wandb_logger.log({"train/loss": loss_v, "step": self.step_count})
         if accelerator is not None and accelerator.is_main_process:
             self._maybe_sample_paper_process(accelerator, model, current_batch)
         if accelerator is not None and self.enable_video_sampling and self.sampling_two_chunk_memory and self.sampling_interval_steps > 0:
@@ -303,20 +228,14 @@ class ModelLogger(BaseModelLogger):
         ):
             accelerator.wait_for_everyone()
             if accelerator.is_main_process:
-                try:
-                    path = os.path.join(self.output_path, f"Step-{self.step_count}.safetensors")
-                    self._save_step_or_epoch_ckpt(accelerator, model, path)
-                except Exception as e:
-                    logger.warning(f"[ModelLogger] step checkpoint save failed: {e}")
+                path = os.path.join(self.output_path, f"Step-{self.step_count}.safetensors")
+                self._save_step_or_epoch_ckpt(accelerator, model, path)
 
     def on_epoch_end(self, accelerator, model, epoch_id):
         accelerator.wait_for_everyone()
         if accelerator.is_main_process:
-            try:
-                path = os.path.join(self.output_path, f"epoch-{epoch_id}.safetensors")
-                self._save_step_or_epoch_ckpt(accelerator, model, path)
-            except Exception as e:
-                logger.warning(f"[ModelLogger] epoch checkpoint save failed: {e}")
+            path = os.path.join(self.output_path, f"epoch-{epoch_id}.safetensors")
+            self._save_step_or_epoch_ckpt(accelerator, model, path)
 
 
 def launch_training_task(
@@ -341,18 +260,14 @@ def launch_training_task(
     fov_top_k: int = 4,  # Number of overlap frames to retrieve. GT frame 0 will be added automatically.
     use_rt_relative: bool = False,  # Experiment 1_4_2: Use RT relative conversion (aligned with Context-as-Memory)
     strict_overlap_context: bool = False,
-    fov_vis_interval: int = 0,
-    fov_vis_max_saves: int = 0,
-    output_path: Optional[str] = None,
     dataset_repeat: int = 1,  # Add dataset_repeat parameter for step calculation
-    trainable_dit_modules: Optional[str] = None,  # Comma-separated: only unfreeze these DiT modules (e.g. camera_encoder,block_self_attn). None = train full DiT.
     use_camera_encoder: bool = False,  # exp1_4_3: use CameraEncoder (action_mlp unused -> need find_unused_parameters)
     num_workers: int = 0,  # DataLoader workers: 0=main process, >0=parallel preload (recommend 4 for video)
     context_source: str = "fov",
     max_train_steps: int = 0,
     progress_total_steps: int = 0,
 ):
-    prev_chunk_frames = int(prev_chunk_frames or 81)
+    prev_chunk_frames = int(prev_chunk_frames)
     # VideoDataset can return None when file loading fails; keep distributed batches aligned.
     def collate_fn(batch):
         valid_batch = [item for item in batch if item is not None]
@@ -372,13 +287,12 @@ def launch_training_task(
     if num_workers > 0:
         logger.info(f"[DataLoader] num_workers={num_workers}, persistent_workers=True, pin_memory={torch.cuda.is_available()} (data preload parallel to GPU)")
     
-    import os
     timeout_seconds = int(os.environ.get('TORCH_DISTRIBUTED_DEFAULT_TIMEOUT', 2400))
     os.environ['TORCH_DISTRIBUTED_DEFAULT_TIMEOUT'] = str(timeout_seconds)
     logger.info(f"[Timeout Config] Setting TORCH_DISTRIBUTED_DEFAULT_TIMEOUT={timeout_seconds} seconds ({timeout_seconds/60:.1f} minutes)")
     
     # Conditional context paths can leave parameters unused on some iterations.
-    need_find_unused = bool(use_camera_encoder) or bool(getattr(model_logger, "context_drop_prob", 0.0) > 0.0)
+    need_find_unused = bool(use_camera_encoder) or model_logger.context_drop_prob > 0.0
     if need_find_unused:
         from accelerate import DistributedDataParallelKwargs
         ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
@@ -388,7 +302,7 @@ def launch_training_task(
         accelerator = Accelerator(gradient_accumulation_steps=gradient_accumulation_steps)
     model, optimizer, dataloader, scheduler = accelerator.prepare(model, optimizer, dataloader, scheduler)
     
-    if getattr(model_logger, 'enable_video_sampling', False) and model_logger.total_steps is not None:
+    if model_logger.enable_video_sampling and model_logger.total_steps is not None:
         dataset_size = len(dataset)
         num_processes = accelerator.num_processes
         effective_dataset_size = dataset_size * dataset_repeat
@@ -417,7 +331,6 @@ def launch_training_task(
             logger.info(f"  ✓ Over {num_epochs} epoch(s)")
             logger.info("="*80)
     
-    pre_loss = None
     step = resume_step_count
     traj_loss = 0.0
     if resume_step_count > 0:
@@ -451,12 +364,9 @@ def launch_training_task(
         consecutive_none_count = 0
         max_consecutive_none = 100  # If we get 100 consecutive None values, something is wrong
         
-        progress_total = int(progress_total_steps or 0)
+        progress_total = int(progress_total_steps)
         if progress_total <= 0:
-            try:
-                progress_total = len(dataloader)
-            except TypeError:
-                progress_total = None
+            progress_total = len(dataloader)
         progress_bar = tqdm(
             dataloader,
             total=progress_total,
@@ -491,24 +401,17 @@ def launch_training_task(
             # Simplified context-based retrieval OR replay/prev_chunk_tail (aligned with multichunk eval)
             context_retrieval_success = True  # Set False if any sample fails (for strict mode)
             _umodel = accelerator.unwrap_model(model)
-            _cm_frames = int(getattr(_umodel, "context_memory_frames", context_memory_frames) or context_memory_frames)
-            _cs = (context_source or "fov").strip().lower()
+            _cm_frames = int(_umodel.context_memory_frames)
+            _cs = context_source.strip().lower()
             if _cs not in ("fov", "replay", "prev_chunk_tail"):
                 _cs = "fov"
 
             if _cs == "replay" and dataset_base_path:
-                try:
-                    from .context_chunk_utils import (
-                        replay_context_global_indices,
-                        replay_context_actions_from_segment_actions,
-                        synthetic_replay_context_from_segment,
-                    )
-                except ImportError:
-                    from context_chunk_utils import (
-                        replay_context_global_indices,
-                        replay_context_actions_from_segment_actions,
-                        synthetic_replay_context_from_segment,
-                    )
+                from src.model_training.multichunk_sample_utils import (
+                    replay_context_actions_from_segment_actions,
+                    replay_context_global_indices,
+                    synthetic_replay_context_from_segment,
+                )
                 for d in samples:
                     vf = d.get("video") or []
                     n_seg = min(int(prev_chunk_frames), len(vf)) if vf else 0
@@ -523,25 +426,16 @@ def launch_training_task(
                         ra = replay_context_actions_from_segment_actions(acts[:n_seg], n_seg, _cm_frames)
                         if ra is not None:
                             d["context_actions"] = ra
-                    try:
-                        sf = int(d.get("start_frame", 0) or 0)
-                    except (TypeError, ValueError):
-                        sf = 0
+                    sf = int(d.get("start_frame", 0) or 0)
                     idxs = replay_context_global_indices(n_seg, _cm_frames)
                     d["context_frame_indices"] = [sf + int(i) for i in idxs]
 
             elif _cs == "prev_chunk_tail" and dataset_base_path:
-                try:
-                    from .context_chunk_utils import load_prev_chunk_tail_from_disk, load_prev_chunk_tail_rt_actions
-                except ImportError:
-                    from context_chunk_utils import load_prev_chunk_tail_from_disk, load_prev_chunk_tail_rt_actions
+                from src.model_training.multichunk_sample_utils import load_prev_chunk_tail_from_disk, load_prev_chunk_tail_rt_actions
                 _ctx_pos = os.environ.get("CONTEXT_POSITION", "suffix").strip().lower()
                 _nearest_first = (_ctx_pos == "suffix")
                 for d in samples:
-                    try:
-                        sf = int(d.get("start_frame", 0) or 0)
-                    except (TypeError, ValueError):
-                        sf = 0
+                    sf = int(d.get("start_frame", 0) or 0)
                     vn = d.get("video_name", "")
                     pil_list, idxs = load_prev_chunk_tail_from_disk(
                         dataset_base_path, str(vn), sf, _cm_frames, nearest_first=_nearest_first
@@ -565,69 +459,55 @@ def launch_training_task(
 
             elif enable_fov_retrieval and dataset_base_path:
                 for d in samples:
-                    try:
-                        if retrieval_method == "latent_sim":
-                            (
-                                context_frames,
-                                context_actions,
-                                context_indices,
-                                ref_frame_idx,
-                                video_name,
-                                source,
-                            ) = retrieve_context_frames_advanced(
-                                data=d,
-                                dataset_base_path=dataset_base_path,
-                                top_k=fov_top_k,
-                                drop_overlap_probability=0.1,
-                                use_rt_relative=use_rt_relative,
-                                retrieval_method="latent_sim",
-                                latent_retrieval_dir=latent_retrieval_dir,
-                                strict_overlap_labels=strict_overlap_context,
-                            )
-                        else:
-                            (
-                                context_frames,
-                                context_actions,
-                                context_indices,
-                                ref_frame_idx,
-                                video_name,
-                                source,
-                            ) = retrieve_fov_context_frames(
-                                data=d,
-                                dataset_base_path=dataset_base_path,
-                                fov_retriever=fov_retriever,  # unused in simplified retrieval, kept for compat
-                                top_k=fov_top_k,  # fov_top_k is number of overlap frames (4), GT frame 0 will be added automatically
-                                use_precomputed_overlaps=True,
-                                strict_overlap_labels=strict_overlap_context,
-                                allow_realtime_fallback=(not strict_overlap_context),
-                                allow_segment_fallback=(not strict_overlap_context),
-                            )
+                    if retrieval_method == "latent_sim":
+                        (
+                            context_frames,
+                            context_actions,
+                            context_indices,
+                            ref_frame_idx,
+                            video_name,
+                            source,
+                        ) = retrieve_context_frames_advanced(
+                            data=d,
+                            dataset_base_path=dataset_base_path,
+                            top_k=fov_top_k,
+                            drop_overlap_probability=0.1,
+                            use_rt_relative=use_rt_relative,
+                            retrieval_method="latent_sim",
+                            latent_retrieval_dir=latent_retrieval_dir,
+                            strict_overlap_labels=strict_overlap_context,
+                        )
+                    else:
+                        (
+                            context_frames,
+                            context_actions,
+                            context_indices,
+                            ref_frame_idx,
+                            video_name,
+                            source,
+                        ) = retrieve_fov_context_frames(
+                            data=d,
+                            dataset_base_path=dataset_base_path,
+                            fov_retriever=fov_retriever,  # unused in simplified retrieval, kept for compat
+                            top_k=fov_top_k,  # fov_top_k is number of overlap frames (4), GT frame 0 will be added automatically
+                            use_precomputed_overlaps=True,
+                            strict_overlap_labels=strict_overlap_context,
+                            allow_realtime_fallback=(not strict_overlap_context),
+                            allow_segment_fallback=(not strict_overlap_context),
+                        )
 
-                        if context_frames and len(context_frames) > 0:
-                            # Use retrieved frames as context
-                            d["context_frames"] = context_frames
-                            if context_actions:
-                                d["context_actions"] = context_actions
-                            # Store retrieval metadata for visualization/debugging
-                            d["context_frame_indices"] = context_indices
-                            d["context_ref_frame_idx"] = ref_frame_idx
-                            d["context_video_name"] = video_name
-                            d["context_source"] = source
-                        else:
-                            context_retrieval_success = False
-                    except Exception as e:
+                    if context_frames and len(context_frames) > 0:
+                        # Use retrieved frames as context
+                        d["context_frames"] = context_frames
+                        if context_actions:
+                            d["context_actions"] = context_actions
+                        # Store retrieval metadata for visualization/debugging
+                        d["context_frame_indices"] = context_indices
+                        d["context_ref_frame_idx"] = ref_frame_idx
+                        d["context_video_name"] = video_name
+                        d["context_source"] = source
+                    else:
                         context_retrieval_success = False
-                        if step % 100 == 0 and accelerator.is_main_process:
-                            logger.warning(f"Context retrieval failed for sample: {e}")
-                        if accelerator.is_main_process and step == 1 and d is samples[0]:
-                            gt_video_name = d.get("video_name", "unknown")
-                            start_frame = d.get("start_frame", None)
-                            end_frame = d.get("end_frame", None)
-                            video_frames_count = len(d.get("video", [])) if isinstance(d.get("video"), list) else 0
-                            logger.info("=" * 80)
-                            logger.info(f"[STEP 1 CHECK] Context retrieval failed: {e}")
-                            logger.info(f"GT Video: {gt_video_name}, start={start_frame}, end={end_frame}, frames={video_frames_count}")
-                            logger.info("=" * 80)
                         break
                         
             # Strict mode: if we require context but retrieval failed, skip this step
@@ -636,7 +516,7 @@ def launch_training_task(
                 and (not context_retrieval_success)
                 and (
                     enable_fov_retrieval
-                    or (context_source or "fov").strip().lower() in ("replay", "prev_chunk_tail")
+                    or context_source.strip().lower() in ("replay", "prev_chunk_tail")
                 )
             )
             if _need_ctx_strict:
@@ -803,11 +683,11 @@ if __name__ == "__main__":
     def _normalize_and_validate_args():
         # Backward-compat mappings
         if _arg("per_device_train_batch_size", None) is None:
-            args.per_device_train_batch_size = int(_arg("batch_size", 1) or 1)
+            args.per_device_train_batch_size = int(_arg("batch_size", 1))
         if _arg("sampling_atomic_left_right", False) and not _arg("sampling_two_chunk_memory", False):
             # Legacy monitor intent maps to current two-chunk monitor.
             args.sampling_two_chunk_memory = True
-        if _arg("enable_video_sampling", False) and int(_arg("sampling_interval_steps", 0) or 0) <= 0:
+        if _arg("enable_video_sampling", False) and int(_arg("sampling_interval_steps", 0)) <= 0:
             args.sampling_interval_steps = 1000
 
         # Keep paper-style block-wise SSM and legacy VideoSSM hybrid explicitly separated.
@@ -852,32 +732,18 @@ if __name__ == "__main__":
     
     set_seed(42)
     
-    import inspect
-    try:
-        sig = inspect.signature(VideoDataset.__init__)
-        sig_params = set(sig.parameters.keys())
-    except Exception:
-        sig_params = set()
-    
-    # Build VideoDataset arguments - only include parameters that VideoDataset accepts
-    # According to the signature, VideoDataset only accepts: args, base_path, metadata_path, etc.
-    # The ICL parameters (enable_icl, icl_num_examples, icl_context_frames) should be passed via args
-    # Make sure args has these attributes set
-    for _name, _default in (("enable_icl", False), ("icl_num_examples", 2), ("icl_context_frames", 8)):
-        if not hasattr(args, _name):
-            setattr(args, _name, _default)
+    args.enable_icl = False
+    args.icl_num_examples = 2
+    args.icl_context_frames = 8
     
     if _arg('train_cam_pose', False):
         dataset = CamVideoDataset(args=args)
     else:
-        dataset_kwargs = {"args": args}
-        if "action_base_path" in sig_params:
-            dataset_kwargs["action_base_path"] = getattr(args, "action_base_path", None)
-        dataset = VideoDataset(**dataset_kwargs)
+        dataset = VideoDataset(args=args, action_base_path=args.action_base_path)
 
     def _log_dataset_validation(ds):
         ds_size = len(ds)
-        ds_repeat = _arg('dataset_repeat', 1) or 1
+        ds_repeat = _arg('dataset_repeat', 1)
         logger.info(
             f"[Dataset] size={ds_size}, repeat={ds_repeat}, "
             f"epochs={args.num_epochs}, total_samples={ds_size * ds_repeat * args.num_epochs}"
@@ -923,7 +789,7 @@ if __name__ == "__main__":
         use_spatial_memory_legacy=_arg('use_spatial_memory_legacy', False),
         spatial_memory_tokens=_arg('spatial_memory_tokens', 64),
         spatial_memory_inject_mode=_arg('spatial_memory_inject_mode', 'concat_text'),
-        timestep_shift=float(_arg('timestep_shift', 1.0) or 1.0),
+        timestep_shift=float(_arg('timestep_shift', 1.0)),
     )
 
     # ── VWM-style: Replace DiT blocks with DiTBlock_w_Action ──
@@ -931,26 +797,18 @@ if __name__ == "__main__":
     if _arg('train_action_module', False) or _use_cam_pose:
         dit = model.pipe.dit
         old_blocks = dit.blocks
-        has_image_input = getattr(dit, 'has_image_input', False)
+        has_image_input = dit.has_image_input
         dim = dit.dim
         num_heads = dit.num_heads
         ffn_dim = dit.ffn_dim
-        eps = getattr(dit, 'eps', 1e-6)
+        eps = 1e-6
 
-        block_dtype = None
-        for old_block in old_blocks:
-            for p in old_block.parameters():
-                block_dtype = p.dtype
-                break
-            if block_dtype is not None:
-                break
-        if block_dtype is None:
-            block_dtype = torch.float32
+        block_dtype = next(old_blocks[0].parameters()).dtype
 
         use_block_wise_ssm = bool(_arg('use_block_wise_ssm', False))
         use_videossm_hybrid = bool(_arg('use_videossm_hybrid', False))
-        ssm_every_n = max(int(_arg('ssm_every_n_blocks', 4) or 4), 1)
-        videossm_every_n = max(int(_arg('videossm_every_n_blocks', 4) or 4), 1)
+        ssm_every_n = max(int(_arg('ssm_every_n_blocks', 4)), 1)
+        videossm_every_n = max(int(_arg('videossm_every_n_blocks', 4)), 1)
 
         new_blocks = nn.ModuleList()
         for block_id, old_block in enumerate(old_blocks):
@@ -964,16 +822,14 @@ if __name__ == "__main__":
                 use_cam_pose=_use_cam_pose,
                 use_block_wise_ssm=attach_block_ssm,
                 use_videossm_hybrid=attach_videossm,
-                videossm_kernel_size=int(_arg('videossm_kernel_size', 3) or 3),
-                videossm_expand=int(_arg('videossm_expand', 2) or 2),
+                videossm_kernel_size=int(_arg('videossm_kernel_size', 3)),
+                videossm_expand=int(_arg('videossm_expand', 2)),
             )
             new_block = new_block.to(dtype=block_dtype, device=next(old_block.parameters()).device)
             for attr in ("self_attn", "cross_attn", "norm1", "norm2", "norm3", "ffn"):
-                if hasattr(old_block, attr) and hasattr(new_block, attr):
-                    getattr(new_block, attr).load_state_dict(getattr(old_block, attr).state_dict())
-            if hasattr(old_block, "modulation") and hasattr(new_block, "modulation"):
-                with torch.no_grad():
-                    new_block.modulation.copy_(old_block.modulation.to(dtype=block_dtype))
+                getattr(new_block, attr).load_state_dict(getattr(old_block, attr).state_dict())
+            with torch.no_grad():
+                new_block.modulation.copy_(old_block.modulation.to(dtype=block_dtype))
             new_blocks.append(new_block)
 
         dit.blocks = new_blocks
@@ -986,7 +842,7 @@ if __name__ == "__main__":
 
         device = next(dit.parameters()).device
         _ckpt_path = _arg('ckpt_path', None) or _arg('resume_from_checkpoint', None)
-        if _ckpt_path is not None and os.path.isfile(_ckpt_path):
+        if _ckpt_path is not None:
             ckpt = safe_load_file(_ckpt_path)
             missing, unexpected = dit.load_state_dict(ckpt, strict=False)
             dit.to(device=device)
@@ -1017,7 +873,7 @@ if __name__ == "__main__":
         _log_dit_freeze_summary(dit)
 
     _resume_from = _arg('resume_from', None)
-    if _resume_from and os.path.isfile(_resume_from):
+    if _resume_from:
         logger.info(f"Loading full resume checkpoint: {_resume_from}")
         ckpt = safe_load_file(_resume_from)
         model.pipe.dit.load_state_dict(ckpt, strict=False)
@@ -1030,18 +886,18 @@ if __name__ == "__main__":
         ckpt_interval=args.ckpt_interval,
         resume_step_count=resume_step_count,
         save_full_model=_arg('save_full_model', False),
-        context_drop_prob=float(_arg("context_drop_prob", 0.0) or 0.0),
+        context_drop_prob=float(_arg("context_drop_prob", 0.0)),
         enable_video_sampling=_arg("enable_video_sampling", False),
-        sampling_interval_steps=int(_arg("sampling_interval_steps", 0) or 0),
+        sampling_interval_steps=int(_arg("sampling_interval_steps", 0)),
         sampling_two_chunk_memory=_arg("sampling_two_chunk_memory", False),
         sampling_action_path=_arg("sampling_action_path", None),
         sampling_two_chunk_action_path=_arg("sampling_two_chunk_action_path", None),
         sampling_negative_prompt=_arg("sampling_negative_prompt", ""),
-        sampling_height=int(_arg("sampling_height", 352) or 352),
-        sampling_width=int(_arg("sampling_width", 640) or 640),
-        sampling_num_frames=int(_arg("sampling_num_frames", 81) or 81),
-        sampling_num_inference_steps=int(_arg("sampling_num_inference_steps", 50) or 50),
-        context_memory_frames=int(_arg("context_memory_frames", 1) or 1),
+        sampling_height=int(_arg("sampling_height", 352)),
+        sampling_width=int(_arg("sampling_width", 640)),
+        sampling_num_frames=int(_arg("sampling_num_frames", 81)),
+        sampling_num_inference_steps=int(_arg("sampling_num_inference_steps", 50)),
+        context_memory_frames=int(_arg("context_memory_frames", 1)),
         context_source=_arg("context_source", "replay"),
         context_per_frame_vae=_arg("context_per_frame_vae", False),
     )
@@ -1053,20 +909,17 @@ if __name__ == "__main__":
     enable_fov_retrieval = _arg('enable_fov_retrieval', False)
     fov_retriever = None
     dataset_base_path = _arg('dataset_base_path', None)
-    if enable_fov_retrieval and dataset_base_path:
+    if enable_fov_retrieval:
         fov_retriever = setup_fov_retriever_for_training(
             dataset_base_path=dataset_base_path,
             enable_fov_retrieval=True
         )
-    elif enable_fov_retrieval and not dataset_base_path:
-        logger.warning("enable_fov_retrieval is True but dataset_base_path is not set, FOV retrieval disabled")
-        enable_fov_retrieval = False
     
     launch_training_task(
         dataset, model, model_logger, optimizer, scheduler,
         num_epochs=args.num_epochs,
         gradient_accumulation_steps=args.gradient_accumulation_steps,
-        per_device_train_batch_size=int(_arg("per_device_train_batch_size", 1) or 1),
+        per_device_train_batch_size=int(_arg("per_device_train_batch_size", 1)),
         spike_threshold=_arg('spike_threshold', 5.0),
         resume_step_count=resume_step_count,
         enable_fov_retrieval=enable_fov_retrieval,
@@ -1075,20 +928,16 @@ if __name__ == "__main__":
         dataset_base_path=_arg('dataset_base_path', None),
         fov_retriever=fov_retriever,
         context_memory_frames=_arg('context_memory_frames', 8),
-        prev_chunk_frames=int(_arg('prev_chunk_frames', 81) or 81),
+        prev_chunk_frames=int(_arg('prev_chunk_frames', 81)),
         fov_top_k=_arg('fov_top_k', 4),  # Number of overlap frames (4), GT frame 0 added automatically
         use_rt_relative=_arg('use_rt_relative', False),  # Experiment 1_4_2: RT relative conversion
         strict_overlap_context=_arg('strict_overlap_context', False),
-        fov_vis_interval=_arg('fov_vis_interval', 0),
-        fov_vis_max_saves=_arg('fov_vis_max_saves', 0),
-        output_path=_arg('output_path', None),
         dataset_repeat=_arg('dataset_repeat', 1),  # Pass dataset_repeat for step calculation
-        trainable_dit_modules=_arg('trainable_dit_modules', None),
         use_camera_encoder=_arg('use_camera_encoder', False),  # exp1_4_3: DDP find_unused_parameters
         num_workers=_arg('num_workers', 0),
         context_source=_arg('context_source', 'fov'),
-        max_train_steps=int(_arg('max_train_steps', 0) or 0),
-        progress_total_steps=int(_arg('progress_total_steps', 0) or 0),
+        max_train_steps=int(_arg('max_train_steps', 0)),
+        progress_total_steps=int(_arg('progress_total_steps', 0)),
     )
 
     if model_logger.wandb_logger is not None:

@@ -12,19 +12,7 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
 # Import RT utilities for relative pose conversion (experiment 1_4_2)
-try:
-    from .rt_utils import pose_to_rt, rt_to_pose, convert_rt_to_relative
-except ImportError:
-    try:
-        from rt_utils import pose_to_rt, rt_to_pose, convert_rt_to_relative
-    except ImportError:
-        # Fallback: define minimal versions if import fails
-        def pose_to_rt(pose):
-            return None
-        def rt_to_pose(rt):
-            return None
-        def convert_rt_to_relative(rt_list_all, ref_rt):
-            return rt_list_all
+from src.model_training.rt_utils import convert_rt_to_relative, pose_to_rt, rt_to_pose
 
 
 def _parse_poses_dict(data: dict) -> dict:
