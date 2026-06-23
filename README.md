@@ -293,10 +293,10 @@ Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 | Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 |
 | Raw context | Context K=20 | [`context_k20/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k20) | 30,000 |
 | Spatial | Spatial Memory | [`spatial_mem/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_mem) | 30,000 |
-| State-space | Block-wise SSM | [`block_wise_ssm_two_chunk/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/block_wise_ssm_two_chunk) | 30,000 |
-| State-space | Legacy Hybrid | [`videossm_hybrid/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/videossm_hybrid) | 30,000 |
+| State-space | Block-wise SSM | TODO | TODO |
+| State-space | Legacy Hybrid | TODO | TODO |
 
-Extended spatial / SSM ablation rows (+6) are listed in [doc/checkpoints.md](doc/checkpoints.md).
+Extended spatial rows are listed in [doc/checkpoints.md](doc/checkpoints.md); SSM weights are TODO.
 
 **Download & eval:**
 
