@@ -392,6 +392,50 @@ def sample_random_frame_from_dataset(dataset_base, w, h, seed, metadata_path=Non
     return None
 
 
+def _angle_distance_deg(a: float, b: float) -> float:
+    """Smallest absolute yaw distance in degrees."""
+    return abs((float(a) - float(b) + 180.0) % 360.0 - 180.0)
+
+
+def fov_history_context_from_generated_frames(frames_list, yaw_list, K: int, target_yaw: float):
+    """Select replay context by yaw/FOV proxy from generated history.
+
+    The first context frame remains the most recent frame for short-term continuity.
+    The remaining frames are selected from generated history by closest world-yaw
+    distance to the next chunk's midpoint yaw. Context actions are handled by the
+    caller and intentionally remain unchanged in this first version.
+    """
+    n = min(len(frames_list), len(yaw_list))
+    if n <= 0 or K <= 0:
+        return [], []
+    if K == 1 or n == 1:
+        return [frames_list[n - 1]], [n - 1]
+
+    forced_idx = n - 1
+    need = min(int(K) - 1, n - 1)
+    scored = []
+    for idx in range(n - 1):
+        dist = _angle_distance_deg(yaw_list[idx], target_yaw)
+        # Prefer recent frames as a tie-breaker while keeping FOV/yaw match primary.
+        scored.append((dist, -idx, idx))
+    scored.sort()
+    selected = [idx for _dist, _neg_idx, idx in scored[:need]]
+    return [frames_list[forced_idx]] + [frames_list[i] for i in selected], [forced_idx] + selected
+
+
+def _world_yaw_rt(yaw: float):
+    return compute_rotation_list([0.0, 0.0, 0.0, float(yaw)])
+
+
+def context_actions_from_world_yaws(selected_yaws, ref_yaw: float):
+    """Convert selected world-yaw RTs into RTs relative to the next chunk start."""
+    from src.model_training.fov_retrieval import convert_rt_to_relative
+
+    ref_rt = _world_yaw_rt(ref_yaw)
+    selected_rts = [_world_yaw_rt(y) for y in selected_yaws]
+    return convert_rt_to_relative(selected_rts, ref_rt)
+
+
 def trim_continuation_first_frame(chunk_frames_list, yaw_history, chunk_frames=81):
     """与训练对齐：训练时 context[0]=target[0]（同一帧），续段首帧=上一段末帧。拼接时去掉续段第 0 帧避免重复/跳帧。
     返回 (trimmed_chunk_frames_list, trimmed_yaw)：chunk0 保留 81 帧，chunk1 及之后只保留 [1:81] 共 80 帧。"""
@@ -996,12 +1040,19 @@ def run_left2_right2_4chunk(
     sampling_action_dir=None,
     omit_context_actions=True,
     multi_ctx_all_history=False,
+    fov_history_context=False,
+    fov_last_target=False,
+    fov_context_rt=False,
 ):
     """回环：先左转 2 chunk（各 deg° CCW），再右转 2 chunk（各 deg° CW）。
 
     默认行为：与 2chunk 回环一致，续段 context 仅来自上一 chunk 的末尾若干帧。
     当 multi_ctx_all_history=True 时：续段 context 第一帧必须为上一 chunk 的最后一帧；
     其余 (ctx-1) 帧从「前面所有已生成帧」均匀采样（保持时间序），用于记忆机制对比。
+    当 fov_history_context=True 时：续段 context 第一帧仍为上一 chunk 的最后一帧；
+    其余 (ctx-1) 帧按下一 chunk 中点 world-yaw，从所有已生成历史帧中检索最接近的帧。
+    当 fov_last_target=True 时：仅第 4 个 chunk 的检索 target 改用该 chunk 末尾 world-yaw。
+    当 fov_context_rt=True 时：FOV/yaw 检索出的 context actions 转成相对下一 chunk 起始 world-yaw 的 RT。
     """
     print(f"[Left2Right2 4chunk] 左转2chunk then 右转2chunk sigma_shift={sigma_shift} omit_ctx_act={omit_context_actions} context_frames={context_frames} (续段 ctx 数)")
     prompt = irc.load_prompt_for_video(dataset_base, video_name) or "A scene."
@@ -1095,10 +1146,39 @@ def run_left2_right2_4chunk(
 
         # 续段 context：
         # - 默认：与 2chunk 一致，仅用上一 chunk 的 last n 帧
+        # - fov_history_context=True：第一帧必须为上一 chunk 最后一帧；其余 (ctx-1) 帧按下一 chunk 中点 world-yaw 做 FOV/yaw proxy 检索。
         # - multi_ctx_all_history=True：第一帧必须为上一 chunk 最后一帧；其余 (ctx-1) 帧从「前面所有帧」均匀采样，保持时间序。
         if ch < 3:
+            next_context_actions = None
             if context_frames <= 0:
                 prev_frames = [frames_ch[-1]]
+            elif fov_history_context and len(all_prev_frames) > 0:
+                next_ch = ch + 1
+                next_clockwise = next_ch >= 2
+                if use_sampling_files:
+                    next_yaw_chunk = _yaw_right if next_clockwise else _yaw_left
+                else:
+                    _unused_actions, next_yaw_chunk = build_action_chunk(deg_per_chunk, next_clockwise, chunk_frames)
+                target_idx = min(max(0, chunk_frames // 2), len(next_yaw_chunk) - 1)
+                if fov_last_target and next_ch == 3:
+                    target_idx = len(next_yaw_chunk) - 1
+                target_mid_yaw = cumulative_yaw + float(next_yaw_chunk[target_idx])
+                prev_frames, picked_indices = fov_history_context_from_generated_frames(
+                    all_prev_frames,
+                    yaw_history,
+                    context_frames,
+                    target_mid_yaw,
+                )
+                picked_yaws = [float(yaw_history[i]) for i in picked_indices if i < len(yaw_history)]
+                if fov_context_rt and picked_yaws:
+                    next_context_actions = context_actions_from_world_yaws(picked_yaws, cumulative_yaw)
+                print(
+                    f"[Loop] fov_history_context ch={ch}->next={next_ch}: "
+                    f"target_idx={target_idx} target_yaw={target_mid_yaw:.2f} picked_indices={picked_indices} "
+                    f"picked_yaws={[round(y, 2) for y in picked_yaws]} "
+                    f"context_rt={bool(next_context_actions)} ref_yaw={cumulative_yaw:.2f}",
+                    flush=True,
+                )
             elif multi_ctx_all_history and len(all_prev_frames) > 0:
                 total = len(all_prev_frames)
                 if total == 1 or context_frames == 1:
@@ -1130,10 +1210,15 @@ def run_left2_right2_4chunk(
             with torch.no_grad():
                 context_latents = encode_context_frames_per_frame(pipe, prev_pil, pipe.device)
             num_ctx_tokens = context_latents.shape[2]
-            context_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
+            if next_context_actions is not None:
+                if len(next_context_actions) < num_ctx_tokens:
+                    next_context_actions = next_context_actions + [next_context_actions[-1]] * (num_ctx_tokens - len(next_context_actions))
+                context_actions_t = torch.tensor(next_context_actions[:num_ctx_tokens], dtype=torch.float32)
+            else:
+                context_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
             print(
                 f"[Loop] continuation chunk ch={ch}: len(prev_pil)={len(prev_pil)} num_ctx_tokens={num_ctx_tokens} "
-                f"(multi_ctx_all_history={multi_ctx_all_history})"
+                f"(multi_ctx_all_history={multi_ctx_all_history} fov_history_context={fov_history_context} fov_context_rt={fov_context_rt})"
             )
 
         if not use_sampling_files and os.path.exists(path_ch):
@@ -1507,6 +1592,21 @@ def main():
         action="store_true",
         help="4chunk 回环：续段 ctx 时，除最后 1 帧固定为上一 chunk 的最后一帧，其余 (ctx-1) 帧从所有已生成 chunk 的历史帧中均匀抽取，用于多 chunk 记忆机制实验",
     )
+    p.add_argument(
+        "--multi_ctx_4chunk_fov_history",
+        action="store_true",
+        help="4chunk 回环：续段 ctx 时，除上一 chunk 最后一帧外，其余帧按下一 chunk 中点 world-yaw 从已生成历史帧中检索（仅改 context 帧，context_actions 仍保持 identity）",
+    )
+    p.add_argument(
+        "--multi_ctx_4chunk_fov_last_target",
+        action="store_true",
+        help="配合 --multi_ctx_4chunk_fov_history：仅第 4 个 chunk 的检索 target 改用该 chunk 末尾 world-yaw，便于回到起点时检索 chunk1 开头帧",
+    )
+    p.add_argument(
+        "--multi_ctx_4chunk_fov_context_rt",
+        action="store_true",
+        help="配合 --multi_ctx_4chunk_fov_history：为检索出的 context 帧注入相对下一 chunk 起始 world-yaw 的 RT，而不是 identity",
+    )
     # Camera encoder 与注入节点：须与训练一致（见 INFERENCE_ALIGNMENT.md）
     p.add_argument("--camera_inject_mode", type=str, default=None, help="与训练一致：post|pre_norm|pre_qkv|pre_qkv_post；不设则从 ckpt 路径推断（如含 pre_qkv_post）")
     p.add_argument("--camera_encoder_shallow", action="store_true", default=None, help="与训练一致：单层 Linear(12,D)。不设则从 ckpt 自动推断")
@@ -1781,6 +1881,9 @@ def main():
                             metadata_path=meta, sampling_action_dir=getattr(args, "sampling_action_dir", None),
                             omit_context_actions=args.omit_context_actions,
                             multi_ctx_all_history=getattr(args, "multi_ctx_4chunk_all_history", False),
+                            fov_history_context=getattr(args, "multi_ctx_4chunk_fov_history", False),
+                            fov_last_target=getattr(args, "multi_ctx_4chunk_fov_last_target", False),
+                            fov_context_rt=getattr(args, "multi_ctx_4chunk_fov_context_rt", False),
                         )
                         save_composite("left2_right2_4chunk", chunks, yaw, ctx_per_chunk)
                 else:

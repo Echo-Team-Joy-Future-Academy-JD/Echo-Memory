@@ -48,6 +48,24 @@ if [ -f "${METADATA_PATH}" ]; then
 else
   echo "[eval_v2] WARN: METADATA_PATH 不存在，loop 将用 frames 随机采样（与 ep0 有 metadata 时不一致）: ${METADATA_PATH}" >&2
 fi
+LOOP_EXTRA_ARGS=()
+# Default loop-closure 4chunk context retrieval follows the training-style memory path:
+# retrieve history frames by next-chunk FOV/yaw, use the final return pose for chunk4,
+# and pass relative context RTs. Set any variable below to 0 for ablations.
+if [ "${MULTI_CTX_4CHUNK_FOV_HISTORY:-1}" = "1" ]; then
+  LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_history)
+fi
+if [ "${MULTI_CTX_4CHUNK_FOV_LAST_TARGET:-1}" = "1" ]; then
+  LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_last_target)
+fi
+if [ "${MULTI_CTX_4CHUNK_FOV_CONTEXT_RT:-1}" = "1" ]; then
+  LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_context_rt)
+fi
+# Default static loop eval focuses on the 4chunk revisit stress test. Set
+# RUN_LEFT_RIGHT_2CHUNK=1 to also run the shorter 1-left/1-right baseline.
+if [ "${RUN_LEFT_RIGHT_2CHUNK:-0}" != "1" ]; then
+  LOOP_EXTRA_ARGS+=(--skip_left_right_2chunk)
+fi
 
 EVALS_ROOT="${EVALS_ROOT:-${CKPT_DIR}/evals_v2/static_consistency}"
 IN_DOMAIN="${EVALS_ROOT}/in_domain"
@@ -87,6 +105,7 @@ python3 "${ENV_DIR}/run_replay_loop_two_chunk.py" \
   --sigma_shift "${SIGMA_SHIFT:-5}" \
   --num_inference_steps "${NUM_INFERENCE_STEPS:-50}" \
   --cfg_scale "${CFG_SCALE:-5.0}" \
+  "${LOOP_EXTRA_ARGS[@]}" \
   "${MEM_ARGS[@]}"
 
 # ---------- (B) Symmetric random-action combo revisit (in-domain: training prompt + first frame) ----------
