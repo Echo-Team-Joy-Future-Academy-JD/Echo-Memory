@@ -13,7 +13,10 @@ class AutoTorchModule(torch.nn.Module):
         super().__init__()
         
     def check_free_vram(self):
-        gpu_mem_state = torch.cuda.mem_get_info(self.computation_device)
+        _dev = self.computation_device
+        if not (isinstance(_dev, torch.device) and _dev.index is not None):
+            _dev = 0
+        gpu_mem_state = torch.cuda.mem_get_info(_dev)
         used_memory = (gpu_mem_state[1] - gpu_mem_state[0]) / (1024 ** 3)
         return used_memory < self.vram_limit
 

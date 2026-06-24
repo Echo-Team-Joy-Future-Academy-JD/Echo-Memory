@@ -259,6 +259,13 @@ def load_pipeline_and_ckpt(
     via MLP_CamPose (nn.Linear(12, dim), zero-init) inside each DiTBlock_w_Action.
     """
     print(f"[loop_utils] Loading pipeline (DiT -> {device})")
+    if not tokenizer_path:
+        import os as _os
+        _base = _os.path.dirname(dit_path)
+        _cand = _os.path.join(_base, "google", "umt5-xxl")
+        if _os.path.isdir(_cand):
+            tokenizer_path = _cand
+            print(f"[loop_utils] Auto-detected tokenizer at {tokenizer_path}")
     model_configs = [
         ModelConfig(path=dit_path, offload_device=device),
         ModelConfig(path=text_encoder_path, offload_device="cpu"),
