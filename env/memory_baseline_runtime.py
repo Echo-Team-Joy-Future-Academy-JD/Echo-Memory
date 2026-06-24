@@ -62,6 +62,33 @@ class MemoryProfileSpec:
 
 MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
+        profile_id="context_k1",
+        ckpt_substrings=("context_k1", "ctx_1", "ctx1"),
+        paper_tag="raw_context",
+        train_flags=("--context_memory_frames 1",),
+        infer_flags=(),
+        eval_flags=("--context_frames 1",),
+        profile=MemoryProfile(context_override=1),
+    ),
+    MemoryProfileSpec(
+        profile_id="context_k5",
+        ckpt_substrings=("context_k5", "ctx_5", "ctx5"),
+        paper_tag="raw_context",
+        train_flags=("--context_memory_frames 5",),
+        infer_flags=(),
+        eval_flags=("--context_frames 5",),
+        profile=MemoryProfile(context_override=5),
+    ),
+    MemoryProfileSpec(
+        profile_id="context_k20",
+        ckpt_substrings=("context_k20", "ctx_20", "ctx20"),
+        paper_tag="raw_context",
+        train_flags=("--context_memory_frames 20",),
+        infer_flags=(),
+        eval_flags=("--context_frames 20",),
+        profile=MemoryProfile(context_override=20),
+    ),
+    MemoryProfileSpec(
         profile_id="framepack_weight_only",
         ckpt_substrings=(
             "memory_baselines_basic_framepack_weight_only",
@@ -117,7 +144,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     ),
     MemoryProfileSpec(
         profile_id="spatial_mem",
-        ckpt_substrings=("memory_baselines_basic_spatial_mem",),
+        ckpt_substrings=("memory_baselines_basic_spatial_mem", "spatial_mem"),
         paper_tag="arXiv:2506.05284",
         train_flags=("--use_spatial_memory", "--spatial_memory_tokens 64", "--context_memory_frames 5"),
         infer_flags=("--use_spatial_memory", "--spatial_memory_tokens 64"),
@@ -189,7 +216,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     ),
     MemoryProfileSpec(
         profile_id="spatial_concat_text_two_chunk",
-        ckpt_substrings=("memory_baselines_basic_abl_spatial_concat_text_two_chunk",),
+        ckpt_substrings=("memory_baselines_basic_abl_spatial_concat_text_two_chunk", "spatial_concat_text_two_chunk"),
         paper_tag="arXiv:2506.05284",
         train_flags=(
             "--use_spatial_memory",
@@ -209,7 +236,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     ),
     MemoryProfileSpec(
         profile_id="spatial_inject_none_two_chunk",
-        ckpt_substrings=("memory_baselines_basic_abl_spatial_inject_none_two_chunk",),
+        ckpt_substrings=("memory_baselines_basic_abl_spatial_inject_none_two_chunk", "spatial_inject_none_two_chunk"),
         paper_tag="arXiv:2506.05284",
         train_flags=(
             "--use_spatial_memory",
@@ -229,7 +256,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     ),
     MemoryProfileSpec(
         profile_id="spatial_cross_attn_readout_two_chunk",
-        ckpt_substrings=("memory_baselines_basic_abl_spatial_cross_attn_readout_two_chunk",),
+        ckpt_substrings=("memory_baselines_basic_abl_spatial_cross_attn_readout_two_chunk", "spatial_cross_attn_readout_two_chunk"),
         paper_tag="arXiv:2506.05284",
         train_flags=(
             "--use_spatial_memory",
@@ -249,7 +276,10 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     ),
     MemoryProfileSpec(
         profile_id="spatial_cross_attn_readout_t32_g4_two_chunk",
-        ckpt_substrings=("memory_baselines_basic_abl_spatial_cross_attn_readout_t32_g4_two_chunk",),
+        ckpt_substrings=(
+            "memory_baselines_basic_abl_spatial_cross_attn_readout_t32_g4_two_chunk",
+            "spatial_cross_attn_readout_t32_g4_two_chunk",
+        ),
         paper_tag="arXiv:2506.05284",
         train_flags=(
             "--use_spatial_memory",

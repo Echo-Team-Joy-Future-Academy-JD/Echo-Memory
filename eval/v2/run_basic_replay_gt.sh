@@ -115,8 +115,8 @@ mkdir -p "${OUT_DIR}"
 
 eval "$(python3 "${ENV_DIR}/memory_baseline_runtime.py" bash-export "${CKPT}")"
 _default_ctx=1
-[[ "${CKPT}" =~ ctx_20|ctx20 ]] && _default_ctx=20
-[[ "${CKPT}" =~ ctx_5|ctx5 ]] && _default_ctx=5
+[[ "${CKPT}" =~ (ctx_20|context_k20|ctx20) ]] && _default_ctx=20
+[[ "${CKPT}" =~ (ctx_5|context_k5|ctx5) ]] && _default_ctx=5
 [ -n "${CONTEXT_FRAMES_MEM_OVERRIDE:-}" ] && _default_ctx="${CONTEXT_FRAMES_MEM_OVERRIDE}"
 CONTEXT_FRAMES_EFFECTIVE="${CONTEXT_FRAMES:-$_default_ctx}"
 

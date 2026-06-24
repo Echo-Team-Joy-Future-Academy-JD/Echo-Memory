@@ -57,10 +57,10 @@ mkdir -p "${IN_DOMAIN}"
 # Infer memory baseline runtime flags from CKPT path (single source: memory_baseline_runtime.py).
 MEM_ARGS=()
 eval "$(python3 "${ENV_DIR}/memory_baseline_runtime.py" bash-export "${CKPT}")"
-# 与 run_evals_ep0_pre_qkv_rt_merge.sh 一致：ctx_1/5/20 路径推断 + memory_baselines 覆盖
+# Infer context length from both legacy ctx_* names and released HF context_k* folders.
 _default_ctx=1
-[[ "${CKPT}" =~ ctx_20|ctx20 ]] && _default_ctx=20
-[[ "${CKPT}" =~ ctx_5|ctx5 ]] && _default_ctx=5
+[[ "${CKPT}" =~ (ctx_20|context_k20|ctx20) ]] && _default_ctx=20
+[[ "${CKPT}" =~ (ctx_5|context_k5|ctx5) ]] && _default_ctx=5
 [ -n "${CONTEXT_FRAMES_MEM_OVERRIDE:-}" ] && _default_ctx="${CONTEXT_FRAMES_MEM_OVERRIDE}"
 CONTEXT_FRAMES_EFFECTIVE="${CONTEXT_FRAMES:-$_default_ctx}"
 SEED_EFFECTIVE="${SEED:-42}"

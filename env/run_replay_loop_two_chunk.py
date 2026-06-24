@@ -1528,16 +1528,16 @@ def main():
     _log_prefix = "[atomic_translation_4chunk]" if getattr(args, "run_atomic_translation_4chunk", False) else "[Loop]"
     # 与训练 setting 对齐：ctx=1 时训练用 omit_context_actions=True
     args.omit_context_actions = not getattr(args, "no_omit_context_actions", False)
-    # ctx_20 / ctx_5：从 ckpt 路径推断续段 context 帧数，与训练一致（否则 ctx=5 的 ckpt 会只传 1 token）
+    # context_k* / ctx_*: infer context frames from released HF folders and legacy names.
     ckpt_lower = (args.ckpt or "").lower()
-    if "ctx_20" in ckpt_lower or "ctx20" in ckpt_lower:
+    if "ctx_20" in ckpt_lower or "context_k20" in ckpt_lower or "ctx20" in ckpt_lower:
         if getattr(args, "context_frames", 1) < 20:
             args.context_frames = 20
-            print(f"{_log_prefix} 从 ckpt 路径识别 ctx_20，将 context_frames 设为 20（续段 20 帧逐帧 VAE）", flush=True)
-    elif "ctx_5" in ckpt_lower or "ctx5" in ckpt_lower:
+            print(f"{_log_prefix} 从 ckpt 路径识别 context_k20，将 context_frames 设为 20（续段 20 帧逐帧 VAE）", flush=True)
+    elif "ctx_5" in ckpt_lower or "context_k5" in ckpt_lower or "ctx5" in ckpt_lower:
         if getattr(args, "context_frames", 1) < 5:
             args.context_frames = 5
-            print(f"{_log_prefix} 从 ckpt 路径识别 ctx_5，将 context_frames 设为 5（续段 5 帧）", flush=True)
+            print(f"{_log_prefix} 从 ckpt 路径识别 context_k5，将 context_frames 设为 5（续段 5 帧）", flush=True)
     # 兼容：run_ctx5_multi_chunk 时若尚未被上面推断，也设为 5
     if getattr(args, "run_ctx5_multi_chunk", False) and getattr(args, "context_frames", 1) == 1:
         args.context_frames = 5
