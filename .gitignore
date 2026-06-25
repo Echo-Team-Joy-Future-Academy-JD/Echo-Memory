@@ -11,12 +11,16 @@ __pycache__/
 
 logs/
 outputs/
+eval_outputs/
 wandb/
 .hf-upload/
 .hf-model-card-README.md
 scripts/upload_hf_checkpoints.sh
 scripts/hf_checkpoints_manifest.json
 scripts/hf_model_card_README.md
+scripts/koala_submit.sh
+pyproject.toml
+uv.lock
 checkpoints/
 ckpt/
 data/

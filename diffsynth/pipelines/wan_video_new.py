@@ -195,7 +195,7 @@ class BasePipeline(torch.nn.Module):
         
         
     def get_vram(self):
-        return torch.cuda.mem_get_info(self.device)[1] / (1024 ** 3)
+        return torch.cuda.mem_get_info(self.device if (isinstance(self.device, torch.device) and self.device.index is not None) else 0)[1] / (1024 ** 3)
     
     
     def freeze_except(self, model_names):
@@ -802,9 +802,12 @@ class WanVideoPipeline(BasePipeline):
         pipe.vace = model_manager.fetch_model("wan_video_vace")
 
         # Initialize tokenizer
-        tokenizer_config.download_if_necessary(local_model_path, skip_download=skip_download)
-        pipe.prompter.fetch_models(pipe.text_encoder)
-        pipe.prompter.fetch_tokenizer(tokenizer_config.path)
+        if tokenizer_config is not None:
+            tokenizer_config.download_if_necessary(local_model_path, skip_download=skip_download)
+            pipe.prompter.fetch_models(pipe.text_encoder)
+            pipe.prompter.fetch_tokenizer(tokenizer_config.path)
+        else:
+            pipe.prompter.fetch_models(pipe.text_encoder)
         
         # Unified Sequence Parallel
         if use_usp: pipe.enable_usp()

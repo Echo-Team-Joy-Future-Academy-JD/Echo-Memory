@@ -7,9 +7,11 @@ This folder keeps the public replay, in-domain loop/revisit, and open-domain rev
 Run multi-chunk loop/revisit evaluation:
 
 ```bash
-export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export DATASET_BASE_PATH=/path/to/Context-as-Memory-Dataset
-export CKPT=/path/to/epoch-0.safetensors
+cd /data/work/run_codes/Echo-Memory/
+source /tmp/uv-venv/bin/activate
+export WAN_BASE_MODEL=/local-ssd/echo-memory/Wan2.1-T2V-1.3B/
+export DATASET_BASE_PATH=/threed-code/yorenchen/data/echo-memory/Context-as-Memory-Dataset/
+export CKPT=/local-ssd/echo-memory/ckpts/spatial_mem/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 ```
 

@@ -78,6 +78,28 @@ def _read_gt_frame(dataset_base: str, video_name: str, idx: int, w: int, h: int)
     return None
 
 
+def _label(img: Image.Image, text: str) -> Image.Image:
+    from PIL import ImageDraw
+
+    out = img.copy()
+    draw = ImageDraw.Draw(out)
+    draw.rectangle([0, 0, 8 + 8 * len(text), 18], fill=(0, 0, 0))
+    draw.text((4, 4), text, fill=(255, 255, 0))
+    return out
+
+
+def _build_sidebyside(paired: List[tuple], w: int, h: int) -> List[Image.Image]:
+    """Left=GT, Right=Gen. Missing GT frames render as black."""
+    frames: List[Image.Image] = []
+    for gen_pil, gt in paired:
+        gt_img = Image.fromarray(gt) if gt is not None else Image.new("RGB", (w, h), (0, 0, 0))
+        canvas = Image.new("RGB", (w * 2, h), (0, 0, 0))
+        canvas.paste(_label(gt_img, "GT"), (0, 0))
+        canvas.paste(_label(gen_pil, "Gen"), (w, 0))
+        frames.append(canvas)
+    return frames
+
+
 def _mse(a: np.ndarray, b: np.ndarray) -> float:
     d = a.astype(np.float64) - b.astype(np.float64)
     return float(np.mean(d ** 2))
@@ -203,6 +225,7 @@ def main():
     ctx_actions_t = torch.tensor([identity_rt], dtype=torch.float32)
 
     all_gen_frames = []
+    paired_for_video: List[tuple] = []
     per_frame = []
     timings = []
 
@@ -240,11 +263,13 @@ def main():
 
         # compute per-frame mse vs GT for this segment
         for i, fr in enumerate(frames):
-            gt = _read_gt_frame(args.dataset_base, args.video_name, seg_start + i, w, h)
-            if gt is None:
-                continue
             gen_pil = _frame_to_pil(fr, w, h)
             gen = np.array(gen_pil, dtype=np.uint8)
+            gt = _read_gt_frame(args.dataset_base, args.video_name, seg_start + i, w, h)
+            # keep GT/gen pair for the side-by-side video even when GT is missing
+            paired_for_video.append((gen_pil, gt))
+            if gt is None:
+                continue
             mse = _mse(gen, gt)
             ssim_v = _compute_ssim(gen, gt)
             lpips_v = None
@@ -278,6 +303,11 @@ def main():
     mp4_path = os.path.join(args.output_dir, "replay_gt_gen_only.mp4")
     save_video(all_gen_frames, mp4_path, fps=15, quality=5)
 
+    sbs_path = None
+    if paired_for_video:
+        sbs_path = os.path.join(args.output_dir, "replay_gt_vs_gen_sidebyside.mp4")
+        save_video(_build_sidebyside(paired_for_video, w, h), sbs_path, fps=15, quality=5)
+
     def _mean_optional(key: str) -> Optional[float]:
         vals = [r[key] for r in per_frame if r.get(key) is not None]
         return float(np.mean(vals)) if vals else None
@@ -293,6 +323,7 @@ def main():
         "mean_lpips": _mean_optional("lpips"),
         "timings": timings,
         "output_video": mp4_path,
+        "sidebyside_video": sbs_path,
     }
     metric_definitions = {
         "mean_mse": "Mean squared error vs dataset GT frames (lower is better).",

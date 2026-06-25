@@ -18,7 +18,7 @@ export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"
 
 CKPT="${CKPT:?Set CKPT=/path/to/epoch-0.safetensors}"
 CKPT_DIR="$(dirname "${CKPT}")"
-DATASET="${DATASET:-${DATASET_BASE_PATH:-${REPO_ROOT}/data/Context-as-Memory-Dataset}}"
+DATASET="/threed-code/yorenchen/data/echo-memory/Context-as-Memory-Dataset/"
 
 # --- Early path sanity (before any heavy Python) ---
 if [ ! -d "${DATASET}" ]; then

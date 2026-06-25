@@ -255,9 +255,9 @@ export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
 # 3. Download a checkpoint and run evaluation
 huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
 
-export WAN_BASE_MODEL=./Wan2.1-T2V-1.3B
+export WAN_BASE_MODEL=/threed-code/yorenchen/models/Wan2.1-T2V-1.3B 
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+export CKPT=/threed-code/yorenchen/models/echo-memory/ckpts/context_k20/epoch-0.safetensors
 
 bash eval/v2/run_basic_replay_gt.sh                        # single-video quick check (~5 min)
 bash eval/v2/run_static_consistency_loop_and_revisit.sh     # full paper eval bundle
