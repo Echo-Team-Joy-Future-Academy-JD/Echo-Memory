@@ -253,11 +253,11 @@ cat ./data/echo-memory-data-release/static_pool_tar_parts/echo-memory-data.tar.p
 export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
 
 # 3. Download a checkpoint and run evaluation
-huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
+huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
 
 export WAN_BASE_MODEL=/threed-code/yorenchen/models/Wan2.1-T2V-1.3B 
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
-export CKPT=/threed-code/yorenchen/models/echo-memory/ckpts/context_k20/epoch-0.safetensors
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 
 bash eval/v2/run_basic_replay_gt.sh                        # single-video quick check (~5 min)
 bash eval/v2/run_static_consistency_loop_and_revisit.sh     # full paper eval bundle
@@ -291,8 +291,8 @@ Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 | Family | Paper row | HF path | Steps |
 | --- | --- | --- | ---: |
 | Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 |
-| Raw context | Context K=20 | [`context_k20/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k20) | 30,000 |
-| Spatial | Spatial Memory | [`spatial_mem/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/spatial_mem) | 30,000 |
+| Raw context | Context K=20 | TODO | TODO |
+| Spatial | Spatial Memory | TODO | TODO |
 | State-space | Block-wise SSM | TODO | TODO |
 | State-space | Legacy Hybrid | TODO | TODO |
 
@@ -301,11 +301,11 @@ Extended spatial rows are listed in [doc/checkpoints.md](doc/checkpoints.md); SS
 **Download & eval:**
 
 ```bash
-huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
+huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 ```
 
@@ -320,7 +320,7 @@ export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 
 python inference/unified_inference.py \
-    --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
+    --ckpt ./ckpts/context_k1/epoch-0.safetensors \
     --prompt "A toy bear on a table, the camera rotates around it" \
     --output_path output.mp4
 ```
@@ -346,8 +346,8 @@ Add `--context_image` for first-frame conditioning and `--action_path` for camer
 
 ```bash
 python inference/unified_inference.py \
-    --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
-    --memory_type spatial_mem \
+    --ckpt ./ckpts/context_k1/epoch-0.safetensors \
+    --memory_type context_k1 \
     --context_image assets/opendomain_revisit/1774363417.png \
     --action_path env/action_rotation_left_45.json \
     --prompt "A toy bear on a table" \
@@ -360,7 +360,7 @@ Dynamic SpatialVID inference wrappers mirror the six dynamic rows:
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export CKPT=./ckpts/dynamic_spatialvid/spatial_mem/epoch-0.safetensors
+export CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors
 bash inference/dynamic_spatialvid/run_infer_dyn_spatial_mem.sh
 ```
 
@@ -529,7 +529,7 @@ In-domain replay and revisit eval use the **static in-domain pool** (`DATASET_BA
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 bash eval/v2/run_basic_replay_gt.sh
 ```

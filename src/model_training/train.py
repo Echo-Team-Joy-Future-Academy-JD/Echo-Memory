@@ -297,6 +297,7 @@ if __name__ == "__main__":
         use_spatial_memory=_arg('use_spatial_memory', False),
         use_spatial_memory_legacy=_arg('use_spatial_memory_legacy', False),
         spatial_memory_tokens=_arg('spatial_memory_tokens', 64),
+        spatial_memory_grid=_arg('spatial_memory_grid', 8),
         spatial_memory_inject_mode=_arg('spatial_memory_inject_mode', 'concat_text'),
         timestep_shift=float(_arg('timestep_shift', 1.0)),
     )

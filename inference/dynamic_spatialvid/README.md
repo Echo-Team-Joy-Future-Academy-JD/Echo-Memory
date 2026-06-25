@@ -13,7 +13,7 @@ Wrappers for checkpoints trained on the dynamic SpatialVID motion-filtered pool.
 
 ```bash
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
-export CKPT=./ckpts/dynamic_spatialvid/spatial_mem/epoch-0.safetensors
+export CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors
 PROMPT="A dynamic outdoor scene with a smooth camera move" \
   bash inference/dynamic_spatialvid/run_infer_dyn_spatial_mem.sh
 ```

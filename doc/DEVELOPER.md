@@ -75,8 +75,8 @@ bash train/context_learning/run_pre_qkv_ctx20.sh
 **Checkpoint eval / checkpoint 检查**
 
 ```bash
-huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh
 ```
 

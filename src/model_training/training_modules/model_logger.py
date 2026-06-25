@@ -68,6 +68,15 @@ class ModelLogger(BaseModelLogger):
         if self.save_full_model:
             # Save full DiT (including action/camera/memory modules), not whole pipeline.
             state_dict = accelerator.get_state_dict(unwrapped.pipe.dit)
+            for module_name in ("spatial_memory_module", "spatial_memory_readout_module"):
+                module = getattr(unwrapped, module_name, None)
+                if module is not None:
+                    state_dict.update(
+                        {
+                            f"{module_name}.{name}": param
+                            for name, param in accelerator.get_state_dict(module).items()
+                        }
+                    )
         if state_dict is None:
             full_state = accelerator.get_state_dict(model)
             state_dict = unwrapped.export_trainable_state_dict(full_state, remove_prefix=self.remove_prefix_in_ckpt)

@@ -13,20 +13,20 @@ Examples:
 
     # Auto-detect memory type from checkpoint path
     python inference/unified_inference.py \
-        --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
+        --ckpt ./ckpts/context_k1/epoch-0.safetensors \
         --prompt "A toy bear on a table, the camera rotates around it" \
         --output_path output.mp4
 
     # Explicit memory type
     python inference/unified_inference.py \
         --ckpt ./ckpts/my_checkpoint.safetensors \
-        --memory_type spatial_mem \
+        --memory_type context_k1 \
         --prompt "A scene" \
         --output_path output.mp4
 
     # With context image (first frame conditioning)
     python inference/unified_inference.py \
-        --ckpt ./ckpts/spatial_mem/epoch-0.safetensors \
+        --ckpt ./ckpts/context_k1/epoch-0.safetensors \
         --context_image assets/opendomain_revisit/1774363417.png \
         --action_path env/action_rotation_left_45.json \
         --prompt "A toy bear on a table" \

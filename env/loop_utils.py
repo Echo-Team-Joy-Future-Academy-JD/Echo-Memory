@@ -337,7 +337,7 @@ def load_pipeline_and_ckpt(
         }
         if _smsd:
             try:
-                from diffsynth.models.spatial_grid_memory import SpatialGridMemory
+                from diffsynth.models.memory.spatial_grid_memory import SpatialGridMemory
             except ImportError:
                 SpatialGridMemory = None
             if SpatialGridMemory is not None:
@@ -354,6 +354,24 @@ def load_pipeline_and_ckpt(
                     pipe.spatial_memory_module = sm
                     pipe.use_spatial_memory_legacy = False
                     print(f"[loop_utils] Loaded spatial_memory_module (grid={gsz}, tokens={num_tok})")
+
+        _srmsd = {
+            k.replace("spatial_memory_readout_module.", "", 1): v
+            for k, v in ckpt.items()
+            if k.startswith("spatial_memory_readout_module.")
+        }
+        if _srmsd:
+            try:
+                from diffsynth.models.memory.spatial_grid_memory import SpatialCrossAttnReadout
+            except ImportError:
+                SpatialCrossAttnReadout = None
+            if SpatialCrossAttnReadout is not None:
+                dim = pipe.dit.dim
+                readout = SpatialCrossAttnReadout(dim=dim, num_heads=8)
+                readout.load_state_dict(_srmsd, strict=False)
+                readout = readout.to(dtype=next(pipe.dit.parameters()).dtype, device=next(pipe.dit.parameters()).device)
+                pipe.spatial_memory_readout_module = readout
+                print("[loop_utils] Loaded spatial_memory_readout_module")
 
     if getattr(pipe, "enable_vram_management", None):
         pipe.enable_vram_management()

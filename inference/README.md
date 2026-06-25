@@ -8,20 +8,20 @@ Bash-level inference scripts mirroring `train/` — one script per memory row, a
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 
 # Single memory type
-CKPT=./ckpts/spatial_mem/epoch-0.safetensors \
-  bash inference/memory_baselines_basic/run_infer_spatial_mem.sh
+CKPT=./ckpts/context_k1/epoch-0.safetensors \
+  bash inference/memory_baselines_basic/run_infer_context_k1.sh
 
 # With custom prompt and context image
-CKPT=./ckpts/spatial_mem/epoch-0.safetensors \
+CKPT=./ckpts/context_k1/epoch-0.safetensors \
 PROMPT="A toy bear on a table" \
 CONTEXT_IMAGE=assets/opendomain_revisit/1774363417.png \
-  bash inference/memory_baselines_basic/run_infer_spatial_mem.sh
+  bash inference/memory_baselines_basic/run_infer_context_k1.sh
 
 # All memory baselines (needs CKPT_DIR with per-row folders)
 CKPT_DIR=./ckpts bash inference/memory_baselines_basic/run_infer_all.sh
 
 # Dynamic SpatialVID row
-CKPT=./ckpts/dynamic_spatialvid/spatial_mem/epoch-0.safetensors \
+CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors \
   bash inference/dynamic_spatialvid/run_infer_dyn_spatial_mem.sh
 ```
 

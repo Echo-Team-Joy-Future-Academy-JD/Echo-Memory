@@ -13,6 +13,7 @@ from src.model_training.transformers_compat import patch_transformers_hybrid_cac
 
 patch_transformers_hybrid_cache()
 from diffsynth.trainers.utils import DiffusionTrainingModule
+from diffsynth.models.memory.spatial_grid_memory import SpatialCrossAttnReadout, SpatialGridMemory
 from src.model_training.fov_retrieval import flip_yaw_rt_list
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ class WanTrainingModule(DiffusionTrainingModule):
         use_spatial_memory: bool = False,
         use_spatial_memory_legacy: bool = False,
         spatial_memory_tokens: int = 64,
+        spatial_memory_grid: int = 8,
         spatial_memory_inject_mode: str = "concat_text",
         # Note: Self-forcing parameters removed - using standard training only
     ):
@@ -160,6 +162,24 @@ class WanTrainingModule(DiffusionTrainingModule):
         self.pipe.use_spatial_memory_legacy = bool(use_spatial_memory_legacy)
         self.pipe.spatial_memory_tokens = int(spatial_memory_tokens or 64)
         self.pipe.spatial_memory_inject_mode = str(spatial_memory_inject_mode or "concat_text")
+        self.spatial_memory_module = None
+        self.spatial_memory_readout_module = None
+        if self.pipe.use_spatial_memory and not self.pipe.use_spatial_memory_legacy:
+            dim = int(getattr(self.pipe.dit, "dim"))
+            grid_size = int(spatial_memory_grid or 8)
+            self.pipe.spatial_memory_grid = grid_size
+            self.spatial_memory_module = SpatialGridMemory(
+                dim=dim,
+                grid_size=grid_size,
+                num_tokens=self.pipe.spatial_memory_tokens,
+            )
+            self.pipe.spatial_memory_module = self.spatial_memory_module
+            if self.pipe.spatial_memory_inject_mode == "cross_attn_readout":
+                self.spatial_memory_readout_module = SpatialCrossAttnReadout(dim=dim, num_heads=8)
+                self.pipe.spatial_memory_readout_module = self.spatial_memory_readout_module
+        else:
+            self.pipe.spatial_memory_module = None
+            self.pipe.spatial_memory_readout_module = None
         # Note: Self-forcing removed - using standard training only
         self.current_step = 0  # Track current training step (for logging/debugging)
     

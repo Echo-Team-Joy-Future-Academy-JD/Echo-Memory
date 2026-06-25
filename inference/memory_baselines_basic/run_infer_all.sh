@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run all memory baseline inferences sequentially.
 # Requires: CKPT_DIR pointing to a directory with per-row checkpoint folders
-# (same layout as HF repo: spatial_mem/epoch-0.safetensors, etc.)
+# (same layout as HF repo: context_k1/epoch-0.safetensors, etc.)
 #
 # Usage:
 #   CKPT_DIR=./ckpts bash inference/memory_baselines_basic/run_infer_all.sh

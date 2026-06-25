@@ -14,10 +14,10 @@ description: >-
 export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 ```
 
-**CKPT path must include the row folder name** (e.g. `spatial_mem/`, `context_k20/`) so `env/memory_baseline_runtime.py` selects the right memory profile.
+**CKPT path must include the row folder name** (e.g. `context_k1/`, `context_k20/`) so `env/memory_baseline_runtime.py` selects the right memory profile.
 
 ## Main scripts
 
@@ -30,7 +30,7 @@ export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
 Download a baseline:
 
 ```bash
-huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts
+huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
 ```
 
 Index: `doc/checkpoints.md` · HF repo: `Echo-Team/Echo-Memory`

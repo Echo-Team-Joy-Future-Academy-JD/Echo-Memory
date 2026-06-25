@@ -283,13 +283,13 @@
               </thead>
               <tbody>
                 <tr><td>Raw context</td><td>Context K=1</td><td><code>context_k1/epoch-0.safetensors</code></td><td>30,000</td></tr>
-                <tr><td>Raw context</td><td>Context K=20</td><td><code>context_k20/epoch-0.safetensors</code></td><td>30,000</td></tr>
-                <tr><td>Spatial</td><td>Spatial Memory</td><td><code>spatial_mem/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Raw context</td><td>Context K=20</td><td>TODO</td><td>TODO</td></tr>
+                <tr><td>Spatial</td><td>Spatial Memory</td><td>TODO</td><td>TODO</td></tr>
                 <tr><td>State-space</td><td>Block-wise SSM</td><td>TODO</td><td>TODO</td></tr>
                 <tr><td>State-space</td><td>Legacy Hybrid</td><td>TODO</td><td>TODO</td></tr>
-                <tr><td>Spatial</td><td>concat text (abl.)</td><td><code>spatial_concat_text_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
-                <tr><td>Spatial</td><td>inject none (abl.)</td><td><code>spatial_inject_none_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
-                <tr><td>Spatial</td><td>cross-attn t32 (abl.)</td><td><code>spatial_cross_attn_readout_t32_g4_two_chunk/epoch-0.safetensors</code></td><td>30,000</td></tr>
+                <tr><td>Spatial</td><td>concat text (abl.)</td><td>TODO</td><td>TODO</td></tr>
+                <tr><td>Spatial</td><td>inject none (abl.)</td><td>TODO</td><td>TODO</td></tr>
+                <tr><td>Spatial</td><td>cross-attn t32 (abl.)</td><td>TODO</td><td>TODO</td></tr>
                 <tr><td>State-space</td><td>SSM ctx1/e4/h21</td><td>TODO</td><td>TODO</td></tr>
                 <tr><td>State-space</td><td>SSM ctx5/e1/h21</td><td>TODO</td><td>TODO</td></tr>
                 <tr><td>State-space</td><td>SSM ctx5/e4/h81</td><td>TODO</td><td>TODO</td></tr>
@@ -298,13 +298,13 @@
           </div>
           <div class="code-block-wrap">
             <p class="code-block-label" data-i18n="ckpt.label.download">Download</p>
-            <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory spatial_mem/epoch-0.safetensors --local-dir ./ckpts</code></pre>
+            <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts</code></pre>
           </div>
           <div class="code-block-wrap">
             <p class="code-block-label" data-i18n="ckpt.label.eval">In-domain eval (Echo-Memory repo)</p>
             <pre class="code-block"><code>export WAN_BASE_MODEL=/path/to/Wan2.1-T2V-1.3B
 export DATASET_BASE_PATH=data/Context-as-Memory-Dataset
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
           </div>
           <p class="section-note" data-i18n-html="ckpt.note">

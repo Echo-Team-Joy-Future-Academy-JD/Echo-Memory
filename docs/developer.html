@@ -59,8 +59,8 @@ export OUTPUT_BASE_ROOT=$PWD/outputs</code></pre>
 bash train/context_learning/run_pre_qkv_ctx20.sh</code></pre>
         <p data-i18n="dev.s4.evalLabel"><strong>Smoke eval with a HF checkpoint:</strong></p>
         <pre class="code-block"><code>huggingface-cli download Echo-Team/Echo-Memory \
-  spatial_mem/epoch-0.safetensors --local-dir ./ckpts
-export CKPT=./ckpts/spatial_mem/epoch-0.safetensors
+  context_k1/epoch-0.safetensors --local-dir ./ckpts
+export CKPT=./ckpts/context_k1/epoch-0.safetensors
 bash eval/v2/run_static_consistency_loop_and_revisit.sh</code></pre>
         <p class="section-note" data-i18n-html="dev.s4.note"></p>
       </article>
