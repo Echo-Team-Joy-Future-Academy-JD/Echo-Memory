@@ -3,6 +3,7 @@ from .framepack_length import (
     framepack_length_compress_context_latents,
 )
 from .framepack_weight import apply_framepack_token_weights
+from .mixture_of_contexts import MixtureOfContexts
 from .spatial_grid_memory import (
     SpatialCrossAttnReadout,
     SpatialGridMemory,

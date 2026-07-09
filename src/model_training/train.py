@@ -299,8 +299,16 @@ if __name__ == "__main__":
         spatial_memory_tokens=_arg('spatial_memory_tokens', 64),
         spatial_memory_grid=_arg('spatial_memory_grid', 8),
         spatial_memory_inject_mode=_arg('spatial_memory_inject_mode', 'concat_text'),
+        use_moc=_arg('use_moc', False),
+        moc_temperature=_arg('moc_temperature', 1.0),
+        moc_top_k=_arg('moc_top_k', 0),
         timestep_shift=float(_arg('timestep_shift', 1.0)),
     )
+    if _arg('use_moc', False):
+        logger.info(
+            f"[MoC] enabled with temperature={float(_arg('moc_temperature', 1.0))}, "
+            f"top_k={int(_arg('moc_top_k', 0) or 0)}"
+        )
 
     # ── VWM-style: Replace DiT blocks with DiTBlock_w_Action ──
     _use_cam_pose = bool(_arg('train_cam_pose', False))
