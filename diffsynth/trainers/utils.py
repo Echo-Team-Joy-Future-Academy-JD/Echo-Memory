@@ -625,11 +625,13 @@ class CamVideoDataset(torch.utils.data.Dataset):
         max_pixels=1920*1080,
         height_division_factor=16, width_division_factor=16,
         repeat=1,
+        metadata_path=None,
         args=None,
         cam_position_scale=None,
     ):
         if args is not None:
             base_path = args.dataset_base_path
+            metadata_path = getattr(args, "dataset_metadata_path", metadata_path)
             height = args.height
             width = args.width
             max_pixels = args.max_pixels
@@ -695,17 +697,26 @@ class CamVideoDataset(torch.utils.data.Dataset):
             self.scene_captions[scene_name].sort(key=lambda x: x[0])
 
         self.scene_names = sorted(self.scene_captions.keys())
+        self.metadata_rows = []
+        if metadata_path and os.path.isfile(metadata_path):
+            metadata = pd.read_csv(metadata_path)
+            if "prompt" in metadata.columns:
+                metadata["prompt"] = metadata["prompt"].astype(str)
+            self.metadata_rows = [metadata.iloc[i].to_dict() for i in range(len(metadata))]
         self.pose_cache = {}
         self.overlap_cache = {}
         self.invalid_scenes = set()
+        self.invalid_metadata_indices = set()
         self.overlap_labels_root = self._resolve_overlap_labels_root(base_path, self.overlap_labels_root)
         self._validate_condition_config()
 
         total_scenes = len(self.scene_names)
         total_captions = sum(len(v) for v in self.scene_captions.values())
-        print(f"CamVideoDataset: {total_scenes} scenes, {total_captions} captions, "
+        metadata_msg = f", metadata_rows={len(self.metadata_rows)}" if self.metadata_rows else ""
+        effective_len = (len(self.metadata_rows) if self.metadata_rows else total_scenes) * repeat
+        print(f"CamVideoDataset: {total_scenes} scenes, {total_captions} captions{metadata_msg}, "
               f"repeat={repeat}, cam_position_scale={self.cam_position_scale}, "
-              f"effective length={total_scenes * repeat}")
+              f"effective length={effective_len}")
 
     def _resolve_overlap_labels_root(self, base_path, overlap_labels_root):
         candidate_roots = []
@@ -816,6 +827,42 @@ class CamVideoDataset(torch.utils.data.Dataset):
         img = Image.open(frame_path).convert("RGB")
         return self.crop_and_resize(img, target_height, target_width)
 
+    @staticmethod
+    def _parse_frame_token(token):
+        token = str(token).strip()
+        if not token:
+            return None, None
+        parts = token.split("/")
+        if parts and parts[0] == "frames":
+            parts = parts[1:]
+        if len(parts) < 2:
+            return None, None
+        scene_name = "/".join(parts[:-1])
+        stem = os.path.splitext(parts[-1])[0]
+        try:
+            frame_index = int(stem)
+        except ValueError:
+            return None, None
+        return scene_name, frame_index
+
+    def _metadata_scene_and_indices(self, row):
+        video_field = str(row.get("video", "") or "")
+        tokens = [t for t in video_field.split("|") if t]
+        parsed = [self._parse_frame_token(t) for t in tokens]
+        parsed = [(s, i) for s, i in parsed if s is not None and i is not None]
+        if parsed:
+            scene_name = str(row.get("video_name", "") or parsed[0][0])
+            frame_indices = [i for _, i in parsed[: self.num_frames]]
+        else:
+            scene_name = str(row.get("video_name", "") or "").strip()
+            if not scene_name:
+                raise ValueError("metadata row lacks video_name and parseable video paths")
+            start_frame = int(row.get("start_frame", 0) or 0)
+            frame_indices = list(range(start_frame, start_frame + self.num_frames))
+        if len(frame_indices) < self.num_frames:
+            raise ValueError(f"metadata row has {len(frame_indices)} frames, expected {self.num_frames}")
+        return scene_name, frame_indices[: self.num_frames]
+
     def _load_overlap_frames(self, scene_name, frame_index):
         if self.overlap_labels_root is None:
             return []
@@ -917,6 +964,59 @@ class CamVideoDataset(torch.utils.data.Dataset):
             "video": frames,
             "prompt": prompt,
             "actions": actions,
+            "video_name": scene_name,
+            "start_frame": start_frame,
+            "end_frame": end_frame,
+            **self._build_condition_context_payload(
+                frames=frames,
+                scene_name=scene_name,
+                start_frame=start_frame,
+                ref_rt=rt_list_abs[0],
+                actions=actions,
+            ),
+        }
+
+    def _try_get_metadata_sample(self, row):
+        scene_name, frame_indices = self._metadata_scene_and_indices(row)
+        start_frame = int(frame_indices[0])
+        end_frame = int(frame_indices[-1])
+        cam_data = self._load_scene_poses(scene_name)
+
+        frames = []
+        for frame_idx in frame_indices:
+            frame_path = os.path.join(self.frames_dir, scene_name, f"{int(frame_idx):04d}.png")
+            img = Image.open(frame_path).convert("RGB")
+            img = self.crop_and_resize(img, *self.get_height_width(img))
+            frames.append(img)
+
+        prompt = row.get("prompt", None)
+        if prompt is None or str(prompt).strip() == "" or str(prompt).lower() == "nan":
+            prompt = self._find_nearest_caption(scene_name, start_frame)
+        else:
+            prompt = str(prompt)
+
+        rt_list_abs = []
+        for frame_idx in frame_indices:
+            key = str(int(frame_idx))
+            if key not in cam_data:
+                raise ValueError(f"Scene {scene_name} missing pose for frame {frame_idx}.")
+            frame_data = cam_data[key]
+            raw_pos = frame_data["position"]
+            pos = [float(p) * self.cam_position_scale for p in raw_pos]
+            rt = self._compute_rt(pos, frame_data["rotation"])
+            rt_list_abs.append(rt)
+
+        rt_list = self._to_relative_rt(rt_list_abs, rt_list_abs[0])
+        pose_indices = list(range(0, len(frame_indices), 4))
+        actions = [rt_list[i] for i in pose_indices]
+
+        return {
+            "video": frames,
+            "prompt": prompt,
+            "actions": actions,
+            "video_name": scene_name,
+            "start_frame": start_frame,
+            "end_frame": end_frame,
             **self._build_condition_context_payload(
                 frames=frames,
                 scene_name=scene_name,
@@ -927,6 +1027,30 @@ class CamVideoDataset(torch.utils.data.Dataset):
         }
 
     def __getitem__(self, data_id):
+        if self.metadata_rows:
+            n = len(self.metadata_rows)
+            max_attempts = min(64, n)
+            last_error = None
+            for attempt in range(max_attempts):
+                idx = (data_id + attempt) % n
+                if idx in self.invalid_metadata_indices:
+                    continue
+                try:
+                    return self._try_get_metadata_sample(self.metadata_rows[idx])
+                except (ValueError, FileNotFoundError, KeyError, OSError) as e:
+                    self.invalid_metadata_indices.add(idx)
+                    last_error = e
+                    if attempt < 3 or attempt % 8 == 0:
+                        print(
+                            f"[CamVideoDataset] Skipping invalid metadata row {idx} "
+                            f"({type(e).__name__}: {e}); attempt {attempt + 1}/{max_attempts}"
+                        )
+                    continue
+            raise RuntimeError(
+                f"CamVideoDataset: exhausted {max_attempts} metadata attempts starting from index {data_id}; "
+                f"last error: {type(last_error).__name__}: {last_error}"
+            )
+
         n = len(self.scene_names)
         if n == 0:
             raise RuntimeError("CamVideoDataset has no scenes.")
@@ -999,6 +1123,8 @@ class CamVideoDataset(torch.utils.data.Dataset):
         return payload
 
     def __len__(self):
+        if self.metadata_rows:
+            return len(self.metadata_rows) * self.repeat
         return len(self.scene_names) * self.repeat
 
 
