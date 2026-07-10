@@ -43,6 +43,8 @@ class MemoryProfile:
     use_spatial_memory_legacy: bool = False  # True = old adaptive pool only (no SpatialGridMemory in ckpt)
     spatial_memory_tokens: int = 64
     spatial_memory_inject_mode: Optional[str] = None
+    use_geometry_spatial_memory: bool = False
+    geometry_spatial_memory_inject_mode: Optional[str] = None
     use_block_wise_ssm: bool = False
     use_videossm_hybrid: bool = False
     # Training uses context_memory_frames=5 for memory_baselines_basic
@@ -145,15 +147,32 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
         profile_id="spatial_mem",
         ckpt_substrings=("memory_baselines_basic_spatial_mem", "spatial_mem"),
-        paper_tag="arXiv:2506.05284",
-        train_flags=("--use_spatial_memory", "--spatial_memory_tokens 64", "--context_memory_frames 5"),
+        paper_tag="token_grid_baseline",
+        train_flags=("--use_spatial_memory", "--spatial_memory_tokens 64", "--context_memory_frames 1"),
         infer_flags=("--use_spatial_memory", "--spatial_memory_tokens 64"),
         eval_flags=("--context_frames 5",),
         profile=MemoryProfile(
             use_spatial_memory=True,
             use_spatial_memory_legacy=False,
             spatial_memory_tokens=64,
-            context_override=5,
+            context_override=1,
+        ),
+    ),
+    MemoryProfileSpec(
+        profile_id="geometry_spatial_mem",
+        ckpt_substrings=("geometry_spatial_mem",),
+        paper_tag="geometry_grounded_adaptation_of_arXiv:2506.05284",
+        train_flags=(
+            "--use_geometry_spatial_memory",
+            "--geometry_spatial_memory_tokens 64",
+            "--context_memory_frames 1",
+        ),
+        infer_flags=("--use_geometry_spatial_memory",),
+        eval_flags=("--context_frames 1",),
+        profile=MemoryProfile(
+            use_geometry_spatial_memory=True,
+            geometry_spatial_memory_inject_mode="concat_text",
+            context_override=1,
         ),
     ),
     MemoryProfileSpec(
@@ -217,7 +236,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
         profile_id="spatial_concat_text_two_chunk",
         ckpt_substrings=("memory_baselines_basic_abl_spatial_concat_text_two_chunk", "spatial_concat_text_two_chunk"),
-        paper_tag="arXiv:2506.05284",
+        paper_tag="token_grid_baseline",
         train_flags=(
             "--use_spatial_memory",
             "--spatial_memory_tokens 64",
@@ -237,7 +256,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
         profile_id="spatial_inject_none_two_chunk",
         ckpt_substrings=("memory_baselines_basic_abl_spatial_inject_none_two_chunk", "spatial_inject_none_two_chunk"),
-        paper_tag="arXiv:2506.05284",
+        paper_tag="token_grid_baseline",
         train_flags=(
             "--use_spatial_memory",
             "--spatial_memory_tokens 64",
@@ -257,7 +276,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
         profile_id="spatial_cross_attn_readout_two_chunk",
         ckpt_substrings=("memory_baselines_basic_abl_spatial_cross_attn_readout_two_chunk", "spatial_cross_attn_readout_two_chunk"),
-        paper_tag="arXiv:2506.05284",
+        paper_tag="token_grid_baseline",
         train_flags=(
             "--use_spatial_memory",
             "--spatial_memory_tokens 64",
@@ -280,7 +299,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
             "memory_baselines_basic_abl_spatial_cross_attn_readout_t32_g4_two_chunk",
             "spatial_cross_attn_readout_t32_g4_two_chunk",
         ),
-        paper_tag="arXiv:2506.05284",
+        paper_tag="token_grid_baseline",
         train_flags=(
             "--use_spatial_memory",
             "--spatial_memory_tokens 32",
@@ -300,7 +319,7 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
     MemoryProfileSpec(
         profile_id="spatial_legacy_concat_t32_two_chunk",
         ckpt_substrings=("memory_baselines_basic_abl_spatial_legacy_concat_t32_two_chunk",),
-        paper_tag="arXiv:2506.05284",
+        paper_tag="token_grid_baseline",
         train_flags=(
             "--use_spatial_memory",
             "--use_spatial_memory_legacy",
@@ -375,10 +394,15 @@ def profile_registry_payload() -> List[Dict[str, object]]:
 
 def infer_memory_profile_spec(ckpt: str) -> Optional[MemoryProfileSpec]:
     c = (ckpt or "").lower()
+    best = None
+    best_length = -1
     for spec in MEMORY_PROFILE_REGISTRY:
-        if any(token.lower() in c for token in spec.ckpt_substrings):
-            return spec
-    return None
+        for token in spec.ckpt_substrings:
+            token_lower = token.lower()
+            if token_lower in c and len(token_lower) > best_length:
+                best = spec
+                best_length = len(token_lower)
+    return best
 
 
 def infer_memory_profile(ckpt: str) -> MemoryProfile:
@@ -420,6 +444,15 @@ def profile_to_argv(p: MemoryProfile) -> List[str]:
             out.extend(["--spatial_memory_inject_mode", str(p.spatial_memory_inject_mode)])
         if p.use_spatial_memory_legacy:
             out.append("--use_spatial_memory_legacy")
+    if p.use_geometry_spatial_memory:
+        out.append("--use_geometry_spatial_memory")
+        if p.geometry_spatial_memory_inject_mode:
+            out.extend(
+                [
+                    "--geometry_spatial_memory_inject_mode",
+                    str(p.geometry_spatial_memory_inject_mode),
+                ]
+            )
     if p.use_block_wise_ssm:
         out.append("--use_block_wise_ssm")
     if p.use_videossm_hybrid:
@@ -454,6 +487,11 @@ def apply_memory_baseline_pipe(pipe, ckpt: str) -> None:
     if getattr(p, "spatial_memory_inject_mode", None):
         pipe.spatial_memory_inject_mode = str(p.spatial_memory_inject_mode)
     pipe.use_spatial_memory_legacy = bool(p.use_spatial_memory_legacy)
+    pipe.use_geometry_spatial_memory = bool(p.use_geometry_spatial_memory)
+    if p.geometry_spatial_memory_inject_mode:
+        pipe.geometry_spatial_memory_inject_mode = str(
+            p.geometry_spatial_memory_inject_mode
+        )
     pipe.use_block_wise_ssm = bool(p.use_block_wise_ssm)
     pipe.use_videossm_hybrid = bool(p.use_videossm_hybrid)
     # 与 run_replay_loop_two_chunk 一致：宣称 SpatialGridMemory 但 ckpt 未载入模块时，避免 silent 与训练不一致
@@ -462,13 +500,10 @@ def apply_memory_baseline_pipe(pipe, ckpt: str) -> None:
         and not pipe.use_spatial_memory_legacy
         and getattr(pipe, "spatial_memory_module", None) is None
     ):
-        pipe.use_spatial_memory_legacy = True
-        print(
-            "[memory_baseline_runtime] WARN: spatial_mem profile but spatial_memory_module missing on pipe "
-            "(ckpt 缺少 spatial_memory_module.* 时与 run_spatial_memory_baseline.sh 的 SpatialGridMemory 不对齐；"
-            "已降级为 adaptive pool，数值仅作参考)。",
-            file=sys.stderr,
-            flush=True,
+        raise RuntimeError(
+            "Spatial token-grid profile requested, but checkpoint has no "
+            "spatial_memory_module weights. Refusing to replace the trained method "
+            "with the legacy adaptive pool."
         )
 
 

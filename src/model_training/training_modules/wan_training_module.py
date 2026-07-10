@@ -13,6 +13,8 @@ from src.model_training.transformers_compat import patch_transformers_hybrid_cac
 
 patch_transformers_hybrid_cache()
 from diffsynth.trainers.utils import DiffusionTrainingModule
+from diffsynth.models.memory.geometry_spatial_memory import GeometrySpatialMemory
+from diffsynth.models.memory.mixture_of_contexts import MixtureOfContexts
 from diffsynth.models.memory.spatial_grid_memory import SpatialCrossAttnReadout, SpatialGridMemory
 from src.model_training.fov_retrieval import flip_yaw_rt_list
 
@@ -59,6 +61,14 @@ class WanTrainingModule(DiffusionTrainingModule):
         spatial_memory_tokens: int = 64,
         spatial_memory_grid: int = 8,
         spatial_memory_inject_mode: str = "concat_text",
+        use_geometry_spatial_memory: bool = False,
+        geometry_spatial_memory_tokens: int = 64,
+        geometry_spatial_memory_grid: int = 8,
+        geometry_spatial_memory_temporal_bins: int = 4,
+        geometry_spatial_memory_inject_mode: str = "concat_text",
+        use_moc: bool = False,
+        moc_temperature: float = 1.0,
+        moc_top_k: int = 0,
         # Note: Self-forcing parameters removed - using standard training only
     ):
         super().__init__()
@@ -158,6 +168,15 @@ class WanTrainingModule(DiffusionTrainingModule):
         self.pipe.framepack_recent_keep_ratio = self.framepack_recent_keep_ratio
         self.pipe.framepack_multiscale_w2 = self.framepack_multiscale_w2
         self.pipe.framepack_multiscale_w4 = self.framepack_multiscale_w4
+        self.use_moc = bool(use_moc)
+        self.moc_temperature = float(moc_temperature or 1.0)
+        self.moc_top_k = int(moc_top_k or 0)
+        self.moc_module = MixtureOfContexts(
+            temperature=self.moc_temperature,
+            top_k=self.moc_top_k,
+        ) if self.use_moc else None
+        self.pipe.use_moc = self.use_moc
+        self.pipe.moc_module = self.moc_module
         self.pipe.use_spatial_memory = bool(use_spatial_memory)
         self.pipe.use_spatial_memory_legacy = bool(use_spatial_memory_legacy)
         self.pipe.spatial_memory_tokens = int(spatial_memory_tokens or 64)
@@ -180,6 +199,43 @@ class WanTrainingModule(DiffusionTrainingModule):
         else:
             self.pipe.spatial_memory_module = None
             self.pipe.spatial_memory_readout_module = None
+        self.use_geometry_spatial_memory = bool(use_geometry_spatial_memory)
+        self.geometry_spatial_memory_module = None
+        self.geometry_spatial_memory_readout_module = None
+        self.pipe.use_geometry_spatial_memory = self.use_geometry_spatial_memory
+        self.pipe.geometry_spatial_memory_inject_mode = str(
+            geometry_spatial_memory_inject_mode or "concat_text"
+        )
+        if self.use_geometry_spatial_memory:
+            dim = int(getattr(self.pipe.dit, "dim"))
+            self.geometry_spatial_memory_module = GeometrySpatialMemory(
+                dim=dim,
+                latent_channels=int(getattr(self.pipe.dit, "in_dim", 16)),
+                patch_size=tuple(getattr(self.pipe.dit, "patch_size", (1, 2, 2))),
+                grid_size=int(geometry_spatial_memory_grid or 8),
+                temporal_bins=int(geometry_spatial_memory_temporal_bins or 4),
+                num_tokens=int(geometry_spatial_memory_tokens or 64),
+            )
+            self.geometry_spatial_memory_module.initialize_from_dit_patch_embedding(
+                self.pipe.dit.patch_embedding
+            )
+            dit_parameter = next(self.pipe.dit.parameters())
+            self.geometry_spatial_memory_module = self.geometry_spatial_memory_module.to(
+                device=dit_parameter.device,
+                dtype=dit_parameter.dtype,
+            )
+            self.pipe.geometry_spatial_memory_module = self.geometry_spatial_memory_module
+            if self.pipe.geometry_spatial_memory_inject_mode == "cross_attn_readout":
+                self.geometry_spatial_memory_readout_module = SpatialCrossAttnReadout(
+                    dim=dim,
+                    num_heads=8,
+                ).to(device=dit_parameter.device, dtype=dit_parameter.dtype)
+            self.pipe.geometry_spatial_memory_readout_module = (
+                self.geometry_spatial_memory_readout_module
+            )
+        else:
+            self.pipe.geometry_spatial_memory_module = None
+            self.pipe.geometry_spatial_memory_readout_module = None
         # Note: Self-forcing removed - using standard training only
         self.current_step = 0  # Track current training step (for logging/debugging)
     
@@ -311,6 +367,7 @@ class WanTrainingModule(DiffusionTrainingModule):
         actions_list = []
         context_latents_list = []
         context_actions_list = []
+        geometry_memory_latents_list = []
         expected_k = self.context_memory_frames
         training_mode = getattr(self, 'training_mode', 'context')
         
@@ -339,6 +396,37 @@ class WanTrainingModule(DiffusionTrainingModule):
                     actions_list.append(None)
             else:
                 actions_list.append(None)
+
+            geometry_frames = s.get("geometry_memory_frames") or []
+            if self.use_geometry_spatial_memory:
+                if not geometry_frames:
+                    raise ValueError(
+                        "Geometry-grounded Spatial Memory requires sample['geometry_memory_frames']. "
+                        "Provide TSDF/point-cloud renders through the configured metadata column."
+                    )
+                resized_geometry = []
+                for frame in geometry_frames:
+                    if hasattr(frame, "resize") and hasattr(frame, "size"):
+                        gw, gh = frame.size
+                        if gh != target_h or gw != target_w:
+                            frame = frame.resize((target_w, target_h), Image.Resampling.LANCZOS)
+                    resized_geometry.append(frame)
+                with torch.no_grad():
+                    geometry_video = self.pipe.preprocess_video(resized_geometry)
+                    if geometry_video.dim() == 4:
+                        geometry_video = geometry_video.unsqueeze(0)
+                    geometry_latents = self.pipe.vae.encode(
+                        [geometry_video[i] for i in range(geometry_video.shape[0])],
+                        device=self.pipe.device,
+                        tiled=False,
+                        tile_size=None,
+                        tile_stride=None,
+                    )
+                geometry_memory_latents_list.append(
+                    geometry_latents.to(dtype=self.pipe.torch_dtype, device=self.pipe.device)
+                )
+            else:
+                geometry_memory_latents_list.append(None)
             
             if dropped_context:
                 context_latents_list.append(None)
@@ -484,9 +572,30 @@ class WanTrainingModule(DiffusionTrainingModule):
                 inputs_shared["spatial_memory_inject_mode"] = getattr(self.pipe, "spatial_memory_inject_mode", "concat_text")
                 inputs_shared["spatial_memory_readout_module"] = getattr(self.pipe, "spatial_memory_readout_module", None)
                 inputs_shared["use_framepack_memory"] = bool(getattr(self, "use_framepack_memory", False))
+                if self.use_moc and self.moc_module is not None:
+                    inputs_shared["use_moc"] = True
+                    inputs_shared["moc_module"] = self.moc_module
                 nf_list = [s.get("non_fov_frames") or [] for s in samples]
                 if any(nf for nf in nf_list):
                     inputs_shared["non_fov_frames_list"] = nf_list
+
+                if self.use_geometry_spatial_memory:
+                    if not all(x is not None for x in geometry_memory_latents_list):
+                        raise ValueError("Geometry memory is missing for one or more samples in the batch.")
+                    inputs_shared["geometry_memory_latents"] = torch.cat(
+                        geometry_memory_latents_list,
+                        dim=0,
+                    )
+                    inputs_shared["use_geometry_spatial_memory"] = True
+                    inputs_shared["geometry_spatial_memory_module"] = (
+                        self.geometry_spatial_memory_module
+                    )
+                    inputs_shared["geometry_spatial_memory_inject_mode"] = (
+                        self.pipe.geometry_spatial_memory_inject_mode
+                    )
+                    inputs_shared["geometry_spatial_memory_readout_module"] = (
+                        self.geometry_spatial_memory_readout_module
+                    )
 
                 ctx_acts_valid = [a for a in context_actions_list if a is not None]
                 if not getattr(self, "omit_context_actions", False) and ctx_acts_valid:
@@ -623,6 +732,9 @@ class WanTrainingModule(DiffusionTrainingModule):
                 "spatial_memory_readout_module": getattr(self.pipe, "spatial_memory_readout_module", None),
                 "use_framepack_memory": bool(getattr(self, "use_framepack_memory", False)),
             })
+            if self.use_moc and self.moc_module is not None:
+                inputs["use_moc"] = True
+                inputs["moc_module"] = self.moc_module
             if self.context_fixed_noise_std is not None:
                 inputs["context_fixed_noise_std"] = self.context_fixed_noise_std
         inputs = self._ensure_input_latents(inputs, strict=True)

@@ -1,5 +1,6 @@
 #!/bin/bash
-# Spatial memory baseline: append pooled spatial tokens to cross-attn context
+# Token-grid baseline (historically named spatial_mem): append pooled context
+# tokens to cross-attn. This is not the depth/TSDF geometry-grounded method.
 # Optional: --spatial_memory_inject_mode {concat_text,none,cross_attn_readout}; optional train monitor --sampling_two_chunk_memory (see README).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

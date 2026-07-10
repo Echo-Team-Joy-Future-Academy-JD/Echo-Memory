@@ -68,6 +68,7 @@ _REGISTRY_ALIAS = {
     "spatial_concat_text":      "spatial_concat_text_two_chunk",
     "spatial_inject_none":      "spatial_inject_none_two_chunk",
     "spatial_cross_attn_readout": "spatial_cross_attn_readout_two_chunk",
+    "geometry_spatial_mem":     "geometry_spatial_mem",
     "videossm_hybrid":          "videossm_hybrid_legacy",
     "block_wise_ssm":           "block_wise_ssm_two_chunk",
 }
@@ -135,6 +136,11 @@ def apply_profile_to_pipe(pipe, profile: MemoryProfile) -> None:
     if profile.spatial_memory_inject_mode:
         pipe.spatial_memory_inject_mode = str(profile.spatial_memory_inject_mode)
     pipe.use_spatial_memory_legacy = bool(profile.use_spatial_memory_legacy)
+    pipe.use_geometry_spatial_memory = bool(profile.use_geometry_spatial_memory)
+    if profile.geometry_spatial_memory_inject_mode:
+        pipe.geometry_spatial_memory_inject_mode = str(
+            profile.geometry_spatial_memory_inject_mode
+        )
     pipe.use_block_wise_ssm = bool(getattr(profile, "use_block_wise_ssm", False))
     pipe.use_videossm_hybrid = bool(getattr(profile, "use_videossm_hybrid", False))
     # Warn if spatial memory requested but module not loaded from checkpoint
@@ -143,12 +149,10 @@ def apply_profile_to_pipe(pipe, profile: MemoryProfile) -> None:
         and not pipe.use_spatial_memory_legacy
         and getattr(pipe, "spatial_memory_module", None) is None
     ):
-        pipe.use_spatial_memory_legacy = True
-        print(
-            "[unified_inference] WARN: spatial_mem profile but spatial_memory_module "
-            "not found in checkpoint. Falling back to legacy adaptive pool.",
-            file=sys.stderr,
-            flush=True,
+        raise RuntimeError(
+            "Spatial token-grid profile requested, but checkpoint has no "
+            "spatial_memory_module weights. Refusing to silently substitute the "
+            "legacy adaptive pool; select an explicit legacy profile instead."
         )
 
 
@@ -196,6 +200,12 @@ Memory types:
     # Context image
     parser.add_argument("--context_image", type=str, default=None,
                         help="Path to first-frame context image (enables context memory)")
+    parser.add_argument(
+        "--geometry_memory_video",
+        type=str,
+        default=None,
+        help="TSDF/point-cloud-rendered static condition video for geometry-grounded Spatial Memory",
+    )
 
     # Action control
     parser.add_argument("--action_path", type=str, default=None,
@@ -271,6 +281,15 @@ def main():
 
     # ── Apply memory flags ──────────────────────────────────────────────
     apply_profile_to_pipe(pipe, profile)
+    if args.memory_type == "geometry_spatial_mem" or args.geometry_memory_video:
+        if getattr(pipe, "geometry_spatial_memory_module", None) is None:
+            print(
+                "ERROR: geometry Spatial Memory checkpoint does not contain "
+                "geometry_spatial_memory_module weights.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        pipe.use_geometry_spatial_memory = True
 
     # ── Encode context image (if provided) ──────────────────────────────
     context_latents = None
@@ -296,6 +315,43 @@ def main():
         identity_rt = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
         context_actions_t = torch.tensor([identity_rt], dtype=torch.float32)
 
+    geometry_memory_latents = None
+    if args.geometry_memory_video:
+        if not os.path.isfile(args.geometry_memory_video):
+            print(
+                f"ERROR: geometry memory video not found: {args.geometry_memory_video}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        import imageio.v3 as iio
+
+        geometry_frames = [
+            Image.fromarray(frame).convert("RGB").resize(
+                (args.width, args.height),
+                Image.Resampling.LANCZOS,
+            )
+            for frame in iio.imiter(args.geometry_memory_video)
+        ]
+        if not geometry_frames:
+            print("ERROR: geometry memory video contains no frames.", file=sys.stderr)
+            sys.exit(1)
+        pipe.load_models_to_device(["vae"])
+        with torch.no_grad():
+            geometry_video = pipe.preprocess_video(geometry_frames)
+            if geometry_video.dim() == 4:
+                geometry_video = geometry_video.unsqueeze(0)
+            geometry_memory_latents = pipe.vae.encode(
+                [geometry_video[i] for i in range(geometry_video.shape[0])],
+                device=pipe.device,
+                tiled=False,
+                tile_size=None,
+                tile_stride=None,
+            ).to(dtype=pipe.torch_dtype, device=pipe.device)
+        print(
+            "[unified_inference] Encoded geometry memory video: "
+            f"{tuple(geometry_memory_latents.shape)}"
+        )
+
     # ── Generate ────────────────────────────────────────────────────────
     print(f"[unified_inference] Generating {args.num_frames} frames @ {args.width}x{args.height}")
     frames = run_one_chunk(
@@ -306,6 +362,7 @@ def main():
         context_latents=context_latents,
         num_context_frames=num_context_frames,
         context_actions_t=context_actions_t,
+        geometry_memory_latents=geometry_memory_latents,
         chunk_frames=args.num_frames,
         h=args.height,
         w=args.width,
