@@ -117,6 +117,12 @@ if __name__ == "__main__":
         ("--spatial_memory_tokens", dict(type=int, default=64)),
         ("--spatial_memory_grid", dict(type=int, default=8)),
         ("--spatial_memory_inject_mode", dict(type=str, default="concat_text", choices=["concat_text", "none", "cross_attn_readout"])),
+        ("--geometry_memory_column", dict(type=str, default="geometry_memory")),
+        ("--geometry_memory_root", dict(type=str, default=None)),
+        ("--geometry_spatial_memory_tokens", dict(type=int, default=64)),
+        ("--geometry_spatial_memory_grid", dict(type=int, default=8)),
+        ("--geometry_spatial_memory_temporal_bins", dict(type=int, default=4)),
+        ("--geometry_spatial_memory_inject_mode", dict(type=str, default="concat_text", choices=["concat_text", "none", "cross_attn_readout"])),
         ("--framepack_ratio", dict(type=int, default=2)),
         ("--framepack_length_strategy", dict(type=str, default="distance_merge", choices=["distance_merge", "mean", "uniform", "recent_weighted", "weighted_recent", "packed_multiscale"])),
         ("--framepack_recent_keep_ratio", dict(type=float, default=0.5)),
@@ -153,6 +159,7 @@ if __name__ == "__main__":
         "--camera_encoder_full_zero_init", "--enable_context_memory", "--context_per_frame_vae",
         "--cfg_target_only", "--enable_fov_retrieval", "--use_rt_relative",
         "--strict_overlap_context", "--use_anchor_frame", "--use_spatial_memory",
+        "--use_geometry_spatial_memory",
         "--use_spatial_memory_legacy", "--use_framepack_memory", "--use_framepack_length_compress",
         "--use_block_wise_ssm", "--use_videossm_hybrid", "--sampling_two_chunk_memory",
     ]:
@@ -299,6 +306,14 @@ if __name__ == "__main__":
         spatial_memory_tokens=_arg('spatial_memory_tokens', 64),
         spatial_memory_grid=_arg('spatial_memory_grid', 8),
         spatial_memory_inject_mode=_arg('spatial_memory_inject_mode', 'concat_text'),
+        use_geometry_spatial_memory=_arg('use_geometry_spatial_memory', False),
+        geometry_spatial_memory_tokens=_arg('geometry_spatial_memory_tokens', 64),
+        geometry_spatial_memory_grid=_arg('geometry_spatial_memory_grid', 8),
+        geometry_spatial_memory_temporal_bins=_arg('geometry_spatial_memory_temporal_bins', 4),
+        geometry_spatial_memory_inject_mode=_arg(
+            'geometry_spatial_memory_inject_mode',
+            'concat_text',
+        ),
         use_moc=_arg('use_moc', False),
         moc_temperature=_arg('moc_temperature', 1.0),
         moc_top_k=_arg('moc_top_k', 0),
@@ -308,6 +323,11 @@ if __name__ == "__main__":
         logger.info(
             f"[MoC] enabled with temperature={float(_arg('moc_temperature', 1.0))}, "
             f"top_k={int(_arg('moc_top_k', 0) or 0)}"
+        )
+    if _arg('use_geometry_spatial_memory', False):
+        logger.info(
+            "[Geometry Spatial Memory] enabled; expects TSDF/point-cloud rendered condition "
+            f"from metadata column '{_arg('geometry_memory_column', 'geometry_memory')}'"
         )
 
     # ── VWM-style: Replace DiT blocks with DiTBlock_w_Action ──

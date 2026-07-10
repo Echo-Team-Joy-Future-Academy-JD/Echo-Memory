@@ -111,6 +111,14 @@ assets/readme_previews/     Low-resolution animated GIF previews for direct READ
 <b>Memory design matrix.</b> The paper groups concrete variants by what is stored and how it is read back: raw context, compressed history, spatial state, or recurrent state-space memory. See [`doc/memory_mechanisms.md`](doc/memory_mechanisms.md) for the paper-row to implementation mapping.
 </p>
 
+> **Spatial Memory clarification.** The released results currently labeled
+> `spatial_mem` were produced by `SpatialGridMemory`, a time-averaged token-grid
+> baseline; it does not use depth, TSDF fusion, or a 3D point cloud. The new
+> geometry-grounded path is exposed separately as `geometry_spatial_mem` and
+> requires pre-rendered static geometry from depth + camera reconstruction.
+> Results from the token-grid row must not be attributed to the geometry-grounded
+> method in [arXiv:2506.05284](https://arxiv.org/abs/2506.05284).
+
 <div align="center">
 <table>
   <tr>

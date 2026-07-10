@@ -503,6 +503,7 @@ def run_one_chunk(
     context_latents=None,
     num_context_frames=1,
     context_actions_t=None,
+    geometry_memory_latents=None,
     chunk_frames=81,
     h=352,
     w=640,
@@ -545,6 +546,7 @@ def run_one_chunk(
             context_position="suffix",
             cfg_target_only=True,
             inference_noise_level=inference_noise_level,
+            geometry_memory_latents=geometry_memory_latents,
         )
         if context_actions_t is not None:
             pipe_kw["context_actions"] = context_actions_t
@@ -552,7 +554,11 @@ def run_one_chunk(
             vid = pipe(**pipe_kw)
     else:
         with torch.no_grad():
-            vid = pipe(**kwargs_common, enable_context_memory=False)
+            vid = pipe(
+                **kwargs_common,
+                enable_context_memory=False,
+                geometry_memory_latents=geometry_memory_latents,
+            )
     return vid if isinstance(vid, list) else [vid]
 
 
@@ -1719,10 +1725,12 @@ def main():
     if getattr(args, "spatial_memory_inject_mode", None):
         pipe.spatial_memory_inject_mode = str(getattr(args, "spatial_memory_inject_mode"))
     pipe.use_spatial_memory_legacy = bool(getattr(args, "use_spatial_memory_legacy", False))
-    # Ckpt may omit SpatialGridMemory weights: fall back to legacy adaptive pool for correct shapes
     if pipe.use_spatial_memory and not pipe.use_spatial_memory_legacy and getattr(pipe, "spatial_memory_module", None) is None:
-        pipe.use_spatial_memory_legacy = True
-        print(f"{_log_prefix} use_spatial_memory but no spatial_memory_module in ckpt -> use_spatial_memory_legacy=True", flush=True)
+        raise RuntimeError(
+            "Spatial token-grid inference requested, but checkpoint has no "
+            "spatial_memory_module weights. Pass --use_spatial_memory_legacy only "
+            "for an intentionally legacy adaptive-pool run."
+        )
     if args.num_gpus > 1 and torch.cuda.is_available():
         print(f"{_log_prefix} rank={args.rank} device_count={torch.cuda.device_count()} current_device={torch.cuda.current_device()}", flush=True)
 

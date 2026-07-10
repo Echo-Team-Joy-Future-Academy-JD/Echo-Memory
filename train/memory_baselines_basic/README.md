@@ -9,7 +9,8 @@ This folder contains the public training recipes for the paper's controlled memo
 | FramePack-Weight | Per-frame temporal decay and global scaling over context tokens; context length is unchanged. | `diffsynth/models/memory/framepack_weight.py` |
 | FramePack-Length | Temporal mean pooling over context latents with matched RT-action padding and pooling. | `diffsynth/models/memory/framepack_length.py` |
 | Hybrid FramePack | Length compression plus token weighting. | `wan_video_new.py` memory path plus FramePack helpers |
-| Spatial Memory | Time-mean context summary to spatial grid tokens, injected by a selected read-out path. | `diffsynth/models/memory/spatial_grid_memory.py` |
+| Token-grid baseline (`spatial_mem`) | Time-mean context summary to learned spatial grid tokens. This row has no depth/3D reconstruction. | `diffsynth/models/memory/spatial_grid_memory.py` |
+| Geometry-grounded Spatial Memory | TSDF-fused static point-cloud renders are VAE-encoded and summarized into geometry conditioning tokens. | `diffsynth/models/memory/geometry_spatial_memory.py` |
 | Block-wise SSM | Paper-aligned recurrent state inside selected DiT blocks. | `diffsynth/models/memory/block_wise_ssm.py` + `--use_block_wise_ssm` |
 | VideoSSM hybrid | Legacy lightweight temporal-convolution state-space baseline; kept separate from Block-wise SSM. | `diffsynth/models/memory/videossm_hybrid.py` + `--use_videossm_hybrid` |
 
@@ -40,6 +41,11 @@ The non-ablation baseline scripts are still useful for representative rows and q
 - `run_framepack_lencompress_r2.sh`: FramePack length compression ratio 2.
 - `run_framepack_lencompress_r4.sh`: FramePack length compression ratio 4.
 - `run_spatial_memory_baseline.sh`: representative Spatial Memory baseline.
+- `run_geometry_spatial_memory_baseline.sh`: geometry-grounded adaptation of
+  [Video World Models with Long-term Spatial Memory](https://arxiv.org/abs/2506.05284).
+  It requires a metadata `geometry_memory` column containing paths to rendered
+  static point-cloud videos such as the reference implementation's
+  `Vid_masktarget.mp4`.
 - `run_videossm_hybrid_baseline.sh`: legacy VideoSSM hybrid baseline.
 
 These scripts expose common overrides through environment variables: `CKPT_INTERVAL`, `TIMESTEP_SHIFT`, `SAMPLING_INTERVAL_STEPS`, `SAMPLING_NUM_INFERENCE_STEPS`, `SAMPLING_HEIGHT`, `SAMPLING_WIDTH`, and `SAMPLING_NUM_FRAMES`.
@@ -57,3 +63,39 @@ The shared implementation lives in `src/model_training/context_chunk_utils.py`.
 Evaluation scripts source `env/eval_infer_alignment_env.sh` and call `env/memory_baseline_runtime.py` to infer the correct runtime memory flags from checkpoint paths. Keep output suffixes stable if you add a new script, or update `env/memory_baseline_runtime.py` so evaluation can recover the matching memory profile.
 
 Generated training monitor videos are useful for fast visual checks, but paper-quality revisit panels should be produced through `eval/v2/revisit_suite`, which stores first frames, revisit-tail frames, change maps, and generated MP4 files for each case.
+
+## Preparing Geometry Memory
+
+The geometry extractor is not `SpatialGridMemory`. Follow the official
+[`spmem/spmem`](https://github.com/spmem/spmem) preprocessing path:
+
+1. Recover RGB, metric depth, camera intrinsics, and camera-to-world poses
+   (Mega-SaM for offline training data; CUT3R is used by the reference work for
+   recurrent online reconstruction).
+2. Run TSDF fusion and render the static point cloud along the target camera
+   trajectory. The reference script writes `Vid_masktarget.mp4`.
+
+```bash
+SPMEM_ROOT=/path/to/spmem \
+INPUT_NPZ=/path/to/reconstructed_clip.npz \
+CLIP_NAME=sample_id \
+GEOMETRY_OUTPUT_ROOT=/path/to/tsdf/outputs \
+bash scripts/run_spmem_tsdf_preprocess.sh
+```
+
+3. Add those video paths to metadata:
+
+```bash
+python scripts/add_geometry_memory_column.py \
+  --metadata /path/to/metadata_full.csv \
+  --geometry_root /path/to/tsdf/outputs \
+  --output /path/to/metadata_geometry.csv
+```
+
+4. Train with:
+
+```bash
+METADATA_NAME=metadata_geometry.csv \
+GEOMETRY_MEMORY_ROOT=/path/to/tsdf/outputs \
+bash train/memory_baselines_basic/run_geometry_spatial_memory_baseline.sh
+```

@@ -373,6 +373,63 @@ def load_pipeline_and_ckpt(
                 pipe.spatial_memory_readout_module = readout
                 print("[loop_utils] Loaded spatial_memory_readout_module")
 
+        _gmsd = {
+            k.replace("geometry_spatial_memory_module.", "", 1): v
+            for k, v in ckpt.items()
+            if k.startswith("geometry_spatial_memory_module.")
+        }
+        if _gmsd:
+            from diffsynth.models.memory.geometry_spatial_memory import GeometrySpatialMemory
+
+            patch_weight = _gmsd.get("geometry_patch_embedding.weight")
+            mix_weight = _gmsd.get("geometry_to_tokens")
+            if patch_weight is not None and mix_weight is not None:
+                dim, latent_channels = int(patch_weight.shape[0]), int(patch_weight.shape[1])
+                patch_size = tuple(int(v) for v in patch_weight.shape[2:])
+                source_tokens, num_tokens = int(mix_weight.shape[0]), int(mix_weight.shape[1])
+                config = _gmsd.get("geometry_config")
+                if config is not None and int(config.numel()) >= 3:
+                    grid_size = int(config[1].item())
+                    temporal_bins = int(config[2].item())
+                else:
+                    grid_size = 8
+                    temporal_bins = max(source_tokens // (grid_size * grid_size), 1)
+                geometry_memory = GeometrySpatialMemory(
+                    dim=dim,
+                    latent_channels=latent_channels,
+                    patch_size=patch_size,
+                    grid_size=grid_size,
+                    temporal_bins=temporal_bins,
+                    num_tokens=num_tokens,
+                )
+                geometry_memory.load_state_dict(_gmsd, strict=False)
+                geometry_memory = geometry_memory.to(
+                    dtype=next(pipe.dit.parameters()).dtype,
+                    device=next(pipe.dit.parameters()).device,
+                )
+                pipe.geometry_spatial_memory_module = geometry_memory
+                pipe.use_geometry_spatial_memory = True
+                print(
+                    "[loop_utils] Loaded geometry_spatial_memory_module "
+                    f"(temporal_bins={temporal_bins}, grid={grid_size}, tokens={num_tokens})"
+                )
+
+        _greadout_sd = {
+            k.replace("geometry_spatial_memory_readout_module.", "", 1): v
+            for k, v in ckpt.items()
+            if k.startswith("geometry_spatial_memory_readout_module.")
+        }
+        if _greadout_sd:
+            from diffsynth.models.memory.spatial_grid_memory import SpatialCrossAttnReadout
+
+            readout = SpatialCrossAttnReadout(dim=pipe.dit.dim, num_heads=8)
+            readout.load_state_dict(_greadout_sd, strict=False)
+            pipe.geometry_spatial_memory_readout_module = readout.to(
+                dtype=next(pipe.dit.parameters()).dtype,
+                device=next(pipe.dit.parameters()).device,
+            )
+            print("[loop_utils] Loaded geometry_spatial_memory_readout_module")
+
     if getattr(pipe, "enable_vram_management", None):
         pipe.enable_vram_management()
     return pipe

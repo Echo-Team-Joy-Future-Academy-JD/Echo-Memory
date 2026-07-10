@@ -647,6 +647,9 @@ class CamVideoDataset(torch.utils.data.Dataset):
             self.overlap_labels_root = getattr(args, "overlap_labels_root", None)
             self.condition_t2v_ratio = getattr(args, "condition_t2v_ratio", 0.10)
             self.condition_i2v_ratio = getattr(args, "condition_i2v_ratio", 0.10)
+            self.use_geometry_spatial_memory = getattr(args, "use_geometry_spatial_memory", False)
+            self.geometry_memory_column = getattr(args, "geometry_memory_column", "geometry_memory")
+            self.geometry_memory_root = getattr(args, "geometry_memory_root", None)
         else:
             self.use_condition_context_frames = False
             self.condition_first_frame = False
@@ -657,6 +660,9 @@ class CamVideoDataset(torch.utils.data.Dataset):
             self.overlap_labels_root = None
             self.condition_t2v_ratio = 0.10
             self.condition_i2v_ratio = 0.10
+            self.use_geometry_spatial_memory = False
+            self.geometry_memory_column = "geometry_memory"
+            self.geometry_memory_root = None
 
         if cam_position_scale is None:
             cam_position_scale = 0.01
@@ -863,6 +869,57 @@ class CamVideoDataset(torch.utils.data.Dataset):
             raise ValueError(f"metadata row has {len(frame_indices)} frames, expected {self.num_frames}")
         return scene_name, frame_indices[: self.num_frames]
 
+    def _resolve_geometry_path(self, token):
+        token = str(token).strip()
+        if not token:
+            return None
+        if os.path.isabs(token):
+            return token
+        root = self.geometry_memory_root or self.base_path
+        return os.path.join(root, token)
+
+    def _load_geometry_memory_frames(self, row):
+        value = row.get(self.geometry_memory_column, None)
+        if value is None or str(value).strip() == "" or str(value).lower() == "nan":
+            if self.use_geometry_spatial_memory:
+                raise ValueError(
+                    f"metadata row lacks required geometry column '{self.geometry_memory_column}'"
+                )
+            return []
+        tokens = [token for token in str(value).split("|") if token.strip()]
+        if not tokens:
+            raise ValueError(f"empty geometry memory field '{self.geometry_memory_column}'")
+
+        if len(tokens) == 1:
+            path = self._resolve_geometry_path(tokens[0])
+            if path is None:
+                return []
+            if os.path.isdir(path):
+                names = sorted(
+                    name
+                    for name in os.listdir(path)
+                    if os.path.splitext(name)[1].lower() in (".png", ".jpg", ".jpeg", ".webp")
+                )
+                paths = [os.path.join(path, name) for name in names]
+                return [Image.open(frame_path).convert("RGB") for frame_path in paths]
+            if os.path.splitext(path)[1].lower() in (".mp4", ".mov", ".avi", ".mkv", ".webm"):
+                reader = imageio.get_reader(path)
+                try:
+                    frames = [Image.fromarray(frame).convert("RGB") for frame in reader]
+                finally:
+                    reader.close()
+                if not frames:
+                    raise ValueError(f"geometry memory video has no frames: {path}")
+                return frames
+
+        frames = []
+        for token in tokens:
+            path = self._resolve_geometry_path(token)
+            if path is None or not os.path.isfile(path):
+                raise FileNotFoundError(f"geometry memory frame not found: {path}")
+            frames.append(Image.open(path).convert("RGB"))
+        return frames
+
     def _load_overlap_frames(self, scene_name, frame_index):
         if self.overlap_labels_root is None:
             return []
@@ -1009,6 +1066,7 @@ class CamVideoDataset(torch.utils.data.Dataset):
         rt_list = self._to_relative_rt(rt_list_abs, rt_list_abs[0])
         pose_indices = list(range(0, len(frame_indices), 4))
         actions = [rt_list[i] for i in pose_indices]
+        geometry_memory_frames = self._load_geometry_memory_frames(row)
 
         return {
             "video": frames,
@@ -1017,6 +1075,7 @@ class CamVideoDataset(torch.utils.data.Dataset):
             "video_name": scene_name,
             "start_frame": start_frame,
             "end_frame": end_frame,
+            "geometry_memory_frames": geometry_memory_frames,
             **self._build_condition_context_payload(
                 frames=frames,
                 scene_name=scene_name,

@@ -880,6 +880,7 @@ class WanVideoPipeline(BasePipeline):
         context_actions: Optional[torch.Tensor] = None,  # RT poses for context frames [N_ctx, 12]
         context_position: Optional[str] = None,  # "suffix" = context at end (exp1_4_2), "prefix" = context at start; default from env CONTEXT_POSITION
         cam_pose_actions=None,  # VWM-style: list of 21 relative RT vectors (12 floats each), already latent-frame-aligned
+        geometry_memory_latents: Optional[torch.Tensor] = None,
     ):
         # Scheduler
         self.scheduler.set_timesteps(num_inference_steps, denoising_strength=denoising_strength, shift=sigma_shift)
@@ -908,7 +909,27 @@ class WanVideoPipeline(BasePipeline):
             "motion_bucket_id": motion_bucket_id,
             "tiled": tiled, "tile_size": tile_size, "tile_stride": tile_stride,
             "sliding_window_size": sliding_window_size, "sliding_window_stride": sliding_window_stride,
+            "geometry_memory_latents": geometry_memory_latents,
         }
+        if geometry_memory_latents is not None:
+            inputs_shared["use_geometry_spatial_memory"] = bool(
+                getattr(self, "use_geometry_spatial_memory", False)
+            )
+            inputs_shared["geometry_spatial_memory_module"] = getattr(
+                self,
+                "geometry_spatial_memory_module",
+                None,
+            )
+            inputs_shared["geometry_spatial_memory_inject_mode"] = getattr(
+                self,
+                "geometry_spatial_memory_inject_mode",
+                "concat_text",
+            )
+            inputs_shared["geometry_spatial_memory_readout_module"] = getattr(
+                self,
+                "geometry_spatial_memory_readout_module",
+                None,
+            )
         
         if action_path is not None:
             import json
@@ -1896,6 +1917,44 @@ def model_fn_wan_video(
     if use_moc and moc_module is not None and num_context_frames > 0 and f > num_context_frames:
         x = moc_module(x, num_context_frames, int(f), int(h), int(w), context_position)
 
+    # Geometry-grounded Spatial Memory: encode a TSDF/point-cloud-rendered
+    # condition video independently from ordinary context tokens.
+    use_geometry_spatial_memory = bool(kwargs.get("use_geometry_spatial_memory", False))
+    geometry_memory_latents = kwargs.get("geometry_memory_latents", None)
+    geometry_spatial_memory_module = kwargs.get("geometry_spatial_memory_module", None)
+    geometry_inject_mode = str(
+        kwargs.get("geometry_spatial_memory_inject_mode", "concat_text") or "concat_text"
+    )
+    geometry_readout_module = kwargs.get("geometry_spatial_memory_readout_module", None)
+    if (
+        use_geometry_spatial_memory
+        and geometry_memory_latents is not None
+        and geometry_spatial_memory_module is not None
+        and geometry_inject_mode != "none"
+    ):
+        geometry_memory_latents = geometry_memory_latents.to(device=x.device, dtype=x.dtype)
+        mem = geometry_spatial_memory_module(geometry_memory_latents)
+        if mem.shape[0] != x.shape[0]:
+            if x.shape[0] % mem.shape[0] != 0:
+                raise ValueError(
+                    f"Geometry memory batch mismatch: memory={mem.shape[0]} model={x.shape[0]}"
+                )
+            mem = mem.repeat(x.shape[0] // mem.shape[0], 1, 1)
+        if geometry_inject_mode == "cross_attn_readout":
+            target_frames = int(f) - min(int(num_context_frames), int(f))
+            target_tokens = target_frames * int(h) * int(w)
+            if target_tokens > 0 and target_tokens <= x.shape[1]:
+                if context_position == "suffix":
+                    x_target, x_other = x[:, :target_tokens], x[:, target_tokens:]
+                    x_target = apply_spatial_cross_attn_readout(x_target, mem, geometry_readout_module)
+                    x = torch.cat([x_target, x_other], dim=1)
+                else:
+                    x_other, x_target = x[:, :-target_tokens], x[:, -target_tokens:]
+                    x_target = apply_spatial_cross_attn_readout(x_target, mem, geometry_readout_module)
+                    x = torch.cat([x_other, x_target], dim=1)
+        else:
+            context = inject_spatial_memory(context, mem, "concat_text")
+
     # FramePack-Weight (FAR-style): see diffsynth.models.memory.framepack_weight
     use_framepack_memory = kwargs.get("use_framepack_memory", False)
     context_temporal_decay = float(kwargs.get("context_temporal_decay", 1.0) or 1.0)
@@ -1922,7 +1981,6 @@ def model_fn_wan_video(
     spatial_readout_module = kwargs.get("spatial_memory_readout_module", None)
     if (
         use_spatial_memory
-        and spatial_inject_mode != "none"
         and spatial_memory_tokens > 0
         and num_context_frames > 0
         and f > num_context_frames
@@ -1942,7 +2000,9 @@ def model_fn_wan_video(
                 mem_t = mem.transpose(1, 2)  # (B, D, S)
                 mem_t = torch.nn.functional.adaptive_avg_pool1d(mem_t, spatial_memory_tokens)
                 mem = mem_t.transpose(1, 2)
-        if spatial_inject_mode == "cross_attn_readout":
+        if spatial_inject_mode == "none":
+            pass
+        elif spatial_inject_mode == "cross_attn_readout":
             target_tokens = (int(f) - int(num_context_frames)) * int(h) * int(w)
             if target_tokens > 0 and target_tokens < x.shape[1]:
                 if context_position == "suffix":
