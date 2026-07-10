@@ -38,8 +38,6 @@ Use Echo pool names in GitHub-facing markdown:
 | Static in-domain pool | Internal codenames, private benchmark names |
 | Dynamic training pool | Machine-local absolute paths |
 
-WeChat QR: `assets/wechat_group_qrcode.jpg` + project page Community section only.
-
 ## Release checklist
 
 - [ ] Quick eval one HF checkpoint

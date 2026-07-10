@@ -60,5 +60,4 @@ models/
 !docs/**/*.jpg
 !docs/**/*.jpeg
 !docs/assets/**/*.jpg
-!assets/wechat_group_qrcode.jpg
 !docs/**/*.pdf
