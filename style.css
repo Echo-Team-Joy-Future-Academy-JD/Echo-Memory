@@ -1121,51 +1121,9 @@ img {
 .updates-grid {
   margin-top: 1.5rem;
   display: grid;
-  grid-template-columns: 1fr 1fr minmax(220px, 0.85fr);
+  grid-template-columns: 1fr 1fr;
   gap: 1.25rem;
   align-items: start;
-}
-
-.community-panel .wechat-qr {
-  margin: 0.75rem 0 0;
-}
-
-.community-panel {
-  overflow: visible;
-}
-
-.wechat-qr {
-  margin: 0.75rem auto 0;
-  padding: 0;
-  text-align: center;
-  overflow: visible;
-}
-
-/* Portrait WeChat screenshot: set display width only; height follows intrinsic ratio (1166×1640). */
-.wechat-qr__photo {
-  display: block;
-  width: 220px;
-  max-width: 100%;
-  height: auto;
-  margin: 0 auto;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-}
-
-.developer-page .wechat-qr {
-  margin: 1rem auto 0;
-  overflow: visible;
-}
-
-.developer-page .wechat-qr__photo {
-  width: 260px;
-}
-
-.wechat-qr figcaption {
-  margin-top: 0.55rem;
-  font-size: 0.82rem;
-  color: var(--text-soft);
 }
 
 .lang-toggle {
