@@ -597,11 +597,6 @@ Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.githu
 
 Maintainers: [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) · Cursor skills in [`.cursor/skills/`](.cursor/skills/)
 
-<div align="center">
-<img src="assets/wechat_group_qrcode.jpg" alt="Echo-Memory WeChat group" width="1166" height="1640" style="width:240px;height:auto;max-width:100%;">
-<p><b>Echo-Memory 交流群</b> — scan to join (QR refreshes periodically)</p>
-</div>
-
 ## Citation
 
 If you use this repository or the Echo-Memory paper, please cite:

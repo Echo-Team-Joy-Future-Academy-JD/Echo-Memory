@@ -106,10 +106,6 @@ window.ECHO_I18N = {
     "updates.rm5": "<strong>Wan 2.2</strong> + multi-scale <strong>5B / 14B</strong>",
     "updates.re1": "<strong>Dynamic eval</strong> beyond static replay/revisit",
     "updates.re2": "More revisit probes and scoring presets",
-    "community.title": "Community",
-    "community.lead": "Join the Echo-Memory WeChat group for release updates, checkpoint questions, and maintainer coordination.",
-    "community.qr.alt": "Echo-Memory WeChat group QR code",
-    "community.qr.caption": "Echo-Memory 交流群 · scan to join (QR refreshes periodically)",
     "bibtex.kicker": "08 · Citation",
     "bibtex.title": "BibTeX",
     "bibtex.lead": "Echo-Memory: A Controlled Study of Memory in Action World Models (June 2026). Licensed under <a href=\"https://creativecommons.org/licenses/by/4.0/\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 4.0</a>. Cite the arXiv preprint below.",
@@ -152,7 +148,7 @@ window.ECHO_I18N = {
     "dev.s5.body": "<li><strong>Scope prompts</strong> — memory family, script, eval branch (<em>replay / in-domain / open-domain</em>).</li><li><strong>Entry scripts</strong> — e.g. <code>run_spatial_memory_baseline.sh</code>, <code>eval/v2/run_basic_replay_gt.sh</code>.</li><li><strong>Rules</strong> — optional <code>.cursor/rules/echo-memory.mdc</code> for pool naming &amp; public doc constraints.</li><li><strong>Ask mode</strong> — trace checkpoint mapping or read <code>diffsynth/</code> without edits.</li>",
     "dev.s5.promptLabel": "Example prompt",
     "dev.s5.prompt": "Add a quick check that downloads context_k1 from Echo-Team/Echo-Memory\nand runs eval/v2/run_basic_replay_gt.sh with the static in-domain pool.\n\nTrace env/memory_baseline_runtime.py spatial_mem → inject flags;\nsummarize in doc/checkpoints.md.",
-    "dev.s5.note": "<strong>Public repo hygiene:</strong> never commit upload bash, internal benchmark names, or machine paths. WeChat QR → project page &amp; README only.",
+    "dev.s5.note": "<strong>Public repo hygiene:</strong> never commit upload bash, internal benchmark names, or machine paths.",
     "dev.s6.title": "6. Site & release (maintainers)",
     "dev.s6.intro": "After editing <code>docs/index.html</code>, <code>docs/style.css</code>, or <code>docs/i18n*.js</code>:",
     "dev.s6.body": "HF weights: Hugging Face UI or <code>hf upload</code> (maintainers only). Bilingual project page: <code>docs/i18n.js</code> + <code>docs/i18n-runtime.js</code>.",
@@ -269,10 +265,6 @@ window.ECHO_I18N = {
     "updates.rm5": "<strong>Wan 2.2</strong> + 多尺度 <strong>5B / 14B</strong>",
     "updates.re1": "静态 replay/revisit 之外的 <strong>动态评测</strong>",
     "updates.re2": "更多 revisit 探针与评分预设",
-    "community.title": "社区交流",
-    "community.lead": "扫码加入 Echo-Memory 微信群，获取发布更新、权重使用与维护协调信息。",
-    "community.qr.alt": "Echo-Memory 微信群二维码",
-    "community.qr.caption": "Echo-Memory 交流群 · 扫码加入（二维码会定期更新）",
     "bibtex.kicker": "08 · 引用",
     "bibtex.title": "BibTeX",
     "bibtex.lead": "Echo-Memory: A Controlled Study of Memory in Action World Models（2026 年 6 月）。许可：<a href=\"https://creativecommons.org/licenses/by/4.0/\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 4.0</a>。请使用下方 arXiv BibTeX 引用。",
@@ -315,7 +307,7 @@ window.ECHO_I18N = {
     "dev.s5.body": "<li><strong>明确范围</strong> — memory 家族、脚本、评测分支（<em>replay / in-domain / open-domain</em>）。</li><li><strong>入口脚本</strong> — 如 <code>run_spatial_memory_baseline.sh</code>、<code>eval/v2/run_basic_replay_gt.sh</code>。</li><li><strong>Rules</strong> — 可选 <code>.cursor/rules/echo-memory.mdc</code> 约束池命名与公开文档。</li><li><strong>Ask 模式</strong> — 追踪 checkpoint 映射或阅读 <code>diffsynth/</code>，不改代码。</li>",
     "dev.s5.promptLabel": "示例 Prompt",
     "dev.s5.prompt": "添加 quick check：从 Echo-Team/Echo-Memory 下载 context_k1，\n用 static in-domain pool 跑 eval/v2/run_basic_replay_gt.sh。\n\n追踪 env/memory_baseline_runtime.py 如何把 spatial_mem\n权重映射到 inject 标志，并在 doc/checkpoints.md 摘要说明。",
-    "dev.s5.note": "<strong>公开仓库规范：</strong> 勿提交上传脚本、内部 benchmark 名、本机路径。微信群二维码仅在项目页与 README。",
+    "dev.s5.note": "<strong>公开仓库规范：</strong> 勿提交上传脚本、内部 benchmark 名、本机路径。",
     "dev.s6.title": "6. 站点与发布（维护者）",
     "dev.s6.intro": "修改 <code>docs/index.html</code>、<code>docs/style.css</code> 或 <code>docs/i18n*.js</code> 后：",
     "dev.s6.body": "HF 权重：网页或 <code>hf upload</code> 更新（仅维护者）。项目页双语：<code>docs/i18n.js</code> + <code>docs/i18n-runtime.js</code>。",
@@ -324,6 +316,6 @@ window.ECHO_I18N = {
     "dev.s7.l2": "确认 <code>doc/checkpoints.md</code> 与 HF 目录名一致。",
     "dev.s7.l3": "公开文档使用 Echo 池命名 — 无内部路径或 benchmark 代号。",
     "dev.s7.l4": "改站点后运行 <code>publish_gh_pages.sh</code>，检查线上 EN/中文 切换。",
-    "dev.footer": "仓库副本：<a href=\"https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/DEVELOPER.md\">doc/DEVELOPER.md</a> · 社区二维码见 <a href=\"index.html#updates\">项目页</a>"
+    "dev.footer": "仓库副本：<a href=\"https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/blob/main/doc/DEVELOPER.md\">doc/DEVELOPER.md</a>"
   }
 };
