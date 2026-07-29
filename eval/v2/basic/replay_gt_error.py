@@ -66,6 +66,10 @@ from run_replay_loop_two_chunk import (
     _frame_to_pil,
     load_sample_first_frame,
 )
+from src.model_training.multichunk_sample_utils import (
+    build_causal_continuation_protocol,
+    build_prev_tail_continuation_protocol,
+)
 
 
 def _read_gt_frame(dataset_base: str, video_name: str, idx: int, w: int, h: int) -> np.ndarray | None:
@@ -76,6 +80,24 @@ def _read_gt_frame(dataset_base: str, video_name: str, idx: int, w: int, h: int)
             im = Image.open(p).convert("RGB").resize((w, h))
             return np.array(im, dtype=np.uint8)
     return None
+
+
+def _action_rows(payload) -> list[list[float]]:
+    if isinstance(payload, dict):
+        values = [
+            value
+            for _, value in sorted(
+                (
+                    (int(key), value)
+                    for key, value in payload.items()
+                    if str(key).isdigit()
+                ),
+                key=lambda item: item[0],
+            )
+        ]
+    else:
+        values = list(payload)
+    return [list(value)[:12] for value in values]
 
 
 def _label(img: Image.Image, text: str) -> Image.Image:
@@ -291,13 +313,29 @@ def main():
         # prepare context for next chunk using generated frames (same as other evals)
         if ch < args.num_chunks - 1:
             n_ctx = min(args.context_frames, len(frames))
-            prev_frames = replay_context_from_generated_frames(frames, n_ctx)
-            prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
+            frame_pil = [_frame_to_pil(f, w, h) for f in frames]
+            source = getattr(pipe, "training_context_source", None)
+            if source == "causal_prev_prefix":
+                prev_pil, next_actions, _ = build_causal_continuation_protocol(
+                    frame_pil, _action_rows(actions), n_ctx
+                )
+            elif source == "prev_chunk_tail":
+                prev_pil, next_actions, _ = build_prev_tail_continuation_protocol(
+                    frame_pil,
+                    _action_rows(actions),
+                    n_ctx,
+                    nearest_first=True,
+                )
+            else:
+                prev_pil = replay_context_from_generated_frames(frame_pil, n_ctx)
+                next_actions = [identity_rt] * len(prev_pil)
             pipe.load_models_to_device(["vae"])
             with torch.no_grad():
                 ctx_latents = encode_context_frames_per_frame(pipe, prev_pil, pipe.device)
             num_ctx_tokens = ctx_latents.shape[2]
-            ctx_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
+            ctx_actions_t = torch.tensor(
+                next_actions[:num_ctx_tokens], dtype=torch.float32
+            )
 
     # write outputs
     mp4_path = os.path.join(args.output_dir, "replay_gt_gen_only.mp4")

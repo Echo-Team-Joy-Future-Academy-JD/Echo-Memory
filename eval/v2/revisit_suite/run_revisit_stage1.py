@@ -36,6 +36,9 @@ from run_replay_loop_two_chunk import (  # noqa: E402
 from src.model_training.fov_retrieval import convert_rt_to_relative, load_camera_poses_batch, pose_to_rt  # noqa: E402
 from src.model_training.fov_retrieval import retrieve_context_frames_advanced  # noqa: E402
 from src.model_training.multichunk_sample_utils import (  # noqa: E402
+    build_causal_continuation_protocol,
+    build_prev_tail_continuation_protocol,
+    load_causal_prefix_context,
     load_prev_chunk_tail_rt_actions,
     replay_context_actions_from_segment_actions,
 )
@@ -217,6 +220,11 @@ def inspect_ckpt_keys(ckpt: str) -> dict[str, Any]:
 
 def infer_training_memory_source(profile_id: str, ckpt: str) -> str:
     lower = (ckpt or "").lower()
+    if (
+        "block_wise_ssm_causal_v2" in lower
+        or profile_id == "block_wise_ssm_causal_v2"
+    ):
+        return "causal_prev_prefix"
     if profile_id.startswith("ctx"):
         return "fov"
     if "framepack" in lower:
@@ -314,7 +322,7 @@ def build_initial_context(
                     str(sample["video_name"]),
                     int(sample.get("start_frame") or 0),
                     int(context_frames),
-                    nearest_first=False,
+                    nearest_first=True,
                 )
                 ca, _ = load_prev_chunk_tail_rt_actions(
                     str(sample["dataset_base"]),
@@ -322,13 +330,30 @@ def build_initial_context(
                     int(sample.get("start_frame") or 0),
                     int(context_frames),
                     use_rt_relative=True,
-                    nearest_first=False,
+                    nearest_first=True,
                 )
                 if cf and ca:
                     ctx_pil = [_resize(x, width, height) for x in cf]
                     ctx_actions = [list(x) for x in ca]
                     ctx_indices = [int(x) for x in (ci or [])]
                     ctx_source_detail = "prev_chunk_tail_from_dataset"
+            elif source == "causal_prev_prefix":
+                cf, ca, _, protocol = load_causal_prefix_context(
+                    str(sample["dataset_base"]),
+                    str(sample["video_name"]),
+                    int(sample.get("start_frame") or 0),
+                    int(context_frames),
+                    target_num_frames=int(chunk_frames),
+                    use_rt_relative=True,
+                )
+                if cf and ca:
+                    ctx_pil = [_resize(x, width, height) for x in cf]
+                    ctx_actions = [list(x) for x in ca]
+                    ctx_indices = [
+                        int(x)
+                        for x in protocol.get("context_frame_indices", [])
+                    ]
+                    ctx_source_detail = "causal_prev_prefix_from_dataset"
             elif source == "replay_synthetic":
                 seg_frames = data["video"]
                 seg_actions = _load_segment_actions(sample, chunk_frames)
@@ -361,6 +386,27 @@ def build_initial_context(
         "context_indices": ctx_indices,
     }
     return ctx_latents, ctx_actions_t, meta
+
+
+def _action_rows(path: Path) -> list[list[float]]:
+    with open(path, "r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    payload = payload.get("actions", payload)
+    if isinstance(payload, dict):
+        values = [
+            value
+            for _, value in sorted(
+                (
+                    (int(key), value)
+                    for key, value in payload.items()
+                    if str(key).isdigit()
+                ),
+                key=lambda item: item[0],
+            )
+        ]
+    else:
+        values = list(payload)
+    return [list(value)[:12] for value in values]
 
 
 def run_case(args: argparse.Namespace, ckpt_row: dict[str, Any], sample: dict[str, Any], mode: str, rank: int) -> None:
@@ -408,8 +454,6 @@ def run_case(args: argparse.Namespace, ckpt_row: dict[str, Any], sample: dict[st
         args.height,
         args.chunk_frames,
     )
-    identity_rt = _identity_rt()
-
     chunks = []
     times = []
     neg = getattr(irc, "DEFAULT_NEGATIVE_PROMPT", "oversaturated colors, overexposed, static, blurry details")
@@ -438,11 +482,32 @@ def run_case(args: argparse.Namespace, ckpt_row: dict[str, Any], sample: dict[st
         chunks.append(frames)
         if ch < len(action_paths) - 1:
             n_ctx = min(context_frames, len(frames))
-            prev = [_frame_to_pil(f, args.width, args.height) for f in replay_context_from_generated_frames(frames, n_ctx)]
+            frame_pil = [
+                _frame_to_pil(f, args.width, args.height) for f in frames
+            ]
+            source = getattr(pipe, "training_context_source", None)
+            if source == "causal_prev_prefix":
+                prev, next_actions, _ = build_causal_continuation_protocol(
+                    frame_pil,
+                    _action_rows(action_path),
+                    n_ctx,
+                )
+            elif source == "prev_chunk_tail":
+                prev, next_actions, _ = build_prev_tail_continuation_protocol(
+                    frame_pil,
+                    _action_rows(action_path),
+                    n_ctx,
+                    nearest_first=True,
+                )
+            else:
+                prev = replay_context_from_generated_frames(frame_pil, n_ctx)
+                next_actions = [_identity_rt()] * len(prev)
             pipe.load_models_to_device(["vae"])
             with torch.no_grad():
                 ctx_latents = encode_context_frames_per_frame(pipe, prev, pipe.device)
-            ctx_actions_t = torch.tensor([identity_rt] * ctx_latents.shape[2], dtype=torch.float32)
+            ctx_actions_t = torch.tensor(
+                next_actions[: ctx_latents.shape[2]], dtype=torch.float32
+            )
 
     all_frames = [f for chunk in chunks for f in chunk]
     save_video(all_frames, str(out_dir / "revisit_gen_only.mp4"), fps=15, quality=5)

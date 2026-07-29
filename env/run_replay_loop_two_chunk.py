@@ -498,6 +498,27 @@ def _frame_to_pil(f, tw, th):
     return f
 
 
+def _action_rows_from_json(path: str) -> list[list[float]]:
+    with open(path, "r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    payload = payload.get("actions", payload)
+    if isinstance(payload, dict):
+        values = [
+            value
+            for _, value in sorted(
+                (
+                    (int(key), value)
+                    for key, value in payload.items()
+                    if str(key).isdigit()
+                ),
+                key=lambda item: item[0],
+            )
+        ]
+    else:
+        values = list(payload)
+    return [list(value)[:12] for value in values]
+
+
 def run_one_chunk(
     pipe,
     prompt,
@@ -658,14 +679,30 @@ def run_roundtrip_2chunk(
 
     # Chunk 2: condition = 上一 chunk，顺序与训练一致 [last_frame, ctx1, ...] 紧挨噪声后
     n_ctx = min(context_frames, len(frames_ch1))
-    prev_frames = replay_context_from_generated_frames(frames_ch1, n_ctx)
-    prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
     identity_rt = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    source = getattr(pipe, "training_context_source", None)
+    if source == "causal_prev_prefix":
+        prev_pil, next_actions, _ = build_causal_continuation_protocol(
+            frames_ch1, _action_rows_from_json(path_ch1), n_ctx
+        )
+    elif source == "prev_chunk_tail":
+        prev_pil, next_actions, _ = build_prev_tail_continuation_protocol(
+            frames_ch1,
+            _action_rows_from_json(path_ch1),
+            n_ctx,
+            nearest_first=True,
+        )
+    else:
+        prev_frames = replay_context_from_generated_frames(frames_ch1, n_ctx)
+        prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
+        next_actions = [identity_rt] * len(prev_pil)
     pipe.load_models_to_device(["vae"])
     with torch.no_grad():
         context_latents = encode_context_frames_per_frame(pipe, prev_pil, pipe.device)
     num_ctx_tokens = context_latents.shape[2]
-    context_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
+    context_actions_t = torch.tensor(
+        next_actions[:num_ctx_tokens], dtype=torch.float32
+    )
     print(f"[Loop] continuation chunk: len(prev_pil)={len(prev_pil)} num_ctx_tokens={num_ctx_tokens} (应等于 ctx)")
     frames_ch2 = run_one_chunk(
         pipe, prompt, use_negative_prompt, path_ch2,
@@ -902,14 +939,30 @@ def run_left_right_2chunk(
     chunk_frames_list.append(frames_ch1)
 
     n_ctx = min(context_frames, len(frames_ch1))
-    prev_frames = replay_context_from_generated_frames(frames_ch1, n_ctx)
-    prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
     identity_rt = [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    source = getattr(pipe, "training_context_source", None)
+    if source == "causal_prev_prefix":
+        prev_pil, next_actions, _ = build_causal_continuation_protocol(
+            frames_ch1, _action_rows_from_json(path_ch1), n_ctx
+        )
+    elif source == "prev_chunk_tail":
+        prev_pil, next_actions, _ = build_prev_tail_continuation_protocol(
+            frames_ch1,
+            _action_rows_from_json(path_ch1),
+            n_ctx,
+            nearest_first=True,
+        )
+    else:
+        prev_frames = replay_context_from_generated_frames(frames_ch1, n_ctx)
+        prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
+        next_actions = [identity_rt] * len(prev_pil)
     pipe.load_models_to_device(["vae"])
     with torch.no_grad():
         context_latents = encode_context_frames_per_frame(pipe, prev_pil, pipe.device)
     num_ctx_tokens = context_latents.shape[2]
-    context_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
+    context_actions_t = torch.tensor(
+        next_actions[:num_ctx_tokens], dtype=torch.float32
+    )
     print(f"[Loop] continuation chunk: len(prev_pil)={len(prev_pil)} num_ctx_tokens={num_ctx_tokens} (应等于 ctx)")
     frames_ch2 = run_one_chunk(
         pipe, prompt, use_negative_prompt, path_ch2,
@@ -1172,6 +1225,23 @@ def run_left2_right2_4chunk(
             next_context_actions = None
             if context_frames <= 0:
                 prev_frames = [frames_ch[-1]]
+            elif getattr(pipe, "training_context_source", None) == "causal_prev_prefix":
+                prev_frames, next_context_actions, _ = (
+                    build_causal_continuation_protocol(
+                        frames_ch,
+                        _action_rows_from_json(path_ch),
+                        context_frames,
+                    )
+                )
+            elif getattr(pipe, "training_context_source", None) == "prev_chunk_tail":
+                prev_frames, next_context_actions, _ = (
+                    build_prev_tail_continuation_protocol(
+                        frames_ch,
+                        _action_rows_from_json(path_ch),
+                        context_frames,
+                        nearest_first=True,
+                    )
+                )
             elif fov_history_context and len(all_prev_frames) > 0:
                 next_ch = ch + 1
                 next_clockwise = next_ch >= 2

@@ -28,6 +28,15 @@ fi
 
 CKPT="${CKPT:?Set CKPT=/path/to/epoch-0.safetensors}"
 CKPT_DIR="$(dirname "${CKPT}")"
+_aligned_release=0
+if [[ "${CKPT}" == *"block_wise_ssm_causal_v2"* || "${CKPT}" == *"framepack_len_r8"* ]]; then
+  _aligned_release=1
+fi
+if [[ "${CKPT}" == *"block_wise_ssm_causal_v2"* ]]; then
+  SIGMA_SHIFT="${SIGMA_SHIFT:-15}"
+else
+  SIGMA_SHIFT="${SIGMA_SHIFT:-5}"
+fi
 if [ ! -f "${CKPT}" ]; then
   echo "[eval_v2] FATAL: CKPT 不是可读文件: ${CKPT}" >&2
   exit 1
@@ -52,13 +61,13 @@ LOOP_EXTRA_ARGS=()
 # Default loop-closure 4chunk context retrieval follows the training-style memory path:
 # retrieve history frames by next-chunk FOV/yaw, use the final return pose for chunk4,
 # and pass relative context RTs. Set any variable below to 0 for ablations.
-if [ "${MULTI_CTX_4CHUNK_FOV_HISTORY:-1}" = "1" ]; then
+if [ "${_aligned_release}" != "1" ] && [ "${MULTI_CTX_4CHUNK_FOV_HISTORY:-1}" = "1" ]; then
   LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_history)
 fi
-if [ "${MULTI_CTX_4CHUNK_FOV_LAST_TARGET:-1}" = "1" ]; then
+if [ "${_aligned_release}" != "1" ] && [ "${MULTI_CTX_4CHUNK_FOV_LAST_TARGET:-1}" = "1" ]; then
   LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_last_target)
 fi
-if [ "${MULTI_CTX_4CHUNK_FOV_CONTEXT_RT:-1}" = "1" ]; then
+if [ "${_aligned_release}" != "1" ] && [ "${MULTI_CTX_4CHUNK_FOV_CONTEXT_RT:-1}" = "1" ]; then
   LOOP_EXTRA_ARGS+=(--multi_ctx_4chunk_fov_context_rt)
 fi
 # Default static loop eval focuses on the 4chunk revisit stress test. Set

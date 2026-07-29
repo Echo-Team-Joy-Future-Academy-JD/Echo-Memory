@@ -38,12 +38,17 @@ import loop_utils as irc
 import memory_baseline_runtime as mbr
 from diffsynth import save_video
 from run_replay_loop_two_chunk import (
+    _action_rows_from_json,
     encode_context_frames_per_frame,
     context_frames_for_next_chunk,
     replay_context_from_generated_frames,
     run_one_chunk,
     _frame_to_pil,
     load_sample_first_frame,
+)
+from src.model_training.multichunk_sample_utils import (
+    build_causal_continuation_protocol,
+    build_prev_tail_continuation_protocol,
 )
 
 
@@ -91,6 +96,14 @@ def main():
     p.add_argument("--context_attention_weight", type=float, default=1.0, help="FramePack/FAR global scale for context tokens")
     p.add_argument("--use_framepack_length_compress", action="store_true", help="FramePack length compress context tokens K->K'")
     p.add_argument("--framepack_ratio", type=int, default=2, help="FramePack length compress ratio r")
+    p.add_argument("--framepack_length_strategy", type=str, default="distance_merge")
+    p.add_argument("--framepack_multiscale_w2", type=float, default=0.25)
+    p.add_argument("--framepack_multiscale_w4", type=float, default=0.15)
+    p.add_argument("--context_position", choices=("prefix", "suffix"), default="suffix")
+    p.add_argument("--training_context_source", type=str, default=None)
+    p.add_argument("--use_moc", action="store_true")
+    p.add_argument("--moc_temperature", type=float, default=1.0)
+    p.add_argument("--use_block_wise_ssm", action="store_true")
     p.add_argument("--use_spatial_memory", action="store_true", help="Enable spatial memory baseline")
     p.add_argument("--use_spatial_memory_legacy", action="store_true", help="Legacy adaptive pool (no SpatialGridMemory in ckpt)")
     p.add_argument("--spatial_memory_tokens", type=int, default=64, help="Spatial memory token count")
@@ -200,6 +213,17 @@ def main():
         pipe.context_attention_weight = float(getattr(args, "context_attention_weight", 1.0) or 1.0)
         pipe.use_framepack_length_compress = bool(getattr(args, "use_framepack_length_compress", False))
         pipe.framepack_ratio = int(getattr(args, "framepack_ratio", 2) or 2)
+        pipe.framepack_length_strategy = str(args.framepack_length_strategy)
+        pipe.framepack_multiscale_w2 = float(args.framepack_multiscale_w2)
+        pipe.framepack_multiscale_w4 = float(args.framepack_multiscale_w4)
+        pipe.context_position = str(args.context_position)
+        pipe.training_context_source = args.training_context_source
+        pipe.use_moc = bool(args.use_moc)
+        if pipe.use_moc:
+            from diffsynth.models.memory.mixture_of_contexts import MixtureOfContexts
+            pipe.moc_module = MixtureOfContexts(
+                temperature=float(args.moc_temperature)
+            )
         pipe.use_spatial_memory = bool(getattr(args, "use_spatial_memory", False))
         pipe.spatial_memory_tokens = int(getattr(args, "spatial_memory_tokens", 64) or 64)
         if getattr(args, "spatial_memory_inject_mode", None):
@@ -254,13 +278,31 @@ def main():
         # prepare context for next chunk (except last)
         if ch < len(action_paths) - 1:
             n_ctx = min(args.context_frames, len(frames))
-            prev_frames = replay_context_from_generated_frames(frames, n_ctx)
-            prev_pil = [_frame_to_pil(f, w, h) for f in prev_frames]
+            frame_pil = [_frame_to_pil(f, w, h) for f in frames]
+            source = getattr(pipe, "training_context_source", None)
+            if source == "causal_prev_prefix":
+                prev_pil, next_actions, _ = build_causal_continuation_protocol(
+                    frame_pil,
+                    _action_rows_from_json(action_path),
+                    n_ctx,
+                )
+            elif source == "prev_chunk_tail":
+                prev_pil, next_actions, _ = build_prev_tail_continuation_protocol(
+                    frame_pil,
+                    _action_rows_from_json(action_path),
+                    n_ctx,
+                    nearest_first=True,
+                )
+            else:
+                prev_pil = replay_context_from_generated_frames(frame_pil, n_ctx)
+                next_actions = [identity_rt] * len(prev_pil)
             pipe.load_models_to_device(["vae"])
             with torch.no_grad():
                 ctx_latents = encode_context_frames_per_frame(pipe, prev_pil, pipe.device)
             num_ctx_tokens = ctx_latents.shape[2]
-            ctx_actions_t = torch.tensor([identity_rt] * num_ctx_tokens, dtype=torch.float32)
+            ctx_actions_t = torch.tensor(
+                next_actions[:num_ctx_tokens], dtype=torch.float32
+            )
 
     # save outputs
     all_frames = []
