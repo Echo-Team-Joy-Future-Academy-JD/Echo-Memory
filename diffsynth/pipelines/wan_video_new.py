@@ -34,47 +34,86 @@ from ..models.memory.spatial_grid_memory import (
 )
 
 
-def pad_actions_for_condition(actions, condition_length, condition_actions=None):
-    """Pad actions list to account for appended condition latents (VWM-style).
-
-    When condition latents are concatenated along the time axis, the actions
-    sequence must be extended by ``condition_length`` entries so that the
-    frame count matches the total latent length (target + condition).
-    """
+def pad_actions_for_condition(
+    actions,
+    condition_length,
+    condition_actions=None,
+    context_position="suffix",
+):
+    """Align action rows with suffix [target, context] or prefix [context, target]."""
     if actions is None or condition_length <= 0:
         return actions
-    if isinstance(actions, torch.Tensor):
-        actions = actions.detach().cpu().tolist()
-    elif isinstance(actions, np.ndarray):
-        actions = actions.tolist()
+    was_tensor = isinstance(actions, torch.Tensor)
+    was_numpy = isinstance(actions, np.ndarray)
+    device = actions.device if was_tensor else None
+    dtype = actions.dtype if was_tensor else torch.float32
+    if was_tensor:
+        action_tensor = actions
+    elif was_numpy:
+        action_tensor = torch.as_tensor(actions, dtype=dtype)
     else:
-        actions = list(actions)
-    if actions and isinstance(actions[0], (list, tuple)) and actions[0] and isinstance(actions[0][0], (list, tuple)):
-        actions = actions[0]
-    if len(actions) == 0:
+        action_tensor = torch.as_tensor(list(actions), dtype=dtype)
+    if action_tensor.numel() == 0:
         return actions
-
-    appended_actions = []
+    squeezed = False
+    if action_tensor.dim() == 2:
+        action_tensor = action_tensor.unsqueeze(0)
+        squeezed = True
+    elif action_tensor.dim() != 3:
+        raise ValueError(
+            f"actions must have shape [T,D] or [B,T,D], got {tuple(action_tensor.shape)}"
+        )
+    if device is not None:
+        action_tensor = action_tensor.to(device=device)
+    batch, _, dim = action_tensor.shape
     if condition_actions is not None:
         if isinstance(condition_actions, torch.Tensor):
-            condition_actions = condition_actions.detach().cpu().tolist()
+            cond_tensor = condition_actions.to(
+                device=action_tensor.device, dtype=action_tensor.dtype
+            )
         elif isinstance(condition_actions, np.ndarray):
-            condition_actions = condition_actions.tolist()
+            cond_tensor = torch.as_tensor(
+                condition_actions,
+                device=action_tensor.device,
+                dtype=action_tensor.dtype,
+            )
         else:
-            condition_actions = list(condition_actions)
-        if (
-            condition_actions
-            and isinstance(condition_actions[0], (list, tuple))
-            and condition_actions[0]
-            and isinstance(condition_actions[0][0], (list, tuple))
-        ):
-            condition_actions = condition_actions[0]
-        appended_actions = [list(action) for action in condition_actions[:condition_length]]
-
-    zero_action = [0.0] * len(actions[0])
-    while len(appended_actions) < condition_length:
-        appended_actions.append(zero_action[:])
-    return actions + appended_actions
+            cond_tensor = torch.as_tensor(
+                list(condition_actions),
+                device=action_tensor.device,
+                dtype=action_tensor.dtype,
+            )
+        if cond_tensor.numel() == 0:
+            cond_tensor = torch.zeros(
+                batch, condition_length, dim, device=action_tensor.device,
+                dtype=action_tensor.dtype,
+            )
+        elif cond_tensor.dim() == 2:
+            cond_tensor = cond_tensor.unsqueeze(0)
+        if cond_tensor.shape[0] == 1 and batch > 1:
+            cond_tensor = cond_tensor.expand(batch, -1, -1)
+        if cond_tensor.shape[1] > condition_length:
+            cond_tensor = cond_tensor[:, :condition_length]
+        elif cond_tensor.shape[1] < condition_length:
+            pad = torch.zeros(
+                batch, condition_length - cond_tensor.shape[1], dim,
+                device=action_tensor.device, dtype=action_tensor.dtype,
+            )
+            cond_tensor = torch.cat([cond_tensor, pad], dim=1)
+    else:
+        cond_tensor = torch.zeros(
+            batch, condition_length, dim, device=action_tensor.device,
+            dtype=action_tensor.dtype,
+        )
+    out = (
+        torch.cat([cond_tensor, action_tensor], dim=1)
+        if str(context_position).lower() == "prefix"
+        else torch.cat([action_tensor, cond_tensor], dim=1)
+    )
+    if was_tensor:
+        return out
+    result = out.detach().cpu().tolist()
+    return result[0] if squeezed else result
 
 
 class BasePipeline(torch.nn.Module):
@@ -488,6 +527,7 @@ class WanVideoPipeline(BasePipeline):
                         inputs["actions"],
                         num_context_frames,
                         condition_actions=inputs.get("context_actions"),
+                        context_position=context_position,
                     )
                 
                 noise_pred = self.model_fn(**inputs, timestep=timestep)
@@ -569,6 +609,7 @@ class WanVideoPipeline(BasePipeline):
                         inputs["actions"],
                         num_context_frames,
                         condition_actions=inputs.get("context_actions"),
+                        context_position=context_position,
                     )
                 
                 noise_pred = self.model_fn(**inputs, timestep=timestep)
@@ -1099,6 +1140,7 @@ class WanVideoPipeline(BasePipeline):
                         inputs_shared["actions"],
                         num_context_frames,
                         condition_actions=context_actions,
+                        context_position=context_position,
                     )
                 if getattr(self, "use_moc", False) and getattr(self, "moc_module", None) is not None:
                     inputs_shared["moc_module"] = self.moc_module
@@ -2120,6 +2162,10 @@ def model_fn_wan_video(
             actions = actions.unsqueeze(0)
 
         for block_id, block in enumerate(dit.blocks):
+            # Action blocks keep their public forward signature compatible with
+            # Wan while causal memory receives the active context layout.
+            block._runtime_num_context_frames = int(num_context_frames or 0)
+            block._runtime_context_position = str(context_position or "suffix")
             if use_gradient_checkpointing_offload:
                 with torch.autograd.graph.save_on_cpu():
                     if actions is not None:

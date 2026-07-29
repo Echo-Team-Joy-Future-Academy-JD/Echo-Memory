@@ -15,6 +15,7 @@ declare -A CKPT_MAP=(
   [run_infer_framepack_weight.sh]="framepack_weight_only"
   [run_infer_framepack_len_r2.sh]="framepack_lencompress_r2"
   [run_infer_framepack_len_r4.sh]="framepack_lencompress_r4"
+  [run_infer_framepack_len_r8.sh]="framepack_len_r8"
   [run_infer_framepack_hybrid_r2.sh]="framepack_hybrid_r2_weight_two_chunk"
   [run_infer_framepack_hybrid_r4.sh]="framepack_hybrid_r4_weight_two_chunk"
   [run_infer_spatial_mem.sh]="spatial_mem"
@@ -23,6 +24,7 @@ declare -A CKPT_MAP=(
   [run_infer_spatial_cross_attn_readout.sh]="spatial_cross_attn_readout_two_chunk"
   [run_infer_videossm_hybrid.sh]="videossm_hybrid"
   [run_infer_block_wise_ssm.sh]="block_wise_ssm_two_chunk"
+  [run_infer_block_wise_ssm_causal_v2.sh]="block_wise_ssm_causal_v2"
 )
 
 for script in "${SCRIPT_DIR}"/run_infer_*.sh; do

@@ -36,7 +36,7 @@ class ModelLogger(BaseModelLogger):
         sampling_num_inference_steps: int = 50,
         context_memory_frames: int = 1,
         context_source: str = "replay",
-        context_per_frame_vae: bool = False,
+        context_per_frame_vae: bool = True,
     ):
         super().__init__(output_path, remove_prefix_in_ckpt=remove_prefix_in_ckpt, state_dict_converter=state_dict_converter)
         self.wandb_run_name = wandb_run_name

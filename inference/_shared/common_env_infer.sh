@@ -44,7 +44,7 @@ export INFER_OUTPUT_ROOT
 # ── Defaults ──────────────────────────────────────────────────────────
 PROMPT="${PROMPT:-A game scene, the camera moves through the environment}"
 CONTEXT_IMAGE="${CONTEXT_IMAGE:-}"
-ACTION_PATH="${ACTION_PATH:-${REPO_ROOT}/env/action_rotation_left_45.json}"
+ACTION_PATH="${ACTION_PATH:-}"
 SEED="${SEED:-0}"
 HEIGHT="${HEIGHT:-352}"
 WIDTH="${WIDTH:-640}"

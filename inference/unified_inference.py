@@ -2,7 +2,7 @@
 """
 Unified single-chunk inference for all Echo-Memory memory families.
 
-Supports: no_memory, context_k1/k5/k20, framepack_weight, framepack_len_r2/r4,
+Supports: no_memory, context_k1/k5/k20, framepack_weight, framepack_len_r2/r4/r8,
 framepack_hybrid_r2/r4, spatial_mem, spatial_concat_text, spatial_inject_none,
 spatial_cross_attn_readout, videossm_hybrid, block_wise_ssm.
 
@@ -35,6 +35,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 
@@ -62,6 +63,7 @@ _REGISTRY_ALIAS = {
     "framepack_weight":         "framepack_weight_only",
     "framepack_len_r2":         "framepack_lencompress_r2",
     "framepack_len_r4":         "framepack_lencompress_r4",
+    "framepack_len_r8":         "framepack_len_r8",
     "framepack_hybrid_r2":      "framepack_hybrid_r2_weight_two_chunk",
     "framepack_hybrid_r4":      "framepack_hybrid_r4_weight_two_chunk",
     "spatial_mem":              "spatial_mem",
@@ -71,6 +73,7 @@ _REGISTRY_ALIAS = {
     "geometry_spatial_mem":     "geometry_spatial_mem",
     "videossm_hybrid":          "videossm_hybrid_legacy",
     "block_wise_ssm":           "block_wise_ssm_two_chunk",
+    "block_wise_ssm_causal_v2": "block_wise_ssm_causal_v2",
 }
 
 # context_k* are not in the registry; they use default pipe flags
@@ -131,6 +134,15 @@ def apply_profile_to_pipe(pipe, profile: MemoryProfile) -> None:
     pipe.context_attention_weight = float(profile.context_attention_weight or 1.0)
     pipe.use_framepack_length_compress = bool(profile.use_framepack_length_compress)
     pipe.framepack_ratio = int(profile.framepack_ratio or 2)
+    pipe.framepack_length_strategy = str(
+        getattr(profile, "framepack_length_strategy", "distance_merge")
+    )
+    pipe.framepack_multiscale_w2 = float(
+        getattr(profile, "framepack_multiscale_w2", 0.25)
+    )
+    pipe.framepack_multiscale_w4 = float(
+        getattr(profile, "framepack_multiscale_w4", 0.15)
+    )
     pipe.use_spatial_memory = bool(profile.use_spatial_memory)
     pipe.spatial_memory_tokens = int(profile.spatial_memory_tokens or 64)
     if profile.spatial_memory_inject_mode:
@@ -142,7 +154,18 @@ def apply_profile_to_pipe(pipe, profile: MemoryProfile) -> None:
             profile.geometry_spatial_memory_inject_mode
         )
     pipe.use_block_wise_ssm = bool(getattr(profile, "use_block_wise_ssm", False))
+    pipe.block_wise_ssm_causal_v2 = bool(
+        getattr(profile, "block_wise_ssm_causal_v2", False)
+    )
     pipe.use_videossm_hybrid = bool(getattr(profile, "use_videossm_hybrid", False))
+    pipe.context_position = str(getattr(profile, "context_position", None) or "suffix")
+    pipe.training_context_source = getattr(profile, "training_context_source", None)
+    pipe.use_moc = bool(getattr(profile, "use_moc", False))
+    if pipe.use_moc:
+        from diffsynth.models.memory.mixture_of_contexts import MixtureOfContexts
+        pipe.moc_module = MixtureOfContexts(
+            temperature=float(getattr(profile, "moc_temperature", 1.0))
+        )
     # Warn if spatial memory requested but module not loaded from checkpoint
     if (
         pipe.use_spatial_memory
@@ -166,14 +189,15 @@ Memory types:
   no_memory             No memory (I2V floor baseline)
   context_k1/k5/k20    Raw context with 1/5/20 frames
   framepack_weight      FramePack temporal decay reweighting
-  framepack_len_r2/r4   FramePack length compression ratio 2/4
+  framepack_len_r2/r4/r8  FramePack length compression ratio 2/4/8
   framepack_hybrid_r2/r4  FramePack hybrid (length + weight)
   spatial_mem           Spatial grid memory (64 tokens)
   spatial_concat_text   Spatial memory via text KV concatenation
   spatial_inject_none   Spatial memory with withheld read-out
   spatial_cross_attn_readout  Spatial memory via cross-attention
   videossm_hybrid       Legacy VideoSSM hybrid (temporal-conv baseline)
-  block_wise_ssm        Block-wise recurrent SSM (paper-aligned)
+  block_wise_ssm        Legacy block-wise recurrent SSM
+  block_wise_ssm_causal_v2  Causal prefix SSM (released)
 """,
     )
 
@@ -216,6 +240,12 @@ Memory types:
     parser.add_argument("--width", type=int, default=640)
     parser.add_argument("--num_frames", type=int, default=81,
                         help="Number of frames per chunk (default: 81)")
+    parser.add_argument(
+        "--num_chunks",
+        type=int,
+        default=1,
+        help="Generate sequential chunks; released SSM/FramePack rows support >1",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--num_inference_steps", type=int, default=50)
     parser.add_argument("--sigma_shift", type=float, default=15.0)
@@ -237,7 +267,15 @@ def main():
     import torch
     from PIL import Image
     from env.loop_utils import load_pipeline_and_ckpt, DEFAULT_NEGATIVE_PROMPT
-    from env.run_replay_loop_two_chunk import run_one_chunk, encode_context_frames_per_frame
+    from env.run_replay_loop_two_chunk import (
+        _frame_to_pil,
+        run_one_chunk,
+        encode_context_frames_per_frame,
+    )
+    from src.model_training.multichunk_sample_utils import (
+        build_causal_continuation_protocol,
+        build_prev_tail_continuation_protocol,
+    )
     from diffsynth import save_video
 
     neg_prompt = args.negative_prompt if args.negative_prompt else DEFAULT_NEGATIVE_PROMPT
@@ -353,25 +391,101 @@ def main():
         )
 
     # ── Generate ────────────────────────────────────────────────────────
-    print(f"[unified_inference] Generating {args.num_frames} frames @ {args.width}x{args.height}")
-    frames = run_one_chunk(
-        pipe=pipe,
-        prompt=args.prompt,
-        use_negative_prompt=neg_prompt,
-        action_path=args.action_path,
-        context_latents=context_latents,
-        num_context_frames=num_context_frames,
-        context_actions_t=context_actions_t,
-        geometry_memory_latents=geometry_memory_latents,
-        chunk_frames=args.num_frames,
-        h=args.height,
-        w=args.width,
-        seed=args.seed,
-        sigma_shift=args.sigma_shift,
-        num_inference_steps=args.num_inference_steps,
-        cfg_scale=args.cfg_scale,
-        log_prefix="[unified_inference]",
-    )
+    if args.num_chunks < 1:
+        raise ValueError("--num_chunks must be >= 1")
+    if args.num_chunks > 1 and not args.action_path:
+        raise ValueError("--num_chunks > 1 requires --action_path")
+    if (
+        getattr(profile, "block_wise_ssm_causal_v2", False)
+        and context_latents is None
+    ):
+        raise ValueError(
+            "causal SSM v2 requires --context_image for the first chunk"
+        )
+
+    action_rows = None
+    if args.action_path:
+        with open(args.action_path, "r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+        sequence = payload.get("actions", payload)
+        if isinstance(sequence, dict):
+            ordered = [
+                value
+                for _, value in sorted(
+                    (
+                        (int(key), value)
+                        for key, value in sequence.items()
+                        if str(key).isdigit()
+                    ),
+                    key=lambda item: item[0],
+                )
+            ]
+        elif isinstance(sequence, list):
+            ordered = sequence
+        else:
+            raise ValueError("action JSON must contain a list or numeric-key dict")
+        action_rows = [list(value)[:12] for value in ordered]
+
+    chunks = []
+    for chunk_index in range(args.num_chunks):
+        print(
+            f"[unified_inference] Generating chunk {chunk_index + 1}/"
+            f"{args.num_chunks}: {args.num_frames} frames @ "
+            f"{args.width}x{args.height}"
+        )
+        chunk = run_one_chunk(
+            pipe=pipe,
+            prompt=args.prompt,
+            use_negative_prompt=neg_prompt,
+            action_path=args.action_path,
+            context_latents=context_latents,
+            num_context_frames=num_context_frames,
+            context_actions_t=context_actions_t,
+            geometry_memory_latents=geometry_memory_latents,
+            context_position=getattr(profile, "context_position", None)
+            or "suffix",
+            chunk_frames=args.num_frames,
+            h=args.height,
+            w=args.width,
+            seed=args.seed,
+            sigma_shift=args.sigma_shift,
+            num_inference_steps=args.num_inference_steps,
+            cfg_scale=args.cfg_scale,
+            log_prefix=f"[unified_inference][chunk={chunk_index + 1}]",
+        )
+        chunks.append(chunk)
+        if chunk_index + 1 == args.num_chunks:
+            continue
+
+        context_count = int(profile.context_override or 1)
+        pil_frames = [
+            _frame_to_pil(frame, args.width, args.height) for frame in chunk
+        ]
+        source = getattr(profile, "training_context_source", None)
+        if source == "causal_prev_prefix":
+            next_context, next_actions, _ = build_causal_continuation_protocol(
+                pil_frames, action_rows, context_count
+            )
+        elif source == "prev_chunk_tail":
+            next_context, next_actions, _ = build_prev_tail_continuation_protocol(
+                pil_frames,
+                action_rows,
+                context_count,
+                nearest_first=True,
+            )
+        else:
+            raise ValueError(
+                f"multi-chunk inference is not defined for context source {source!r}"
+            )
+        pipe.load_models_to_device(["vae"])
+        with torch.no_grad():
+            context_latents = encode_context_frames_per_frame(
+                pipe, next_context, pipe.device
+            )
+        num_context_frames = int(context_latents.shape[2])
+        context_actions_t = torch.tensor(next_actions, dtype=torch.float32)
+
+    frames = [frame for chunk in chunks for frame in chunk]
 
     # ── Save video ──────────────────────────────────────────────────────
     os.makedirs(os.path.dirname(os.path.abspath(args.output_path)), exist_ok=True)

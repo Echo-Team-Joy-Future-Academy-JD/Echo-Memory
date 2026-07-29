@@ -292,6 +292,10 @@ export PYTHONPATH=$PWD:${PYTHONPATH:-}
 
 ## Checkpoints
 
+> **Release status.** Corrected SSM causal-v2 and FramePack-r8 weights have
+> passed deterministic multi-chunk validation. Their intended HF paths are
+> listed below; publication is pending maintainer LFS permission.
+
 Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 
 **[Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory)** · full table & usage → [doc/checkpoints.md](doc/checkpoints.md)
@@ -301,10 +305,11 @@ Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 | Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 |
 | Raw context | Context K=20 | TODO | TODO |
 | Spatial | Spatial Memory | TODO | TODO |
-| State-space | Block-wise SSM | TODO | TODO |
+| Compression | FramePack length r8 | `framepack_len_r8/epoch-0.safetensors` (upload pending) | 30,000 |
+| State-space | Block-wise SSM causal v2 | `block_wise_ssm_causal_v2/epoch-0.safetensors` (upload pending) | 30,000 |
 | State-space | Legacy Hybrid | TODO | TODO |
 
-Extended spatial rows are listed in [doc/checkpoints.md](doc/checkpoints.md); SSM weights are TODO.
+Extended rows and release hashes are listed in [doc/checkpoints.md](doc/checkpoints.md).
 
 **Download & eval:**
 
@@ -341,14 +346,14 @@ Switch memory type via `--memory_type` (default: `auto` — detects from checkpo
 | `no_memory` | Floor | No memory, I2V baseline |
 | `context_k1` / `context_k5` / `context_k20` | Raw context | 1 / 5 / 20 context frames |
 | `framepack_weight` | Compression | FramePack temporal decay reweighting |
-| `framepack_len_r2` / `framepack_len_r4` | Compression | FramePack length compression ratio 2 / 4 |
+| `framepack_len_r2` / `framepack_len_r4` / `framepack_len_r8` | Compression | FramePack length compression ratio 2 / 4 / 8 |
 | `framepack_hybrid_r2` / `framepack_hybrid_r4` | Compression | Hybrid: length compression + token weighting |
 | `spatial_mem` | Spatial | Spatial grid memory (64 tokens) |
 | `spatial_concat_text` | Spatial | Spatial memory via text KV concatenation |
 | `spatial_inject_none` | Spatial | Spatial memory with withheld read-out |
 | `spatial_cross_attn_readout` | Spatial | Spatial memory via cross-attention |
 | `videossm_hybrid` | State-space | Legacy VideoSSM hybrid (temporal-conv baseline) |
-| `block_wise_ssm` | State-space | Block-wise recurrent SSM (paper-aligned) |
+| `block_wise_ssm_causal_v2` | State-space | Causal prefix Block-SSM with aligned continuation |
 
 Add `--context_image` for first-frame conditioning and `--action_path` for camera trajectory control:
 
@@ -363,6 +368,22 @@ python inference/unified_inference.py \
 ```
 
 Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`inference/README.md`](inference/README.md).
+
+Released multi-chunk recipes preserve the training context protocol:
+
+```bash
+CKPT=./ckpts/block_wise_ssm_causal_v2/epoch-0.safetensors \
+CONTEXT_IMAGE=assets/opendomain_revisit/1774363417.png \
+ACTION_PATH=/path/to/81_frame_camera_action.json \
+NUM_CHUNKS=4 \
+  bash inference/memory_baselines_basic/run_infer_block_wise_ssm_causal_v2.sh
+
+CKPT=./ckpts/framepack_len_r8/epoch-0.safetensors \
+CONTEXT_IMAGE=assets/opendomain_revisit/1774363417.png \
+ACTION_PATH=/path/to/81_frame_camera_action.json \
+NUM_CHUNKS=4 \
+  bash inference/memory_baselines_basic/run_infer_framepack_len_r8.sh
+```
 
 Dynamic SpatialVID inference wrappers mirror the six dynamic rows:
 
@@ -381,6 +402,7 @@ bash train/memory_baselines_basic/run_ablation_no_memory_baseline_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_framepack_weight_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_framepack_len_r2_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_framepack_len_r4_two_chunk.sh
+bash train/memory_baselines_basic/run_ablation_framepack_len_r8_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_framepack_hybrid_r2_weight_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_framepack_hybrid_r4_weight_two_chunk.sh
 bash train/memory_baselines_basic/run_spatial_memory_baseline.sh
@@ -388,7 +410,7 @@ bash train/memory_baselines_basic/run_ablation_spatial_inject_none_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_spatial_concat_text_two_chunk.sh
 bash train/memory_baselines_basic/run_ablation_spatial_cross_attn_readout_two_chunk.sh
 bash train/memory_baselines_basic/run_videossm_hybrid_baseline.sh
-bash train/memory_baselines_basic/run_ablation_block_wise_ssm_two_chunk.sh
+bash train/memory_baselines_basic/run_ablation_block_wise_ssm_causal_v2_two_chunk.sh
 ```
 
 Context learning recipes live in `train/context_learning/`:

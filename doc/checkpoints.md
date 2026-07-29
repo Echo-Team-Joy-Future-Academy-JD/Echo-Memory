@@ -11,7 +11,8 @@ Fine-tuned DiT weights on top of [Wan-AI/Wan2.1-T2V-1.3B](https://huggingface.co
 | Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 | `train/context_learning/run_pre_qkv_ctx1.sh` |
 | Raw context | Context K=20 | TODO | TODO | `train/context_learning/run_pre_qkv_ctx20.sh` |
 | Spatial | Spatial Memory | TODO | TODO | `train/memory_baselines_basic/run_spatial_memory_baseline.sh` |
-| State-space | Block-wise SSM | TODO | TODO | `train/memory_baselines_basic/run_ablation_block_wise_ssm_two_chunk.sh` |
+| Compression | FramePack length r8 | `framepack_len_r8/epoch-0.safetensors` (upload pending) | 30,000 | `train/memory_baselines_basic/run_ablation_framepack_len_r8_two_chunk.sh` |
+| State-space | Block-wise SSM causal v2 | `block_wise_ssm_causal_v2/epoch-0.safetensors` (upload pending) | 30,000 | `train/memory_baselines_basic/run_ablation_block_wise_ssm_causal_v2_two_chunk.sh` |
 | State-space | Legacy Hybrid (VideoSSM) | TODO | TODO | `train/memory_baselines_basic/run_videossm_hybrid_baseline.sh` |
 | Spatial | concat text (ablation) | TODO | TODO | `train/memory_baselines_basic/run_ablation_spatial_concat_text_two_chunk.sh` |
 | Spatial | inject none (ablation) | TODO | TODO | `train/memory_baselines_basic/run_ablation_spatial_inject_none_two_chunk.sh` |
@@ -20,7 +21,16 @@ Fine-tuned DiT weights on top of [Wan-AI/Wan2.1-T2V-1.3B](https://huggingface.co
 | State-space | SSM ctx5 / every1 / hint21 | TODO | TODO | SSM ablation |
 | State-space | SSM ctx5 / every4 / hint81 | TODO | TODO | SSM ablation |
 
-Context K=5, Context K=20, Spatial memory, FramePack compression, and State-space / SSM rows are TODO and not yet released as `epoch-0` weights.
+Context K=5, Context K=20, Spatial memory, legacy SSM, MoC, and geometry
+rows remain under validation. The two corrected rows above are ready locally;
+their HF LFS upload is pending maintainer write permission.
+
+## Validated artifact hashes
+
+| HF path | SHA256 |
+| --- | --- |
+| `block_wise_ssm_causal_v2/epoch-0.safetensors` | `0dd90ea3f3423644f4d68c6d1185d7d717d328f5922ee21f745fc85abe9a01a9` |
+| `framepack_len_r8/epoch-0.safetensors` | `dd57625506a2c68c402dc05de8f3c6fc5f5376fcac77d7fb6f26eb6ace1d74bf` |
 
 ## Download
 
@@ -34,7 +44,9 @@ huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --
 huggingface-cli download Echo-Team/Echo-Memory --local-dir ./ckpts
 ```
 
-Keep the subdirectory name in the local path (e.g. `./ckpts/context_k1/epoch-0.safetensors`). Eval scripts use `env/memory_baseline_runtime.py` to infer memory flags from path substrings; Spatial and SSM checkpoint rows remain TODO.
+Keep the subdirectory name in the local path. The runtime registry detects
+`block_wise_ssm_causal_v2` and `framepack_len_r8` and restores context layout,
+compression strategy, and generated-history continuation automatically.
 
 ## Use with Echo-Memory
 

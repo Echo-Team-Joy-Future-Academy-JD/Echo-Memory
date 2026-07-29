@@ -1,3 +1,4 @@
+import argparse
 import os, sys, re
 import torch
 import torch.nn as nn
@@ -128,7 +129,7 @@ if __name__ == "__main__":
         ("--framepack_recent_keep_ratio", dict(type=float, default=0.5)),
         ("--framepack_multiscale_w2", dict(type=float, default=0.25)),
         ("--framepack_multiscale_w4", dict(type=float, default=0.15)),
-        ("--context_source", dict(type=str, default="fov", choices=["fov", "replay", "prev_chunk_tail"])),
+        ("--context_source", dict(type=str, default="fov", choices=["fov", "replay", "prev_chunk_tail", "causal_prev_prefix"])),
         ("--ssm_num_blocks_hint", dict(type=int, default=21)),
         ("--ssm_every_n_blocks", dict(type=int, default=4)),
         ("--videossm_kernel_size", dict(type=int, default=3)),
@@ -156,14 +157,21 @@ if __name__ == "__main__":
         "--camera_encoder_separate_t_r", "--camera_encoder_explicit_yaw", "--yaw_flip_aug",
         "--camera_encoder_sincos_yaw", "--camera_encoder_r_mlp_no_layernorm",
         "--add_camera_outside_gate", "--no_camera_encoder_zero_init",
-        "--camera_encoder_full_zero_init", "--enable_context_memory", "--context_per_frame_vae",
+        "--camera_encoder_full_zero_init", "--enable_context_memory",
         "--cfg_target_only", "--enable_fov_retrieval", "--use_rt_relative",
         "--strict_overlap_context", "--use_anchor_frame", "--use_spatial_memory",
         "--use_geometry_spatial_memory",
         "--use_spatial_memory_legacy", "--use_framepack_memory", "--use_framepack_length_compress",
-        "--use_block_wise_ssm", "--use_videossm_hybrid", "--sampling_two_chunk_memory",
+        "--use_block_wise_ssm", "--block_wise_ssm_causal_v2",
+        "--use_videossm_hybrid", "--sampling_two_chunk_memory",
     ]:
         _add_arg_if_missing(name, action="store_true")
+    _add_arg_if_missing(
+        "--context_per_frame_vae",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Encode each context frame separately; use --no-context_per_frame_vae for temporal-compression ablations.",
+    )
 
     for name, kwargs in [
         ("--per_device_train_batch_size", dict(type=int, default=None)),
@@ -212,6 +220,19 @@ if __name__ == "__main__":
                 "--use_block_wise_ssm and --use_videossm_hybrid are mutually exclusive; "
                 "use block-wise SSM for paper-aligned runs or VideoSSM hybrid for legacy baselines."
             )
+        if _arg("block_wise_ssm_causal_v2", False):
+            if not _arg("use_block_wise_ssm", False):
+                raise ValueError(
+                    "--block_wise_ssm_causal_v2 requires --use_block_wise_ssm"
+                )
+            if _arg("context_source", "") != "causal_prev_prefix":
+                raise ValueError(
+                    "causal SSM v2 requires --context_source causal_prev_prefix"
+                )
+            if os.environ.get("CONTEXT_POSITION", "suffix").lower() != "prefix":
+                raise ValueError(
+                    "causal SSM v2 requires CONTEXT_POSITION=prefix"
+                )
 
         # Explicit retrieval strategy visibility: default fov, latent_sim degrades to fov when cache dir is absent.
         if _arg("retrieval_method", "fov") == "latent_sim":
@@ -287,7 +308,7 @@ if __name__ == "__main__":
         context_noise_std=_arg('context_noise_std', 0.02),
         context_fixed_noise_std=_arg('context_fixed_noise_std', None),
         context_memory_frames=_arg('context_memory_frames', 8),
-        context_per_frame_vae=_arg('context_per_frame_vae', False),
+        context_per_frame_vae=_arg('context_per_frame_vae', True),
         training_mode=_arg('training_mode', 'predict'),
         teacher_forcing_prob=_arg('teacher_forcing_prob', 0.0),
         yaw_flip_aug=_arg('yaw_flip_aug', False),
@@ -359,6 +380,9 @@ if __name__ == "__main__":
                 action_use_temporal_attention=_arg('action_use_temporal_attention', False),
                 use_cam_pose=_use_cam_pose,
                 use_block_wise_ssm=attach_block_ssm,
+                block_wise_ssm_causal_v2=bool(
+                    _arg("block_wise_ssm_causal_v2", False)
+                ),
                 use_videossm_hybrid=attach_videossm,
                 videossm_kernel_size=int(_arg('videossm_kernel_size', 3)),
                 videossm_expand=int(_arg('videossm_expand', 2)),
@@ -437,7 +461,7 @@ if __name__ == "__main__":
         sampling_num_inference_steps=int(_arg("sampling_num_inference_steps", 50)),
         context_memory_frames=int(_arg("context_memory_frames", 1)),
         context_source=_arg("context_source", "replay"),
-        context_per_frame_vae=_arg("context_per_frame_vae", False),
+        context_per_frame_vae=_arg("context_per_frame_vae", True),
     )
     
     optimizer = torch.optim.AdamW(model.trainable_modules(), lr=args.learning_rate)

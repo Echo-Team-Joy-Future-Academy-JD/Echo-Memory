@@ -203,6 +203,143 @@ def load_prev_chunk_tail_rt_actions(
         out = [list(r) for r in rt_list]
     return out, idxs
 
+
+def load_causal_prefix_context(
+    dataset_base_path: str,
+    video_name: str,
+    start_frame: int,
+    context_frames: int,
+    *,
+    target_num_frames: int = 81,
+    target_action_stride: int = 4,
+    use_rt_relative: bool = True,
+) -> Tuple[
+    Optional[List[Any]],
+    Optional[List[List[float]]],
+    Optional[List[List[float]]],
+    Dict[str, Any],
+]:
+    """Build leak-free prefix history with one target-first RT reference."""
+    start_frame = int(start_frame)
+    context_frames = int(context_frames)
+    meta: Dict[str, Any] = {
+        "protocol": "causal_prefix_v2",
+        "context_position": "prefix",
+        "start_frame": start_frame,
+        "context_frames": context_frames,
+    }
+    if context_frames <= 0 or start_frame < context_frames:
+        meta["error"] = "insufficient_history"
+        return None, None, None, meta
+
+    frames, indices = load_prev_chunk_tail_from_disk(
+        dataset_base_path,
+        video_name,
+        start_frame,
+        context_frames,
+        nearest_first=False,
+    )
+    if not frames or not indices:
+        meta["error"] = "missing_context_frames"
+        return None, None, None, meta
+    if any(int(index) >= start_frame for index in indices):
+        raise AssertionError("causal context leaked into the target")
+
+    vn = os.path.splitext(str(video_name))[0]
+    json_file = os.path.join(dataset_base_path, "jsons", f"{vn}.json")
+    target_indices = list(
+        range(start_frame, start_frame + int(target_num_frames), int(target_action_stride))
+    )
+    all_indices = list(indices) + target_indices
+    if not os.path.isfile(json_file):
+        meta["error"] = "missing_pose_json"
+        return None, None, None, meta
+    poses = load_camera_poses_batch(json_file, all_indices)
+    absolute = [pose_to_rt(pose) if pose else None for pose in poses]
+    if len(absolute) != len(all_indices) or any(rt is None for rt in absolute):
+        meta["error"] = "missing_pose"
+        return None, None, None, meta
+    target_reference = absolute[len(indices)]
+    relative = (
+        convert_rt_to_relative(absolute, target_reference)
+        if use_rt_relative
+        else [list(rt) for rt in absolute]
+    )
+    context_actions = relative[: len(indices)]
+    target_actions = relative[len(indices) :]
+    meta.update(
+        {
+            "context_frame_indices": list(indices),
+            "target_action_indices": target_indices,
+            "target_reference_index": start_frame,
+        }
+    )
+    return frames, context_actions, target_actions, meta
+
+
+def build_causal_continuation_protocol(
+    previous_frames: Sequence[Any],
+    previous_chunk_actions: Sequence[Sequence[float]],
+    context_frames: int = 5,
+) -> Tuple[List[Any], List[List[float]], Dict[str, Any]]:
+    """Use K latent-aligned poses strictly before the next target start."""
+    frames = list(previous_frames or [])
+    actions = [list(row) for row in (previous_chunk_actions or [])]
+    k = int(context_frames)
+    if k <= 0 or not frames or len(actions) < k + 1:
+        return [], [], {"protocol": "causal_continuation_v3", "error": "empty_input"}
+    history = actions[:-1]
+    target_start = actions[-1]
+    span = len(history)
+    frame_indices = [
+        int(round(i * (len(frames) - 1) / max(span, 1))) for i in range(span)
+    ]
+    action_indices = list(range(len(history) - k, len(history)))
+    selected_frame_indices = [frame_indices[i] for i in action_indices]
+    selected_frames = [frames[i] for i in selected_frame_indices]
+    selected_actions = [history[i] for i in action_indices]
+    rebased = convert_rt_to_relative(selected_actions, target_start)
+    return selected_frames, rebased, {
+        "protocol": "causal_continuation_v3",
+        "context_position": "prefix",
+        "context_frame_indices": selected_frame_indices,
+        "context_action_indices": action_indices,
+    }
+
+
+def build_prev_tail_continuation_protocol(
+    previous_frames: Sequence[Any],
+    previous_chunk_actions: Sequence[Sequence[float]],
+    context_frames: int,
+    *,
+    nearest_first: bool = True,
+) -> Tuple[List[Any], List[List[float]], Dict[str, Any]]:
+    """Reproduce suffix prev_chunk_tail ordering and target-relative RT rows."""
+    frames = list(previous_frames or [])
+    actions = [list(row) for row in (previous_chunk_actions or [])]
+    k = min(int(context_frames), len(frames))
+    if k <= 0 or not actions:
+        return [], [], {"protocol": "prev_tail_continuation_v2", "error": "empty_input"}
+    frame_indices = list(range(len(frames) - k, len(frames)))
+    if nearest_first:
+        frame_indices.reverse()
+    if len(frames) == 1 or len(actions) == 1:
+        action_indices = [len(actions) - 1] * k
+    else:
+        action_indices = [
+            int(round(i * (len(actions) - 1) / (len(frames) - 1)))
+            for i in frame_indices
+        ]
+    selected_actions = [actions[i] for i in action_indices]
+    rebased = convert_rt_to_relative(selected_actions, actions[-1])
+    return [frames[i] for i in frame_indices], rebased, {
+        "protocol": "prev_tail_continuation_v2",
+        "context_position": "suffix" if nearest_first else "prefix",
+        "context_frame_indices": frame_indices,
+        "context_action_indices": action_indices,
+    }
+
+
 def encode_context_frames(pipe, pil_list, device, dtype=torch.bfloat16, per_frame: bool = False):
     """Encode context frames to latents aligned with training behavior.
 
@@ -445,12 +582,17 @@ def run_two_chunk_memory_monitor(
     Chunk1: 1-frame context. Chunk2 context follows context_source:
       - replay: context_frames_for_next_chunk
       - prev_chunk_tail: strict tail frames (nearest-first)
+      - causal_prev_prefix: latent-aligned history strictly before next target
 
     Returns (frames_ch0, frames_ch1, meta). chunk0 defaults left_45 and chunk1 defaults right_45 when provided by caller.
     """
     device = device or pipe.device
     context_source = (context_source or "replay").strip().lower()
-    if context_source not in ("replay", "prev_chunk_tail"):
+    if context_source not in (
+        "replay",
+        "prev_chunk_tail",
+        "causal_prev_prefix",
+    ):
         context_source = "replay"
     context_position = (context_position or "suffix").strip().lower()
     if context_position not in ("prefix", "suffix"):
@@ -505,9 +647,27 @@ def run_two_chunk_memory_monitor(
     n_ctx = int(context_memory_frames)
     if n_ctx <= 0:
         n_ctx = 1
-    if context_source == "prev_chunk_tail":
-        tail = pil_ch0[-n_ctx:]
-        prev_pil = list(reversed(tail)) if context_position == "suffix" else tail
+    protocol_actions = None
+    source_rows = (
+        src_actions0.detach().cpu().tolist() if src_actions0 is not None else []
+    )
+    if context_source == "causal_prev_prefix":
+        if context_position != "prefix":
+            raise ValueError("causal_prev_prefix monitor requires prefix layout")
+        prev_pil, protocol_actions, protocol_meta = (
+            build_causal_continuation_protocol(pil_ch0, source_rows, n_ctx)
+        )
+        meta["continuation_protocol"] = protocol_meta
+    elif context_source == "prev_chunk_tail":
+        prev_pil, protocol_actions, protocol_meta = (
+            build_prev_tail_continuation_protocol(
+                pil_ch0,
+                source_rows,
+                n_ctx,
+                nearest_first=(context_position == "suffix"),
+            )
+        )
+        meta["continuation_protocol"] = protocol_meta
     else:
         prev_pil = context_frames_for_next_chunk(pil_ch0, n_ctx)
     meta["chunk1_context_count"] = len(prev_pil)
@@ -521,13 +681,20 @@ def run_two_chunk_memory_monitor(
     use_omit_ch1 = omit_context_actions or (num_ctx1 <= 1)
     ca1 = None
     if not use_omit_ch1 and num_ctx1 > 0:
-        ca1 = _tail_context_actions(
-            src_actions0,
-            num_ctx1,
-            device=device,
-            dtype=torch.float32,
-            nearest_first=(context_source == "prev_chunk_tail" and context_position == "suffix"),
-        )
+        if protocol_actions is not None:
+            ca1 = torch.tensor(
+                protocol_actions[:num_ctx1],
+                device=device,
+                dtype=torch.float32,
+            )
+        else:
+            ca1 = _tail_context_actions(
+                src_actions0,
+                num_ctx1,
+                device=device,
+                dtype=torch.float32,
+                nearest_first=False,
+            )
     meta["chunk1_context_actions_count"] = int(ca1.shape[0]) if ca1 is not None else 0
 
     frames_ch1 = run_one_chunk(

@@ -45,8 +45,8 @@ class WanTrainingModule(DiffusionTrainingModule):
         context_fixed_noise_std=None,  # Experiment 7: Fixed noise std (e.g., 0.1) to align training-inference
         teacher_forcing_prob=0.0,
         yaw_flip_aug: bool = False,  # 50% prob flip yaw (ACTION_FOLLOWING direction sensitivity)
-        context_per_frame_vae: bool = False,  # Encode each context frame separately (1 latent per raw frame)
-        context_source: str = "fov",  # fov | replay | prev_chunk_tail (multichunk-aligned context construction)
+        context_per_frame_vae: bool = True,  # Encode each context frame separately (1 latent per raw frame)
+        context_source: str = "fov",  # fov | replay | prev_chunk_tail | causal_prev_prefix
         use_framepack_memory: bool = False,
         context_temporal_decay: float = 1.0,
         context_attention_weight: float = 1.0,
@@ -140,7 +140,12 @@ class WanTrainingModule(DiffusionTrainingModule):
         self.omit_context_actions = bool(omit_context_actions)
         self.context_per_frame_vae = bool(context_per_frame_vae)
         self.context_source = (context_source or "fov").strip().lower()
-        if self.context_source not in ("fov", "replay", "prev_chunk_tail"):
+        if self.context_source not in (
+            "fov",
+            "replay",
+            "prev_chunk_tail",
+            "causal_prev_prefix",
+        ):
             self.context_source = "fov"
         self.context_noise_prob = context_noise_prob
         self.context_noise_std = context_noise_std

@@ -44,7 +44,8 @@ class DiTBlock_w_Action(nn.Module):
     def __init__(self, has_image_input, dim, num_heads, ffn_dim, eps=1e-6,
                  add_action_attn=False, action_use_temporal_attention=True,
                  use_cam_pose=False, use_block_wise_ssm=False, use_videossm_hybrid=False,
-                 videossm_kernel_size=3, videossm_expand=2):
+                 videossm_kernel_size=3, videossm_expand=2,
+                 block_wise_ssm_causal_v2=False):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -67,15 +68,35 @@ class DiTBlock_w_Action(nn.Module):
         self.gate = GateModule()
         self.action_use_temporal_attention = action_use_temporal_attention
         self.use_block_wise_ssm = bool(use_block_wise_ssm)
+        self.block_wise_ssm_causal_v2 = bool(block_wise_ssm_causal_v2)
         self.use_videossm_hybrid = bool(use_videossm_hybrid)
         if use_block_wise_ssm:
-            self.block_wise_ssm = BlockWiseStateSpaceMemory(dim)
+            self.block_wise_ssm = BlockWiseStateSpaceMemory(
+                dim, causal_v2=self.block_wise_ssm_causal_v2
+            )
         if use_videossm_hybrid:
             self.videossm_hybrid = HybridStateSpaceMemory(
                 dim, kernel_size=videossm_kernel_size, expand=videossm_expand
             )
 
-    def forward(self, x, context, t_mod, freqs, actions=None):
+    def forward(
+        self,
+        x,
+        context,
+        t_mod,
+        freqs,
+        actions=None,
+        num_context_frames=0,
+        context_position="suffix",
+    ):
+        if not num_context_frames:
+            num_context_frames = int(
+                getattr(self, "_runtime_num_context_frames", 0) or 0
+            )
+        if context_position == "suffix" and hasattr(
+            self, "_runtime_context_position"
+        ):
+            context_position = str(self._runtime_context_position)
         has_seq = len(t_mod.shape) == 4
         chunk_dim = 2 if has_seq else 1
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
@@ -109,7 +130,12 @@ class DiTBlock_w_Action(nn.Module):
         x = self.gate(x, gate_msa, self.self_attn(input_x, freqs))
         if num_frames is not None:
             if hasattr(self, "block_wise_ssm"):
-                x = self.block_wise_ssm(x, f=num_frames)
+                x = self.block_wise_ssm(
+                    x,
+                    f=num_frames,
+                    num_context_frames=num_context_frames,
+                    context_position=context_position,
+                )
             if hasattr(self, "videossm_hybrid"):
                 spatial = x.shape[1] // int(num_frames) if int(num_frames) > 0 else 0
                 x = self.videossm_hybrid(x, f=num_frames, h=1, w=spatial)
@@ -197,6 +223,7 @@ def _build_action_blocks(
     action_use_temporal_attention=True,
     block_wise_block_ids=None,
     videossm_block_ids=None,
+    block_wise_ssm_causal_v2=False,
 ):
     """Replace DiT blocks with DiTBlock_w_Action (VWM cam_infer.py style)."""
     dit = pipe.dit
@@ -222,6 +249,7 @@ def _build_action_blocks(
             action_use_temporal_attention=action_use_temporal_attention,
             use_cam_pose=True,
             use_block_wise_ssm=block_id in block_wise_block_ids,
+            block_wise_ssm_causal_v2=block_wise_ssm_causal_v2,
             use_videossm_hybrid=block_id in videossm_block_ids,
         )
         new_block = new_block.to(dtype=block_dtype, device=block_device)
@@ -282,12 +310,15 @@ def load_pipeline_and_ckpt(
     block_wise_block_ids = set()
     videossm_block_ids = set()
     action_attn_block_ids = set()
+    block_wise_ssm_causal_v2 = False
     if ckpt_path and os.path.isfile(ckpt_path):
         ckpt = safe_load_file(ckpt_path)
         for key in ckpt.keys():
             m = re.match(r"blocks\.(\d+)\.block_wise_ssm\.", key)
             if m:
                 block_wise_block_ids.add(int(m.group(1)))
+                if key.endswith(".residual_logit"):
+                    block_wise_ssm_causal_v2 = True
             m = re.match(r"blocks\.(\d+)\.videossm_hybrid\.", key)
             if m:
                 videossm_block_ids.add(int(m.group(1)))
@@ -306,7 +337,9 @@ def load_pipeline_and_ckpt(
         action_use_temporal_attention=action_use_temporal_attention,
         block_wise_block_ids=block_wise_block_ids,
         videossm_block_ids=videossm_block_ids,
+        block_wise_ssm_causal_v2=block_wise_ssm_causal_v2,
     )
+    pipe.block_wise_ssm_causal_v2 = block_wise_ssm_causal_v2
 
     # Load ckpt (strict=False: base model keys match, action_mlp keys are extra)
     if ckpt_path and not os.path.isfile(ckpt_path):
@@ -315,6 +348,13 @@ def load_pipeline_and_ckpt(
         if ckpt is None:
             ckpt = safe_load_file(ckpt_path)
         missing, unexpected = pipe.dit.load_state_dict(ckpt, strict=False)
+        if block_wise_ssm_causal_v2:
+            ssm_unexpected = [key for key in unexpected if "block_wise_ssm" in key]
+            if ssm_unexpected:
+                raise RuntimeError(
+                    "causal SSM v2 checkpoint did not load cleanly: "
+                    f"{ssm_unexpected[:5]}"
+                )
         action_keys = [k for k in ckpt if "action_mlp" in k]
         if not missing and not unexpected:
             print(f"[loop_utils] Ckpt loaded: {len(ckpt)} keys, perfect match")

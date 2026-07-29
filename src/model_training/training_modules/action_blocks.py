@@ -47,7 +47,8 @@ class DiTBlock_w_Action(nn.Module):
                  eps: float = 1e-6, add_action_attn=False,
                  action_use_temporal_attention: bool = True, use_cam_pose: bool = False,
                  use_block_wise_ssm: bool = False, use_videossm_hybrid: bool = False,
-                 videossm_kernel_size: int = 3, videossm_expand: int = 2):
+                 videossm_kernel_size: int = 3, videossm_expand: int = 2,
+                 block_wise_ssm_causal_v2: bool = False):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -72,15 +73,35 @@ class DiTBlock_w_Action(nn.Module):
         self.gate = GateModule()
         self.action_use_temporal_attention = action_use_temporal_attention
         self.use_block_wise_ssm = bool(use_block_wise_ssm)
+        self.block_wise_ssm_causal_v2 = bool(block_wise_ssm_causal_v2)
         self.use_videossm_hybrid = bool(use_videossm_hybrid)
         if use_block_wise_ssm:
-            self.block_wise_ssm = BlockWiseStateSpaceMemory(dim)
+            self.block_wise_ssm = BlockWiseStateSpaceMemory(
+                dim, causal_v2=self.block_wise_ssm_causal_v2
+            )
         if use_videossm_hybrid:
             self.videossm_hybrid = HybridStateSpaceMemory(
                 dim, kernel_size=videossm_kernel_size, expand=videossm_expand
             )
 
-    def forward(self, x, context, t_mod, freqs, actions=None):
+    def forward(
+        self,
+        x,
+        context,
+        t_mod,
+        freqs,
+        actions=None,
+        num_context_frames: int = 0,
+        context_position: str = "suffix",
+    ):
+        if not num_context_frames:
+            num_context_frames = int(
+                getattr(self, "_runtime_num_context_frames", 0) or 0
+            )
+        if context_position == "suffix" and hasattr(
+            self, "_runtime_context_position"
+        ):
+            context_position = str(self._runtime_context_position)
         has_seq = len(t_mod.shape) == 4
         chunk_dim = 2 if has_seq else 1
         shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = (
@@ -116,7 +137,12 @@ class DiTBlock_w_Action(nn.Module):
         x = self.gate(x, gate_msa, self.self_attn(input_x, freqs))
         if num_frames is not None:
             if hasattr(self, "block_wise_ssm"):
-                x = self.block_wise_ssm(x, f=num_frames)
+                x = self.block_wise_ssm(
+                    x,
+                    f=num_frames,
+                    num_context_frames=num_context_frames,
+                    context_position=context_position,
+                )
             if hasattr(self, "videossm_hybrid"):
                 spatial = x.shape[1] // int(num_frames) if int(num_frames) > 0 else 0
                 x = self.videossm_hybrid(x, f=num_frames, h=1, w=spatial)

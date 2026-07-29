@@ -18,6 +18,7 @@ export OUTPUT_BASE_ROOT=$PWD/outputs
 - `run_ablation_framepack_weight_two_chunk.sh`: token weighting without length reduction.
 - `run_ablation_framepack_len_r2_two_chunk.sh`: temporal length compression, ratio 2.
 - `run_ablation_framepack_len_r4_two_chunk.sh`: temporal length compression, ratio 4.
+- `run_ablation_framepack_len_r8_two_chunk.sh`: released ratio-8 packed-multiscale recipe (81→11 context tokens).
 - `run_ablation_framepack_hybrid_r2_weight_two_chunk.sh`: ratio-2 length compression plus token weighting.
 - `run_ablation_framepack_hybrid_r4_weight_two_chunk.sh`: ratio-4 length compression plus token weighting.
 - `run_spatial_memory_baseline.sh`: representative spatial memory tokens.
@@ -26,7 +27,7 @@ export OUTPUT_BASE_ROOT=$PWD/outputs
 - `run_ablation_spatial_cross_attn_readout_two_chunk.sh`: spatial memory read through dedicated cross-attention.
 - `run_videossm_hybrid_baseline.sh`: legacy VideoSSM hybrid memory (`videossm_hybrid.*` checkpoint keys).
 - `run_ablation_videossm_hybrid_two_chunk.sh`: legacy VideoSSM with the paper two-chunk monitor.
-- `run_ablation_block_wise_ssm_two_chunk.sh`: paper-aligned block-wise SSM recipe (`block_wise_ssm.*` checkpoint keys).
+- `run_ablation_block_wise_ssm_causal_v2_two_chunk.sh`: released causal prefix Block-SSM recipe (`residual_logit` + `norm` checkpoint keys).
 - `run_all_ablations_two_chunk.sh`: convenience launcher for the full ablation set.
 
 The two-chunk scripts share `common_sampling_two_chunk.sh` and expose `CKPT_INTERVAL`, `TIMESTEP_SHIFT`, `SAMPLING_INTERVAL_STEPS`, `SAMPLING_NUM_INFERENCE_STEPS`, `SAMPLING_HEIGHT`, `SAMPLING_WIDTH`, and `SAMPLING_NUM_FRAMES` as environment overrides.

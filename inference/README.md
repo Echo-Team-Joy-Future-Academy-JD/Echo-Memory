@@ -33,11 +33,12 @@ CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors \
 | `WAN_BASE_MODEL` | (required) | Wan 2.1 base model directory |
 | `PROMPT` | Generic game scene prompt | Text prompt |
 | `CONTEXT_IMAGE` | (none) | First-frame context image path |
-| `ACTION_PATH` | `env/action_rotation_left_45.json` | Camera trajectory JSON |
+| `ACTION_PATH` | (none) | Camera trajectory JSON; required for multi-chunk wrappers |
 | `SEED` | `0` | Random seed |
 | `HEIGHT` / `WIDTH` | `352` / `640` | Resolution |
 | `NUM_FRAMES` | `81` | Frames per chunk |
 | `NUM_INFERENCE_STEPS` | `50` | Denoising steps |
+| `NUM_CHUNKS` | `2` in released multi-chunk wrappers | Sequential chunks |
 | `SIGMA_SHIFT` | `15.0` (memory baselines) / `5.0` (context learning) | Timestep shift |
 | `INFER_OUTPUT_ROOT` | `inference_outputs/` | Output directory |
 
@@ -51,6 +52,7 @@ CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors \
 | `run_infer_framepack_weight.sh` | `framepack_weight` | `run_ablation_framepack_weight_two_chunk.sh` |
 | `run_infer_framepack_len_r2.sh` | `framepack_len_r2` | `run_ablation_framepack_len_r2_two_chunk.sh` |
 | `run_infer_framepack_len_r4.sh` | `framepack_len_r4` | `run_ablation_framepack_len_r4_two_chunk.sh` |
+| `run_infer_framepack_len_r8.sh` | `framepack_len_r8` | `run_ablation_framepack_len_r8_two_chunk.sh` |
 | `run_infer_framepack_hybrid_r2.sh` | `framepack_hybrid_r2` | `run_ablation_framepack_hybrid_r2_weight_two_chunk.sh` |
 | `run_infer_framepack_hybrid_r4.sh` | `framepack_hybrid_r4` | `run_ablation_framepack_hybrid_r4_weight_two_chunk.sh` |
 | `run_infer_spatial_mem.sh` | `spatial_mem` | `run_spatial_memory_baseline.sh` |
@@ -58,7 +60,11 @@ CKPT=/path/to/retrained_dynamic_spatial_mem/epoch-0.safetensors \
 | `run_infer_spatial_inject_none.sh` | `spatial_inject_none` | `run_ablation_spatial_inject_none_two_chunk.sh` |
 | `run_infer_spatial_cross_attn_readout.sh` | `spatial_cross_attn_readout` | `run_ablation_spatial_cross_attn_readout_two_chunk.sh` |
 | `run_infer_videossm_hybrid.sh` | `videossm_hybrid` | `run_videossm_hybrid_baseline.sh` |
-| `run_infer_block_wise_ssm.sh` | `block_wise_ssm` | `run_ablation_block_wise_ssm_two_chunk.sh` |
+| `run_infer_block_wise_ssm_causal_v2.sh` | `block_wise_ssm_causal_v2` | `run_ablation_block_wise_ssm_causal_v2_two_chunk.sh` |
+
+The causal-v2 and r8 wrappers require `CONTEXT_IMAGE` for chunk 1. Chunk 2+
+is conditioned on generated history using the same frame order and relative
+camera-pose convention as training; do not replace those RT rows with identity.
 
 ### Context Learning (`inference/context_learning/`)
 

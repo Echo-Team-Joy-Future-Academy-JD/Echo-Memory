@@ -184,7 +184,12 @@ def launch_training_task(
             _umodel = accelerator.unwrap_model(model)
             _cm_frames = int(_umodel.context_memory_frames)
             _cs = context_source.strip().lower()
-            if _cs not in ("fov", "replay", "prev_chunk_tail"):
+            if _cs not in (
+                "fov",
+                "replay",
+                "prev_chunk_tail",
+                "causal_prev_prefix",
+            ):
                 _cs = "fov"
 
             if _cs == "replay" and dataset_base_path:
@@ -210,6 +215,34 @@ def launch_training_task(
                     sf = int(d.get("start_frame", 0) or 0)
                     idxs = replay_context_global_indices(n_seg, _cm_frames)
                     d["context_frame_indices"] = [sf + int(i) for i in idxs]
+
+            elif _cs == "causal_prev_prefix" and dataset_base_path:
+                from src.model_training.multichunk_sample_utils import (
+                    load_causal_prefix_context,
+                )
+                if os.environ.get("CONTEXT_POSITION", "suffix").lower() != "prefix":
+                    raise ValueError(
+                        "causal_prev_prefix requires CONTEXT_POSITION=prefix"
+                    )
+                for d in samples:
+                    frames, context_actions, target_actions, protocol = (
+                        load_causal_prefix_context(
+                            dataset_base_path,
+                            str(d.get("video_name", "")),
+                            int(d.get("start_frame", 0) or 0),
+                            _cm_frames,
+                            target_num_frames=81,
+                            use_rt_relative=use_rt_relative,
+                        )
+                    )
+                    if not frames or not context_actions or not target_actions:
+                        context_retrieval_success = False
+                        break
+                    d["context_frames"] = frames
+                    d["context_actions"] = context_actions
+                    d["actions"] = target_actions
+                    d["context_frame_indices"] = protocol["context_frame_indices"]
+                    d["context_source"] = "causal_prev_prefix"
 
             elif _cs == "prev_chunk_tail" and dataset_base_path:
                 from src.model_training.multichunk_sample_utils import load_prev_chunk_tail_from_disk, load_prev_chunk_tail_rt_actions
@@ -297,7 +330,8 @@ def launch_training_task(
                 and (not context_retrieval_success)
                 and (
                     enable_fov_retrieval
-                    or context_source.strip().lower() in ("replay", "prev_chunk_tail")
+                    or context_source.strip().lower()
+                    in ("replay", "prev_chunk_tail", "causal_prev_prefix")
                 )
             )
             if _need_ctx_strict:

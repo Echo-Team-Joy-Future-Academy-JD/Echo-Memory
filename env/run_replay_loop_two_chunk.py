@@ -24,6 +24,7 @@ import argparse
 import random
 import math
 import io
+import hashlib
 from datetime import datetime
 import torch
 import numpy as np
@@ -44,6 +45,8 @@ from diffsynth import save_video
 
 from src.model_training.fov_retrieval import compute_rotation_list
 from src.model_training.multichunk_sample_utils import (
+    build_causal_continuation_protocol,
+    build_prev_tail_continuation_protocol,
     context_frames_for_next_chunk,
     replay_context_from_generated_frames,
 )
@@ -340,8 +343,9 @@ def load_gt_frames_at_indices(dataset_base, video_name, frame_indices, w, h):
 def seed_for_sample(base_seed: int, video_name, start_frame) -> int:
     """与 (video_name, start_frame) 一一对应的确定性 seed，使同一样本在 loop_traj_fov_gen 与 evals_ep0 等不同调用下结果一致（避免因 idx/rank 不同导致偏移）。"""
     try:
-        h = hash((str(video_name), int(start_frame)))
-        return base_seed + (h & 0x7FFFFFFF) % 100000
+        key = f"{video_name}|{int(start_frame)}".encode("utf-8")
+        digest = hashlib.blake2b(key, digest_size=8).digest()
+        return base_seed + int.from_bytes(digest, "big") % 100000
     except Exception:
         return base_seed
 
@@ -537,13 +541,23 @@ def run_one_chunk(
     if (action_path or cam_pose_actions is not None) and not has_action_mlp:
         print(f"{log_prefix} 警告: dit.blocks[0] 无 action_mlp，action 可能未注入（请确认 ckpt 含 action_mlp 权重）", flush=True)
     print(f"{log_prefix} run_one_chunk sigma_shift={sigma_shift} steps={num_inference_steps} (ctx={num_context_frames}) inference_noise={inference_noise_level} context_mem={context_latents is not None} action_mlp={has_action_mlp}")
+    context_position = _extra.get(
+        "context_position", getattr(pipe, "context_position", "suffix")
+    )
+    if (
+        bool(getattr(pipe, "block_wise_ssm_causal_v2", False))
+        and context_position != "prefix"
+    ):
+        raise ValueError(
+            "causal Block-SSM v2 inference requires context_position=prefix"
+        )
     if context_latents is not None:
         pipe_kw = dict(
             **kwargs_common,
             enable_context_memory=True,
             context_latents=context_latents,
             num_context_frames=num_context_frames,
-            context_position="suffix",
+            context_position=context_position,
             cfg_target_only=True,
             inference_noise_level=inference_noise_level,
             geometry_memory_latents=geometry_memory_latents,
@@ -1581,6 +1595,14 @@ def main():
     p.add_argument("--context_attention_weight", type=float, default=1.0, help="FramePack/FAR: global scale for all context tokens")
     p.add_argument("--use_framepack_length_compress", action="store_true", help="FramePack: compress context length K->K' during multichunk inference")
     p.add_argument("--framepack_ratio", type=int, default=2, help="FramePack temporal ratio r")
+    p.add_argument("--framepack_length_strategy", type=str, default="distance_merge")
+    p.add_argument("--framepack_multiscale_w2", type=float, default=0.25)
+    p.add_argument("--framepack_multiscale_w4", type=float, default=0.15)
+    p.add_argument("--context_position", choices=("prefix", "suffix"), default="suffix")
+    p.add_argument("--training_context_source", type=str, default=None)
+    p.add_argument("--use_moc", action="store_true")
+    p.add_argument("--moc_temperature", type=float, default=1.0)
+    p.add_argument("--use_block_wise_ssm", action="store_true")
     p.add_argument("--use_spatial_memory", action="store_true", help="Enable spatial memory baseline during multichunk inference")
     p.add_argument("--use_spatial_memory_legacy", action="store_true", help="Non-learnable adaptive pool (if no SpatialGridMemory in ckpt, auto-enabled)")
     p.add_argument("--spatial_memory_tokens", type=int, default=64, help="Spatial memory baseline: number of pooled spatial tokens")
@@ -1720,6 +1742,15 @@ def main():
     pipe.context_attention_weight = float(getattr(args, "context_attention_weight", 1.0) or 1.0)
     pipe.use_framepack_length_compress = bool(getattr(args, "use_framepack_length_compress", False))
     pipe.framepack_ratio = int(getattr(args, "framepack_ratio", 2) or 2)
+    pipe.framepack_length_strategy = str(args.framepack_length_strategy)
+    pipe.framepack_multiscale_w2 = float(args.framepack_multiscale_w2)
+    pipe.framepack_multiscale_w4 = float(args.framepack_multiscale_w4)
+    pipe.context_position = str(args.context_position)
+    pipe.training_context_source = args.training_context_source
+    pipe.use_moc = bool(args.use_moc)
+    if pipe.use_moc:
+        from diffsynth.models.memory.mixture_of_contexts import MixtureOfContexts
+        pipe.moc_module = MixtureOfContexts(temperature=float(args.moc_temperature))
     pipe.use_spatial_memory = bool(getattr(args, "use_spatial_memory", False))
     pipe.spatial_memory_tokens = int(getattr(args, "spatial_memory_tokens", 64) or 64)
     if getattr(args, "spatial_memory_inject_mode", None):

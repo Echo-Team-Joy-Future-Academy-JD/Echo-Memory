@@ -39,6 +39,9 @@ class MemoryProfile:
     context_attention_weight: float = 1.0
     use_framepack_length_compress: bool = False
     framepack_ratio: int = 2
+    framepack_length_strategy: str = "distance_merge"
+    framepack_multiscale_w2: float = 0.25
+    framepack_multiscale_w4: float = 0.15
     use_spatial_memory: bool = False
     use_spatial_memory_legacy: bool = False  # True = old adaptive pool only (no SpatialGridMemory in ckpt)
     spatial_memory_tokens: int = 64
@@ -46,9 +49,14 @@ class MemoryProfile:
     use_geometry_spatial_memory: bool = False
     geometry_spatial_memory_inject_mode: Optional[str] = None
     use_block_wise_ssm: bool = False
+    block_wise_ssm_causal_v2: bool = False
     use_videossm_hybrid: bool = False
+    use_moc: bool = False
+    moc_temperature: float = 1.0
     # Training uses context_memory_frames=5 for memory_baselines_basic
     context_override: Optional[int] = None
+    context_position: Optional[str] = None
+    training_context_source: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -343,6 +351,63 @@ MEMORY_PROFILE_REGISTRY: List[MemoryProfileSpec] = [
         ),
     ),
     MemoryProfileSpec(
+        profile_id="framepack_len_r8",
+        ckpt_substrings=("framepack_len_r8",),
+        paper_tag="arXiv:2504.12626",
+        train_flags=(
+            "--context_source prev_chunk_tail",
+            "--context_memory_frames 81",
+            "--use_framepack_length_compress",
+            "--framepack_ratio 8",
+            "--framepack_length_strategy packed_multiscale",
+            "--framepack_multiscale_w2 0.25",
+            "--framepack_multiscale_w4 0.15",
+            "--use_moc",
+        ),
+        infer_flags=(
+            "--use_framepack_length_compress",
+            "--framepack_ratio 8",
+            "--framepack_length_strategy packed_multiscale",
+            "--use_moc",
+        ),
+        eval_flags=("--context_frames 81",),
+        profile=MemoryProfile(
+            use_framepack_length_compress=True,
+            framepack_ratio=8,
+            framepack_length_strategy="packed_multiscale",
+            framepack_multiscale_w2=0.25,
+            framepack_multiscale_w4=0.15,
+            use_moc=True,
+            context_override=81,
+            context_position="suffix",
+            training_context_source="prev_chunk_tail",
+        ),
+    ),
+    MemoryProfileSpec(
+        profile_id="block_wise_ssm_causal_v2",
+        ckpt_substrings=("block_wise_ssm_causal_v2",),
+        paper_tag="causal_block_ssm_v2",
+        train_flags=(
+            "--use_block_wise_ssm",
+            "--block_wise_ssm_causal_v2",
+            "--context_source causal_prev_prefix",
+            "--context_memory_frames 5",
+            "CONTEXT_POSITION=prefix",
+        ),
+        infer_flags=(
+            "load_pipeline_and_ckpt auto-detects residual_logit",
+            "--context_position prefix",
+        ),
+        eval_flags=("--context_frames 5", "--sigma_shift 15"),
+        profile=MemoryProfile(
+            use_block_wise_ssm=True,
+            block_wise_ssm_causal_v2=True,
+            context_override=5,
+            context_position="prefix",
+            training_context_source="causal_prev_prefix",
+        ),
+    ),
+    MemoryProfileSpec(
         profile_id="videossm_hybrid_legacy",
         ckpt_substrings=(
             "memory_baselines_basic_videossm_hybrid",
@@ -414,6 +479,10 @@ def infer_memory_profile(ckpt: str) -> MemoryProfile:
 
 def profile_to_argv(p: MemoryProfile) -> List[str]:
     out: List[str] = []
+    if p.context_position:
+        out.extend(["--context_position", str(p.context_position)])
+    if p.training_context_source:
+        out.extend(["--training_context_source", str(p.training_context_source)])
     if p.use_framepack_memory:
         out.extend(
             [
@@ -430,8 +499,19 @@ def profile_to_argv(p: MemoryProfile) -> List[str]:
                 "--use_framepack_length_compress",
                 "--framepack_ratio",
                 str(int(p.framepack_ratio)),
+                "--framepack_length_strategy",
+                str(p.framepack_length_strategy),
             ]
         )
+        if p.framepack_length_strategy == "packed_multiscale":
+            out.extend(
+                [
+                    "--framepack_multiscale_w2",
+                    str(p.framepack_multiscale_w2),
+                    "--framepack_multiscale_w4",
+                    str(p.framepack_multiscale_w4),
+                ]
+            )
     if p.use_spatial_memory:
         out.extend(
             [
@@ -457,6 +537,8 @@ def profile_to_argv(p: MemoryProfile) -> List[str]:
         out.append("--use_block_wise_ssm")
     if p.use_videossm_hybrid:
         out.append("--use_videossm_hybrid")
+    if p.use_moc:
+        out.extend(["--use_moc", "--moc_temperature", str(p.moc_temperature)])
     return out
 
 
@@ -482,6 +564,9 @@ def apply_memory_baseline_pipe(pipe, ckpt: str) -> None:
     pipe.context_attention_weight = float(p.context_attention_weight or 1.0)
     pipe.use_framepack_length_compress = bool(p.use_framepack_length_compress)
     pipe.framepack_ratio = int(p.framepack_ratio or 2)
+    pipe.framepack_length_strategy = str(p.framepack_length_strategy)
+    pipe.framepack_multiscale_w2 = float(p.framepack_multiscale_w2)
+    pipe.framepack_multiscale_w4 = float(p.framepack_multiscale_w4)
     pipe.use_spatial_memory = bool(p.use_spatial_memory)
     pipe.spatial_memory_tokens = int(p.spatial_memory_tokens or 64)
     if getattr(p, "spatial_memory_inject_mode", None):
@@ -493,7 +578,14 @@ def apply_memory_baseline_pipe(pipe, ckpt: str) -> None:
             p.geometry_spatial_memory_inject_mode
         )
     pipe.use_block_wise_ssm = bool(p.use_block_wise_ssm)
+    pipe.block_wise_ssm_causal_v2 = bool(p.block_wise_ssm_causal_v2)
     pipe.use_videossm_hybrid = bool(p.use_videossm_hybrid)
+    pipe.context_position = str(p.context_position or "suffix")
+    pipe.training_context_source = p.training_context_source
+    pipe.use_moc = bool(p.use_moc)
+    if pipe.use_moc:
+        from diffsynth.models.memory.mixture_of_contexts import MixtureOfContexts
+        pipe.moc_module = MixtureOfContexts(temperature=float(p.moc_temperature))
     # 与 run_replay_loop_two_chunk 一致：宣称 SpatialGridMemory 但 ckpt 未载入模块时，避免 silent 与训练不一致
     if (
         pipe.use_spatial_memory
