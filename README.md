@@ -293,8 +293,8 @@ export PYTHONPATH=$PWD:${PYTHONPATH:-}
 ## Checkpoints
 
 > **Release status.** Corrected SSM causal-v2 and FramePack-r8 weights have
-> passed deterministic multi-chunk validation. Their intended HF paths are
-> listed below; publication is pending maintainer LFS permission.
+> passed deterministic multi-chunk validation and are now available on
+> Hugging Face.
 
 Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 
@@ -305,8 +305,8 @@ Paper-aligned **epoch-0** fine-tunes (Wan 2.1 1.3B, **30,000 steps**):
 | Raw context | Context K=1 | [`context_k1/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/context_k1) | 30,000 |
 | Raw context | Context K=20 | TODO | TODO |
 | Spatial | Spatial Memory | TODO | TODO |
-| Compression | FramePack length r8 | `framepack_len_r8/epoch-0.safetensors` (upload pending) | 30,000 |
-| State-space | Block-wise SSM causal v2 | `block_wise_ssm_causal_v2/epoch-0.safetensors` (upload pending) | 30,000 |
+| Compression | FramePack length r8 | [`framepack_len_r8/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/framepack_len_r8) | 30,000 |
+| State-space | Block-wise SSM causal v2 | [`block_wise_ssm_causal_v2/epoch-0.safetensors`](https://huggingface.co/Echo-Team/Echo-Memory/tree/main/block_wise_ssm_causal_v2) | 30,000 |
 | State-space | Legacy Hybrid | TODO | TODO |
 
 Extended rows and release hashes are listed in [doc/checkpoints.md](doc/checkpoints.md).
