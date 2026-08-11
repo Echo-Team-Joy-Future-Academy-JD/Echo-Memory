@@ -638,7 +638,3 @@ If you use this repository or the Echo-Memory paper, please cite:
   url={https://arxiv.org/abs/2606.09803}
 }
 ```
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Echo-Team-Joy-Future-Academy-JD/Echo-Memory&type=date&legend=bottom-right)](https://www.star-history.com/#Echo-Team-Joy-Future-Academy-JD/Echo-Memory&type=date&legend=bottom-right)
