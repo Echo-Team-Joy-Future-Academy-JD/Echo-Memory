@@ -19,31 +19,42 @@ MAIN_SHA="$(git rev-parse --short HEAD)"
 WORKTREE="$(mktemp -d)"
 trap 'git worktree remove -f "$WORKTREE" 2>/dev/null || true; rm -rf "$WORKTREE"' EXIT
 
-git fetch origin gh-pages 2>/dev/null || true
-if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+stage_site() {
+  find "$WORKTREE" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+  cp docs/index.html docs/style.css docs/site.js docs/i18n.js docs/i18n-runtime.js docs/developer.html "$WORKTREE/"
+  cp docs/.nojekyll "$WORKTREE/" 2>/dev/null || : >"$WORKTREE/.nojekyll"
+  rm -rf "$WORKTREE/assets"
+  mkdir -p "$WORKTREE/assets"
+  cp -a docs/assets/. "$WORKTREE/assets/"
+  # Cache-bust marker for verifying deploys in page source.
+  sed -i "s/site-build-main/site-build-${MAIN_SHA}/" "$WORKTREE/index.html"
+  git -C "$WORKTREE" add -A
+}
+
+if git ls-remote --exit-code origin refs/heads/gh-pages >/dev/null 2>&1; then
+  git fetch origin gh-pages
   git worktree add -B gh-pages-publish "$WORKTREE" origin/gh-pages
 else
   git worktree add -B gh-pages-publish "$WORKTREE" --orphan gh-pages-publish
 fi
 
-find "$WORKTREE" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-
-cp docs/index.html docs/style.css docs/site.js docs/i18n.js docs/i18n-runtime.js docs/developer.html "$WORKTREE/"
-cp docs/.nojekyll "$WORKTREE/" 2>/dev/null || : >"$WORKTREE/.nojekyll"
-rm -rf "$WORKTREE/assets"
-mkdir -p "$WORKTREE/assets"
-cp -a docs/assets/. "$WORKTREE/assets/"
-
-# Cache-bust marker for verifying deploys in page source.
-sed -i "s/site-build-main/site-build-${MAIN_SHA}/" "$WORKTREE/index.html"
-
-cd "$WORKTREE"
-git add -A
-if git diff --cached --quiet; then
-  echo "gh-pages: no changes to publish"
-  exit 0
-fi
-
-git commit -m "Publish project page from main (${MAIN_SHA})"
-git push origin HEAD:gh-pages
-echo "Published docs/ to origin/gh-pages (${MAIN_SHA})"
+tries=3
+for i in $(seq 1 "$tries"); do
+  stage_site
+  if git -C "$WORKTREE" diff --cached --quiet; then
+    echo "gh-pages: no changes to publish"
+    exit 0
+  fi
+  git -C "$WORKTREE" commit -m "Publish project page from main (${MAIN_SHA})"
+  if git -C "$WORKTREE" push origin HEAD:gh-pages; then
+    echo "Published docs/ to origin/gh-pages (${MAIN_SHA})"
+    exit 0
+  fi
+  if [[ "$i" -eq "$tries" ]]; then
+    echo "error: failed to push gh-pages after ${tries} attempts" >&2
+    exit 1
+  fi
+  echo "gh-pages push raced; refetching and retrying (${i}/${tries})"
+  git fetch origin gh-pages
+  git -C "$WORKTREE" reset --hard origin/gh-pages
+done
