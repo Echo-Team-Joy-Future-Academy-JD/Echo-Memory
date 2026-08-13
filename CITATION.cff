@@ -1,0 +1,96 @@
+cff-version: 1.2.0
+message: If you use Echo-Memory, please cite the paper below.
+title: "Echo-Memory: A Controlled Study of Memory in Action World Models"
+type: software
+authors:
+  - family-names: King
+    given-names: Wayne
+  - family-names: Xue
+    given-names: Zeyue
+  - family-names: Bian
+    given-names: Yuxuan
+  - family-names: Huang
+    given-names: Jie
+  - family-names: Li
+    given-names: Haoran
+  - family-names: Li
+    given-names: Yaowei
+  - family-names: Su
+    given-names: Yaofeng
+  - family-names: Li
+    given-names: Yuming
+  - family-names: Wang
+    given-names: Haoyu
+  - family-names: Zhang
+    given-names: Shiyi
+  - family-names: Zhang
+    given-names: Songchun
+  - family-names: Niu
+    given-names: Yuwei
+  - family-names: Xu
+    given-names: Sihan
+  - family-names: Zhuang
+    given-names: Junhao
+  - family-names: Huang
+    given-names: Haoyang
+  - family-names: Duan
+    given-names: Nan
+identifiers:
+  - type: url
+    value: "https://arxiv.org/abs/2606.09803"
+    description: arXiv preprint
+repository-code: "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+url: "https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"
+license: CC-BY-4.0
+abstract: >-
+  Echo-Memory is a controlled study of memory mechanisms in action-conditioned
+  world models. It holds the Wan video backbone, training recipe, and evaluation
+  protocol fixed, and compares Context, Compression, Spatial, and State-Space
+  memory on replay, in-domain revisit, and open-domain return.
+keywords:
+  - world models
+  - video generation
+  - memory
+  - action-conditioned
+  - spatial memory
+  - state-space models
+preferred-citation:
+  type: article
+  title: "Echo-Memory: A Controlled Study of Memory in Action World Models"
+  authors:
+    - family-names: King
+      given-names: Wayne
+    - family-names: Xue
+      given-names: Zeyue
+    - family-names: Bian
+      given-names: Yuxuan
+    - family-names: Huang
+      given-names: Jie
+    - family-names: Li
+      given-names: Haoran
+    - family-names: Li
+      given-names: Yaowei
+    - family-names: Su
+      given-names: Yaofeng
+    - family-names: Li
+      given-names: Yuming
+    - family-names: Wang
+      given-names: Haoyu
+    - family-names: Zhang
+      given-names: Shiyi
+    - family-names: Zhang
+      given-names: Songchun
+    - family-names: Niu
+      given-names: Yuwei
+    - family-names: Xu
+      given-names: Sihan
+    - family-names: Zhuang
+      given-names: Junhao
+    - family-names: Huang
+      given-names: Haoyang
+    - family-names: Duan
+      given-names: Nan
+  year: 2026
+  month: 6
+  journal: "arXiv preprint arXiv:2606.09803"
+  url: "https://arxiv.org/abs/2606.09803"

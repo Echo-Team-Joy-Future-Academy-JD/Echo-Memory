@@ -7,11 +7,15 @@
 <div align="center">
 <a href="https://arxiv.org/abs/2606.09803"><img src="https://img.shields.io/badge/arXiv-2606.09803-b31b1b.svg" alt="arXiv: 2606.09803"></a>
 <a href="https://arxiv.org/pdf/2606.09803"><img src="https://img.shields.io/badge/PDF-arXiv-red.svg" alt="PDF"></a>
+<a href="https://huggingface.co/papers/2606.09803"><img src="https://img.shields.io/badge/🤗%20Paper-2606.09803-ff9d00.svg" alt="Hugging Face paper"></a>
 <a href="https://creativecommons.org/licenses/by/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg" alt="CC BY 4.0"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/"><img src="https://img.shields.io/badge/Project%20Page-Echo--Memory-green" alt="Project Page"></a>
 <a href="https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html"><img src="https://img.shields.io/badge/Developer%20Guide-EN%2F中文-blue" alt="Developer Guide"></a>
+<br>
+<a href="https://huggingface.co/spaces/hugging-apps/echo-memory"><img src="https://img.shields.io/badge/🤗%20Demo-ZeroGPU-orange.svg" alt="Hugging Face demo"></a>
 <a href="https://huggingface.co/Echo-Team/Echo-Memory"><img src="https://img.shields.io/badge/🤗%20Checkpoints-Echo--Team%2FEcho--Memory-yellow" alt="Hugging Face checkpoints"></a>
-<a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"><img src="https://img.shields.io/badge/GitHub-Echo--Memory-black" alt="GitHub repository"></a>
+<a href="https://huggingface.co/datasets/Echo-Team/Echo-Memory-Data"><img src="https://img.shields.io/badge/🤗%20Dataset-Echo--Memory--Data-yellow" alt="Hugging Face dataset"></a>
+<a href="https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/stargazers"><img src="https://img.shields.io/github/stars/Echo-Team-Joy-Future-Academy-JD/Echo-Memory?style=social" alt="GitHub stars"></a>
 </div>
 
 > **Core question.** When a generated scene must leave and later return, which kind of memory helps an action world model preserve **identity**, **layout**, and **viewpoint** instead of drifting into a plausible but different world?
@@ -30,7 +34,15 @@
 
 **What is intentionally removed:** private benchmark launchers, cluster submit files, logs, generated outputs, and machine-local paths.
 
+**Try the interactive demo (no local GPU):** [huggingface.co/spaces/hugging-apps/echo-memory](https://huggingface.co/spaces/hugging-apps/echo-memory) — first frame + prompt + camera action → 5s clip on ZeroGPU. Built by Hugging Face open-source.
+
 ## News
+
+**[2026/08/13]** Interactive Hugging Face Space demo is live: [hugging-apps/echo-memory](https://huggingface.co/spaces/hugging-apps/echo-memory). Discussions enabled on GitHub.
+
+**[2026/07/29]** Validated paper checkpoints published on [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) (`context_k1`, `framepack_len_r8`, `block_wise_ssm_causal_v2`).
+
+**[2026/07/10]** Geometry-grounded spatial memory pipeline added (`geometry_spatial_mem`), separate from the token-grid `spatial_mem` row used in the paper tables.
 
 **[2026/06/13]** SpatialVID support added: dynamic training/inference recipes, 5-second first-chunk replay previews, and dynamic eval marked as TODO.
 
@@ -263,7 +275,7 @@ export DATASET_BASE_PATH=./data/Context-as-Memory-Dataset
 # 3. Download a checkpoint and run evaluation
 huggingface-cli download Echo-Team/Echo-Memory context_k1/epoch-0.safetensors --local-dir ./ckpts
 
-export WAN_BASE_MODEL=/threed-code/yorenchen/models/Wan2.1-T2V-1.3B 
+export WAN_BASE_MODEL=./Wan2.1-T2V-1.3B
 export PYTHONPATH=$PWD:${PYTHONPATH:-}
 export CKPT=./ckpts/context_k1/epoch-0.safetensors
 
@@ -615,9 +627,10 @@ Dynamic evaluation is TODO. Current dynamic support covers SpatialVID training/i
 
 ## Community
 
-Project page supports **EN / 中文** — [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
-
-Maintainers: [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) · Cursor skills in [`.cursor/skills/`](.cursor/skills/)
+- **Interactive demo:** [Hugging Face Space](https://huggingface.co/spaces/hugging-apps/echo-memory)
+- **Project page (EN / 中文):** [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
+- **Discussions:** [GitHub Discussions](https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/discussions) — questions, reproductions, and follow-up ideas
+- **Maintainers:** [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) · Cursor skills in [`.cursor/skills/`](.cursor/skills/)
 
 ## Citation
 
