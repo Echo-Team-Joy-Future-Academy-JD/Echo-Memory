@@ -627,7 +627,8 @@ Dynamic evaluation is TODO. Current dynamic support covers SpatialVID training/i
 
 ## Community
 
-- **Interactive demo:** [Hugging Face Space](https://huggingface.co/spaces/hugging-apps/echo-memory)
+- **Interactive demo:** [hugging-apps/echo-memory](https://huggingface.co/spaces/hugging-apps/echo-memory) · [Wayne-King/echo-memory](https://huggingface.co/spaces/Wayne-King/echo-memory) (ZeroGPU)
+- **HF collection:** [Wayne-King/echo-memory](https://huggingface.co/collections/Wayne-King/echo-memory-6a7d3c4631eb2923cdd4f370)
 - **Project page (EN / 中文):** [echo-team-joy-future-academy-jd.github.io/Echo-Memory](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/)
 - **Discussions:** [GitHub Discussions](https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/discussions) — questions, reproductions, and follow-up ideas
 - **Maintainers:** [Developer Guide](https://echo-team-joy-future-academy-jd.github.io/Echo-Memory/developer.html) · [doc/DEVELOPER.md](doc/DEVELOPER.md) · Cursor skills in [`.cursor/skills/`](.cursor/skills/)
