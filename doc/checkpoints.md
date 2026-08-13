@@ -24,6 +24,10 @@ Fine-tuned DiT weights on top of [Wan-AI/Wan2.1-T2V-1.3B](https://huggingface.co
 Context K=5, Context K=20, Spatial memory, legacy SSM, MoC, and geometry
 rows remain under validation. The two corrected rows above are released.
 
+## Diffusers overlay
+
+`context_k1` remapped to official Diffusers Wan 2.1 1.3B transformer names (825 / 825 matching keys): [`Wayne-King/echo-memory-diffusers`](https://huggingface.co/Wayne-King/echo-memory-diffusers) `context_k1-diffusers/diffusion_pytorch_model.safetensors`. Community pipeline: [huggingface/diffusers#14471](https://github.com/huggingface/diffusers/pull/14471). A copy of the converted row is also proposed on the paper repo ([discussion #4](https://huggingface.co/Echo-Team/Echo-Memory/discussions/4)).
+
 ## Validated artifact hashes
 
 | HF path | SHA256 |
