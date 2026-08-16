@@ -259,11 +259,12 @@ Memory types:
     return parser
 
 
-def main():
-    args = build_parser().parse_args()
+def run_unified_inference(args):
+    """Run the CLI inference path and return the generated frames.
 
-    # ── Validate paths ──────────────────────────────────────────────────
-    # Heavy imports deferred so --help works without GPU/conda environment
+    ``args`` matches :func:`build_parser`. Heavy imports stay inside this
+    function so ``--help`` and ComfyUI node listing do not need a GPU.
+    """
     import torch
     from PIL import Image
     from env.loop_utils import load_pipeline_and_ckpt, DEFAULT_NEGATIVE_PROMPT
@@ -279,43 +280,50 @@ def main():
     from diffsynth import save_video
 
     neg_prompt = args.negative_prompt if args.negative_prompt else DEFAULT_NEGATIVE_PROMPT
+    pipe = getattr(args, "pipe", None)
+    profile = getattr(args, "profile", None)
+    dit_path = text_encoder_path = vae_path = tokenizer_path = None
 
-    if not args.base_model:
-        print("ERROR: --base_model or $WAN_BASE_MODEL must be set.", file=sys.stderr)
-        sys.exit(1)
-
-    dit_path = os.path.join(args.base_model, "diffusion_pytorch_model.safetensors")
-    text_encoder_path = os.path.join(args.base_model, "models_t5_umt5-xxl-enc-bf16.pth")
-    vae_path = os.path.join(args.base_model, "Wan2.1_VAE.pth")
-    tokenizer_path = args.tokenizer_path or os.path.join(args.base_model, "google", "umt5-xxl")
-    if not os.path.isdir(tokenizer_path):
-        tokenizer_path = None
-
-    for p in [dit_path, text_encoder_path, vae_path]:
-        if not os.path.isfile(p):
-            print(f"ERROR: base model file not found: {p}", file=sys.stderr)
+    if pipe is None:
+        if not args.base_model:
+            print("ERROR: --base_model or $WAN_BASE_MODEL must be set.", file=sys.stderr)
             sys.exit(1)
 
-    if not os.path.isfile(args.ckpt):
-        print(f"ERROR: checkpoint not found: {args.ckpt}", file=sys.stderr)
-        sys.exit(1)
+        dit_path = os.path.join(args.base_model, "diffusion_pytorch_model.safetensors")
+        text_encoder_path = os.path.join(args.base_model, "models_t5_umt5-xxl-enc-bf16.pth")
+        vae_path = os.path.join(args.base_model, "Wan2.1_VAE.pth")
+        tokenizer_path = args.tokenizer_path or os.path.join(args.base_model, "google", "umt5-xxl")
+        if not os.path.isdir(tokenizer_path):
+            tokenizer_path = None
 
-    # ── Resolve memory profile ──────────────────────────────────────────
-    profile = resolve_memory_profile(args.memory_type, args.ckpt)
+        for p in [dit_path, text_encoder_path, vae_path]:
+            if not os.path.isfile(p):
+                print(f"ERROR: base model file not found: {p}", file=sys.stderr)
+                sys.exit(1)
+
+        if not os.path.isfile(args.ckpt):
+            print(f"ERROR: checkpoint not found: {args.ckpt}", file=sys.stderr)
+            sys.exit(1)
+
+        profile = profile or resolve_memory_profile(args.memory_type, args.ckpt)
+
+    if profile is None:
+        profile = resolve_memory_profile(args.memory_type, args.ckpt or "")
 
     # ── Load pipeline + checkpoint ──────────────────────────────────────
-    print(f"[unified_inference] Loading pipeline from {args.base_model}")
-    print(f"[unified_inference] Loading checkpoint from {args.ckpt}")
-    pipe = load_pipeline_and_ckpt(
-        ckpt_path=args.ckpt,
-        dit_path=dit_path,
-        text_encoder_path=text_encoder_path,
-        vae_path=vae_path,
-        device="cuda",
-        add_action_attn=False,
-        action_use_temporal_attention=True,
-        tokenizer_path=tokenizer_path,
-    )
+    if pipe is None:
+        print(f"[unified_inference] Loading pipeline from {args.base_model}")
+        print(f"[unified_inference] Loading checkpoint from {args.ckpt}")
+        pipe = load_pipeline_and_ckpt(
+            ckpt_path=args.ckpt,
+            dit_path=dit_path,
+            text_encoder_path=text_encoder_path,
+            vae_path=vae_path,
+            device="cuda",
+            add_action_attn=False,
+            action_use_temporal_attention=True,
+            tokenizer_path=tokenizer_path,
+        )
 
     # ── Apply memory flags ──────────────────────────────────────────────
     apply_profile_to_pipe(pipe, profile)
@@ -487,10 +495,19 @@ def main():
 
     frames = [frame for chunk in chunks for frame in chunk]
 
-    # ── Save video ──────────────────────────────────────────────────────
-    os.makedirs(os.path.dirname(os.path.abspath(args.output_path)), exist_ok=True)
-    save_video(frames, args.output_path, fps=args.fps, quality=5)
-    print(f"[unified_inference] Video saved to {args.output_path}")
+    output_path = getattr(args, "output_path", None)
+    if output_path:
+        out_dir = os.path.dirname(os.path.abspath(output_path))
+        if out_dir:
+            os.makedirs(out_dir, exist_ok=True)
+        save_video(frames, output_path, fps=args.fps, quality=5)
+        print(f"[unified_inference] Video saved to {output_path}")
+    return frames
+
+
+def main():
+    args = build_parser().parse_args()
+    run_unified_inference(args)
 
 
 if __name__ == "__main__":

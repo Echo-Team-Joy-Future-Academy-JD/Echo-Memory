@@ -1,0 +1,16 @@
+[project]
+name = "echo-memory"
+description = "ComfyUI nodes for Echo-Memory: controlled memory study on Wan 2.1 1.3B (Context, Compression, Spatial, State-Space)."
+version = "1.0.0"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory"
+Documentation = "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/tree/main/comfyui"
+"Bug Tracker" = "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
+
+[tool.comfy]
+PublisherId = "echo-team"
+DisplayName = "Echo-Memory"
+includes = ["comfyui", "inference", "env", "diffsynth", "src"]

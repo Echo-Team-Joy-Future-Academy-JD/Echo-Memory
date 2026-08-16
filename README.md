@@ -38,6 +38,8 @@
 
 ## News
 
+**[2026/08/16]** ComfyUI custom nodes wrap the paper inference path (first frame + prompt + camera action → frames). Clone this repo into `ComfyUI/custom_nodes/`, or symlink [`comfyui/`](comfyui/). Manager / Registry listing needs a Comfy publisher id (see [`comfyui/README.md`](comfyui/README.md)).
+
 **[2026/08/14]** Submitted a DiffSynth-Studio Wan example / optional `context_k1` overlay ([PR #1592](https://github.com/modelscope/DiffSynth-Studio/pull/1592)). Converted the same row to Diffusers keys and opened a community pipeline ([PR #14471](https://github.com/huggingface/diffusers/pull/14471); Hub: [Wayne-King/echo-memory-diffusers](https://huggingface.co/Wayne-King/echo-memory-diffusers)).
 
 **[2026/08/13]** Interactive Hugging Face Space demo is live: [hugging-apps/echo-memory](https://huggingface.co/spaces/hugging-apps/echo-memory). Discussions enabled on GitHub.
@@ -57,6 +59,7 @@
 - [x] Four memory families — **Context**, **Compression**, **Spatial**, **State-Space**
 - [x] **Dynamic training pool** — SpatialVID subset export & settings ([doc](doc/dynamic_dataset_preprocessing.md))
 - [x] **Paper checkpoints** — [Echo-Team/Echo-Memory](https://huggingface.co/Echo-Team/Echo-Memory) on Hugging Face ([doc](doc/checkpoints.md))
+- [x] **ComfyUI nodes** — Loader / Camera Action / Generate ([`comfyui/`](comfyui/))
 - [ ] **Wan 2.2** and multi-scale **5B / 14B** backbones
 
 **Eval**
@@ -382,6 +385,16 @@ python inference/unified_inference.py \
 ```
 
 Full argument reference: `python inference/unified_inference.py --help`. Additional scripts and details in [`inference/README.md`](inference/README.md).
+
+### ComfyUI
+
+Symlink the node pack, then wire **Loader → Camera Action + first frame → Generate**:
+
+```bash
+ln -s "$PWD/comfyui" /path/to/ComfyUI/custom_nodes/ComfyUI-EchoMemory
+```
+
+Example graph: [`comfyui/example_workflow.json`](comfyui/example_workflow.json). Same checkpoints and action JSONs as the CLI. Browser demo if you have no local GPU: [hugging-apps/echo-memory](https://huggingface.co/spaces/hugging-apps/echo-memory).
 
 Released multi-chunk recipes preserve the training context protocol:
 

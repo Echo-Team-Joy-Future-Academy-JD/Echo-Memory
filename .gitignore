@@ -19,7 +19,7 @@ scripts/upload_hf_checkpoints.sh
 scripts/hf_checkpoints_manifest.json
 scripts/hf_model_card_README.md
 scripts/koala_submit.sh
-pyproject.toml
+# Local uv lockfile only. pyproject.toml is tracked for Comfy Registry.
 uv.lock
 checkpoints/
 ckpt/

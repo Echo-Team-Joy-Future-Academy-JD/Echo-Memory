@@ -2,6 +2,8 @@
 
 Bash-level inference scripts mirroring `train/` — one script per memory row, all calling `inference/unified_inference.py`.
 
+ComfyUI: symlink [`comfyui/`](../comfyui/) into `ComfyUI/custom_nodes/ComfyUI-EchoMemory`. Same checkpoints, first frame, and action JSON as the CLI.
+
 ## Usage
 
 ```bash
