@@ -23,7 +23,7 @@ ln -s /path/to/Echo-Memory/comfyui /path/to/ComfyUI/custom_nodes/ComfyUI-EchoMem
 
 Restart ComfyUI. You need the same Python env as Echo-Memory (DiffSynth / Wan deps) **or** ComfyUI's env with those packages installed. For option B, set `PYTHONPATH` to the Echo-Memory root if the nodes cannot import `inference` / `env`.
 
-ComfyUI-Manager search listing requires publishing to the [Comfy Registry](https://registry.comfy.org/) (`comfy node publish`). The metadata is in the repo-root `pyproject.toml`; create a publisher whose id is `echo-team` (or change `PublisherId` to match yours) before publishing.
+ComfyUI-Manager search listing comes from the [Comfy Registry](https://registry.comfy.org/publishers/wayne-king) publisher `@wayne-king`. Metadata is in the repo-root `pyproject.toml`.
 
 ## Graph
 

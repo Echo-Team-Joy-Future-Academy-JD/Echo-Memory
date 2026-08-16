@@ -11,6 +11,6 @@ Documentation = "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/
 "Bug Tracker" = "https://github.com/Echo-Team-Joy-Future-Academy-JD/Echo-Memory/issues"
 
 [tool.comfy]
-PublisherId = "echo-team"
+PublisherId = "wayne-king"
 DisplayName = "Echo-Memory"
 includes = ["comfyui", "inference", "env", "diffsynth", "src"]
