@@ -4,3 +4,10 @@ eval/
 train/
 .cursor/
 *.gif
+
+# Vendored DiffSynth files unused by Echo-Memory nodes; Registry
+# security scan will soon treat eval/exec as hard errors.
+diffsynth/models/kolors_text_encoder.py
+diffsynth/models/stepvideo_dit.py
+diffsynth/prompters/omost.py
+

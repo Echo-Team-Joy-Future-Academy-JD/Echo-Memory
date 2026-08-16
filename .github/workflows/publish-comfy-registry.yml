@@ -15,7 +15,25 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Publish Custom Node
-        uses: Comfy-Org/publish-node-action@main
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          personal_access_token: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+          python-version: "3.10"
+      - name: Install comfy-cli
+        run: pip install comfy-cli
+      - name: Publish or skip if version exists
+        env:
+          REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        run: |
+          set +e
+          output="$(comfy --skip-prompt --no-enable-telemetry node publish --token "$REGISTRY_ACCESS_TOKEN" 2>&1)"
+          code=$?
+          printf '%s\n' "$output"
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+          if printf '%s' "$output" | grep -q 'The node version already exists'; then
+            echo "Version already on the Registry; nothing to upload."
+            exit 0
+          fi
+          exit "$code"
